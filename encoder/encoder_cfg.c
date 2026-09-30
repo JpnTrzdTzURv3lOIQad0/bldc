@@ -106,8 +106,14 @@ MT6835_config_t encoder_cfg_mt6835 = {
 #ifdef HW_SPI_DEV
 		&HW_SPI_DEV, // spi_dev
 		{//HARDWARE SPI CONFIG
-				NULL, HW_SPI_PORT_NSS, HW_SPI_PIN_NSS, SPI_BaudRatePrescaler_8 |
-				SPI_CR1_CPOL | SPI_CR1_CPHA
+				.circular = false,
+				.slave = false,
+				.data_cb = NULL,
+				.error_cb = NULL,
+				.ssport = HW_SPI_PORT_NSS,
+				.sspad = HW_SPI_PIN_NSS,
+				.cr1 = SPI_BaudRatePrescaler_8 | SPI_CR1_CPOL | SPI_CR1_CPHA,
+				.cr2 = 0
 		},
 
 		HW_SPI_GPIO_AF,

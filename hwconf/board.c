@@ -83,6 +83,7 @@ static void gpio_init_all(void) {
 void __early_init(void) {
   HW_VERY_EARLY_INIT();
   stm32_clock_init();
+  gpio_init_all();
 }
 
 #if HAL_USE_SDC || defined(__DOXYGEN__)
@@ -134,5 +135,4 @@ bool mmc_lld_is_write_protected(MMCDriver *mmcp) {
  * @todo    Add your board-specific code, if any.
  */
 void boardInit(void) {
-  gpio_init_all();
 }

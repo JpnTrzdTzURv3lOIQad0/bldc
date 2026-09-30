@@ -158,8 +158,15 @@ void transport_spi_hw_init(transport_t *t, SPIDriver *spid, uint32_t af,
 			PAL_MODE_ALTERNATE(af) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUDR_FLOATING);
 
 	t->bus.spi_hw.cfg = (SPIConfig){
-		NULL, nss_gpio, nss_pin,
-		(uint16_t)((hz_to_cr1br(spid, bus_hz) << 3) | SPI_MODE_3 | SPI_DATASIZE_8BIT)
+		.circular = false,
+		.slave = false,
+		.data_cb = NULL,
+		.error_cb = NULL,
+		.ssport = nss_gpio,
+		.sspad = nss_pin,
+		.cr1 = (uint16_t)((hz_to_cr1br(spid, bus_hz) << 3) | SPI_MODE_3 |
+				SPI_DATASIZE_8BIT),
+		.cr2 = 0
 	};
 	spid->err_cb = spi_err_cb;
 	spiStart(spid, &t->bus.spi_hw.cfg);
