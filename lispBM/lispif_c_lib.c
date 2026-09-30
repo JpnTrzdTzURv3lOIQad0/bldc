@@ -409,7 +409,7 @@ static bool lib_uart_start(uint32_t baudrate, bool half_duplex) {
 
 static void wait_uart_tx_task(void *arg) {
 	(void)arg;
-	while(!chOQIsEmptyI(&HW_UART_DEV.oqueue)){
+	while(!oqIsEmptyI(&HW_UART_DEV.oqueue)){
 		chThdSleepMilliseconds(1);
 	}
 	chThdSleepMilliseconds(1);

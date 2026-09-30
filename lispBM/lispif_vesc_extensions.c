@@ -48,7 +48,7 @@
 #include "mempools.h"
 #include "app.h"
 #include "spi_bb.h"
-#include "i2c.h"
+#include "hal_i2c.h"
 #include "confgenerator.h"
 #include "worker.h"
 #include "app.h"
@@ -3388,7 +3388,7 @@ static lbm_value ext_uart_stop(lbm_value *args, lbm_uint argn) {
 
 static void wait_uart_tx_task(void *arg) {
 	(void)arg;
-	while(!chOQIsEmptyI(&HW_UART_DEV.oqueue)){
+	while(!oqIsEmptyI(&HW_UART_DEV.oqueue)){
 		chThdSleepMilliseconds(1);
 	}
 	chThdSleepMilliseconds(1);
@@ -5962,6 +5962,7 @@ static ICUConfig icucfg = {
 		icuperiodcb,
 		NULL,
 		HW_ICU_CHANNEL,
+		0,
 		0
 };
 

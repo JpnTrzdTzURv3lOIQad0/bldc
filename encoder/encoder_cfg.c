@@ -73,8 +73,15 @@ MT6816_config_t encoder_cfg_mt6816 = {
 #ifdef HW_SPI_DEV
 		&HW_SPI_DEV, // spi_dev
 		{//HARDWARE SPI CONFIG
-				NULL, HW_HALL_ENC_GPIO3, HW_HALL_ENC_PIN3, SPI_BaudRatePrescaler_4 |
-				SPI_CR1_CPOL | SPI_CR1_CPHA | SPI_DATASIZE_16BIT
+				.circular = false,
+				.slave = false,
+				.data_cb = NULL,
+				.error_cb = NULL,
+				.ssport = HW_HALL_ENC_GPIO3,
+				.sspad = HW_HALL_ENC_PIN3,
+				.cr1 = SPI_BaudRatePrescaler_4 | SPI_CR1_CPOL | SPI_CR1_CPHA |
+						SPI_DATASIZE_16BIT,
+				.cr2 = 0
 		},
 
 		HW_SPI_GPIO_AF,
@@ -180,8 +187,15 @@ AS5x47U_config_t encoder_cfg_as5x47u = {
 #ifdef HW_SPI_DEV
 		&HW_SPI_DEV, // spi_dev
 		{//HARDWARE SPI CONFIG
-				enc_as5x47u_spi_callback, HW_SPI_PORT_NSS, HW_SPI_PIN_NSS, SPI_BaudRatePrescaler_8 |
-				SPI_CR1_CPHA | SPI_DATASIZE_8BIT
+				.circular = false,
+				.slave = false,
+				.data_cb = enc_as5x47u_spi_callback,
+				.error_cb = NULL,
+				.ssport = HW_SPI_PORT_NSS,
+				.sspad = HW_SPI_PIN_NSS,
+				.cr1 = SPI_BaudRatePrescaler_8 | SPI_CR1_CPHA |
+						SPI_DATASIZE_8BIT,
+				.cr2 = 0
 		},
 
 		HW_SPI_GPIO_AF,
@@ -207,9 +221,14 @@ BISSC_config_t encoder_cfg_bissc = {
 #ifdef HW_SPI_DEV
 		&HW_SPI_DEV, // spi_dev
 		{//HARDWARE SPI CONFIG
-				//NULL, HW_HALL_ENC_GPIO3, HW_HALL_ENC_PIN3, 
-				&compute_bissc_callback, HW_SPI_PORT_NSS, HW_SPI_PIN_NSS, 
-				SPI_BaudRatePrescaler_32 | SPI_CR1_CPOL | SPI_CR1_CPHA
+				.circular = false,
+				.slave = false,
+				.data_cb = compute_bissc_callback,
+				.error_cb = NULL,
+				.ssport = HW_SPI_PORT_NSS,
+				.sspad = HW_SPI_PIN_NSS,
+				.cr1 = SPI_BaudRatePrescaler_32 | SPI_CR1_CPOL | SPI_CR1_CPHA,
+				.cr2 = 0
 		},
 
 		HW_SPI_GPIO_AF,
@@ -240,8 +259,14 @@ ma782_config_t encoder_cfg_ma782 = {
 #ifdef HW_SPI_DEV
 		&HW_SPI_DEV, // spi_dev
 		{//HARDWARE SPI CONFIG
-				compute_ma782_callback, HW_SPI_PORT_NSS, HW_SPI_PIN_NSS,
-				 SPI_BaudRatePrescaler_32 | SPI_DATASIZE_16BIT,
+				.circular = false,
+				.slave = false,
+				.data_cb = compute_ma782_callback,
+				.error_cb = NULL,
+				.ssport = HW_SPI_PORT_NSS,
+				.sspad = HW_SPI_PIN_NSS,
+				.cr1 = SPI_BaudRatePrescaler_32 | SPI_DATASIZE_16BIT,
+				.cr2 = 0
 		},
 		HW_SPI_GPIO_AF,
 		/*NSS*/HW_SPI_PORT_NSS, HW_SPI_PIN_NSS,
