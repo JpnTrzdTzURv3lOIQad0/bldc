@@ -29,7 +29,7 @@ static thread_t *dpv_tp;
 virtual_timer_t dpv_vt;
 
 //private functions
-static void update(void *p);
+static void update(virtual_timer_t *vtp, void *p);
 
 void app_custom_configure(app_configuration *conf)
 {
@@ -68,13 +68,13 @@ void app_custom_start(void) {
     chSysUnlock();
 }
 
-static void update(void *p) {
+static void update(virtual_timer_t *vtp, void *p) {
         if (!is_running) {
                 return;
         }
 
         chSysLockFromISR();
-        chVTSetI(&dpv_vt, MS2ST(2), update, p);
+    chVTSetI(vtp, MS2ST(2), update, p);
         chEvtSignalI(dpv_tp, (eventmask_t) 1);
         chSysUnlockFromISR();
 }

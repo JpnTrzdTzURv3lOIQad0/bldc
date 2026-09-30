@@ -258,6 +258,13 @@ static volatile int configured_cnt = 0;
 static void usb_event(USBDriver *usbp, usbevent_t event) {
 	switch (event) {
 	case USB_EVENT_RESET:
+		/* Falls through. */
+	case USB_EVENT_UNCONFIGURED:
+		/* Falls through. */
+	case USB_EVENT_SUSPEND:
+		chSysLockFromISR();
+		sduSuspendHookI(&SDU1);
+		chSysUnlockFromISR();
 		return;
 	case USB_EVENT_ADDRESS:
 		return;
@@ -276,9 +283,10 @@ static void usb_event(USBDriver *usbp, usbevent_t event) {
 		chSysUnlockFromISR();
 		configured_cnt++;
 		return;
-	case USB_EVENT_SUSPEND:
-		return;
 	case USB_EVENT_WAKEUP:
+		chSysLockFromISR();
+		sduWakeupHookI(&SDU1);
+		chSysUnlockFromISR();
 		return;
 	case USB_EVENT_STALLED:
 		return;

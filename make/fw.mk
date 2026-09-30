@@ -40,7 +40,7 @@ endif
 
 # Enable this if you want link time optimizations (LTO)
 ifeq ($(USE_LTO),)
-  USE_LTO = no
+  USE_LTO = yes
 endif
 
 # If enabled, this option allows to compile the application in THUMB mode.
@@ -98,16 +98,19 @@ endif
 #
 
 # Imported source files and paths
-CHIBIOS = ChibiOS_3.0.5
+CHIBIOS = ChibiOS_21.11.5
+CONFDIR = .
+include $(CHIBIOS)/os/license/license.mk
 # Startup files
-include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/startup_stm32f4xx.mk
+include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f4xx.mk
 # HAL-OSAL files
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/hal/ports/STM32/STM32F4xx/platform.mk
-include $(CHIBIOS)/os/hal/osal/rt/osal.mk
+include $(CHIBIOS)/os/hal/osal/rt-nil/osal.mk
 # RTOS files
 include $(CHIBIOS)/os/rt/rt.mk
-include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
+include $(CHIBIOS)/os/common/ports/ARMv7-M/compilers/GCC/mk/port.mk
+include $(CHIBIOS)/os/various/newlib_bindings/newlib.mk
 # Other files
 include hwconf/hwconf.mk
 include applications/applications.mk
@@ -126,14 +129,8 @@ LDSCRIPT= ld_eeprom_emu.ld
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
-CSRC = $(STARTUPSRC) \
-       $(KERNSRC) \
-       $(PORTSRC) \
-       $(OSALSRC) \
-       $(HALSRC) \
-       $(PLATFORMSRC) \
+CSRC = $(ALLCSRC) \
        $(CHIBIOS)/os/hal/lib/streams/chprintf.c \
-       $(CHIBIOS)/os/various/syscalls.c \
        main.c \
        irq_handlers.c \
        terminal.c \
@@ -181,11 +178,12 @@ TCSRC =
 TCPPSRC =
 
 # List ASM source files here
-ASMSRC = $(STARTUPASM) $(PORTASM) $(OSALASM)
+ASMSRC = $(ALLASMSRC)
+ASMXSRC = $(ALLXASMSRC)
 
-INCDIR = $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
-         $(HALINC) $(PLATFORMINC) \
+INCDIR = $(CONFDIR) $(ALLINC) \
          $(CHIBIOS)/os/various \
+         $(NEWLIBINC) \
          $(CHIBIOS)/os/hal/lib/streams \
          $(HWINC) \
          $(APPINC) \
@@ -235,7 +233,7 @@ AR   = $(TRGT)ar
 OD   = $(TRGT)objdump
 SZ   = $(TRGT)size
 HEX  = $(CP) -O ihex
-BIN  = $(CP) -O binary
+BIN  = $(CP) -O binary --gap-fill 0xFF
 
 # ARM-specific options here
 AOPT =
@@ -249,6 +247,11 @@ CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes -Wshadow
 # Define C++ warning options here
 CPPWARN = -Wall -Wextra -Wundef
 
+ifeq ($(GCC_ANALYZER),yes)
+  CWARN += -Wpedantic -Wpointer-arith -fanalyzer
+  CPPWARN += -Wpedantic -Wpointer-arith -fanalyzer
+endif
+
 #
 # Compiler settings
 ##############################################################################
@@ -258,10 +261,11 @@ CPPWARN = -Wall -Wextra -Wundef
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS =
+UDEFS = -DSTM32F407xx -DCRT0_AREAS_NUMBER=0 -DCRT0_INIT_RAM_AREAS=FALSE
+UDEFS += -include libstm32f4/assert_compat.h
 
 # Define ASM defines here
-UADEFS =
+UADEFS = -DCRT0_INIT_RAM_AREAS=FALSE
 
 # List all user directories here
 UINCDIR =
@@ -277,14 +281,11 @@ ULIBS = -lm
 ##############################################################################
 
 ifeq ($(USE_FWLIB),yes)
-  include $(CHIBIOS)/ext/stdperiph_stm32f4/stm32lib.mk
+  include libstm32f4/stm32lib.mk
   CSRC += $(STM32SRC)
   INCDIR += $(STM32INC)
   USE_OPT += -DUSE_STDPERIPH_DRIVER
 endif
 
-RULESPATH = $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC
+RULESPATH = $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk
 include $(RULESPATH)/rules.mk
-
-build/$(PROJECT)/$(PROJECT).bin: build/$(PROJECT)/$(PROJECT).elf
-	$(BIN) build/$(PROJECT)/$(PROJECT).elf build/$(PROJECT)/$(PROJECT).bin --gap-fill 0xFF

@@ -75,6 +75,7 @@ static ICUConfig m_icucfg = {
 		NULL,
 		NULL,
 		HW_ICU_CHANNEL,
+		0,
 		0
 };
 

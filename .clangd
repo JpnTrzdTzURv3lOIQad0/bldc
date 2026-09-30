@@ -1,2 +1,5 @@
 CompileFlags:
   Remove: [-m*, -f*]
+Diagnostics:
+  ClangTidy:
+    Add: [bugprone-*, clang-analyzer-*, cert-*, performance-*, portability-*, misc-*, readability-*]
