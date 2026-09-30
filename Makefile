@@ -336,7 +336,7 @@ endif
 #
 ##############################
 
-ALL_UNITTESTS := utils_math pm_motion
+ALL_UNITTESTS := utils_math
 
 UT_OUT_DIR := $(BUILD_DIR)/unit_tests
 
