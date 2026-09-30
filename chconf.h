@@ -315,11 +315,11 @@
  * @note    The default is @p TRUE.
  */
 #define CH_CFG_USE_MEMPOOLS                 TRUE
- #define CH_CFG_USE_OBJ_FIFOS               FALSE
- #define CH_CFG_USE_PIPES                   FALSE
- #define CH_CFG_USE_OBJ_CACHES              FALSE
- #define CH_CFG_USE_DELEGATES               FALSE
- #define CH_CFG_USE_JOBS                    FALSE
+#define CH_CFG_USE_OBJ_FIFOS                FALSE
+#define CH_CFG_USE_PIPES                    FALSE
+#define CH_CFG_USE_OBJ_CACHES               FALSE
+#define CH_CFG_USE_DELEGATES                FALSE
+#define CH_CFG_USE_JOBS                     FALSE
 #define CH_CFG_USE_FACTORY                  FALSE
 #define CH_CFG_FACTORY_MAX_NAMES_LENGTH     8
 #define CH_CFG_FACTORY_OBJECTS_REGISTRY     FALSE

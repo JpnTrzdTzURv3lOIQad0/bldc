@@ -133,7 +133,7 @@ static void crash_diag(void) {
 	}
 }
 
-__attribute__((section(".text2"))) void terminal_process_string(char *str) {
+void terminal_process_string(char *str) {
 	// Echo command so user can see what they previously ran
 	commands_printf("-> %s \n", str);
 
