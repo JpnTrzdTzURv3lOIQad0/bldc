@@ -185,6 +185,9 @@ TEST_F(PmMotion, NullAndMalformedOwnershipRequestsAreRejected) {
 	invalid.type = (pm_command_type_t)-1;
 	EXPECT_EQ(PM_RESULT_INVALID, pm_axis_submit(&axis, &invalid));
 	invalid = command(1, PM_COMMAND_ENABLE);
+	invalid.type = (pm_command_type_t)(PM_COMMAND_CLEAR_FAULT + 1);
+	EXPECT_EQ(PM_RESULT_INVALID, pm_axis_submit(&axis, &invalid));
+	invalid = command(1, PM_COMMAND_ENABLE);
 	invalid.owner_session = 0;
 	EXPECT_EQ(PM_RESULT_INVALID, pm_axis_submit(&axis, &invalid));
 	invalid = command(1, PM_COMMAND_ENABLE);

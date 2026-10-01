@@ -1,3 +1,4 @@
+InheritParentConfig: false
 Checks: >-
   -*,
   bugprone-*,
@@ -6,4 +7,44 @@ Checks: >-
   performance-*,
   portability-*,
   misc-*,
-  readability-*
+  readability-*,
+  clang-diagnostic-*
+WarningsAsErrors: ''
+HeaderFilterRegex: '.*'
+SystemHeaders: false
+FormatStyle: none
+ExtraArgs:
+  - '-Wall'
+  - '-Wextra'
+  - '-Wpedantic'
+  - '-Wconversion'
+  - '-Wsign-conversion'
+  - '-Wshadow'
+  - '-Wformat=2'
+  - '-Wundef'
+  - '-Wvla'
+  - '-Wcast-align'
+  - '-Wcast-qual'
+  - '-Wwrite-strings'
+  - '-Wfloat-equal'
+  - '-Wswitch-enum'
+  - '-Wswitch-default'
+  - '-Wimplicit-fallthrough'
+  - '-Wstrict-prototypes'
+  - '-Wold-style-definition'
+  - '-Wpointer-arith'
+  - '-Wdouble-promotion'
+CheckOptions:
+  bugprone-assert-side-effect.CheckFunctionCalls: 'true'
+  bugprone-unused-return-value.AllowCastToVoid: 'false'
+  readability-braces-around-statements.ShortStatementLines: '0'
+  readability-function-size.LineThreshold: '100'
+  readability-function-size.NestingThreshold: '3'
+  readability-identifier-naming.FunctionCase: lower_case
+  readability-identifier-naming.VariableCase: lower_case
+  readability-identifier-naming.ParameterCase: lower_case
+  readability-identifier-naming.EnumConstantCase: UPPER_CASE
+  readability-identifier-naming.TypedefCase: lower_case
+  readability-identifier-naming.TypedefSuffix: '_t'
+  readability-identifier-naming.MacroDefinitionCase: UPPER_CASE
+  readability-magic-numbers.IgnorePowersOf2IntegerValues: 'true'
