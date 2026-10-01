@@ -3,3 +3,16 @@ CompileFlags:
 Diagnostics:
   ClangTidy:
     Add: [bugprone-*, clang-analyzer-*, cert-*, performance-*, portability-*, misc-*, readability-*]
+---
+If:
+  PathMatch: hwconf/[^/]+\.h
+CompileFlags:
+  Compiler: clang
+  Add:
+    - -xc
+    - --target=arm-none-eabi
+    - -ffreestanding
+    - -I../libstm32f4/inc
+    - -I../ChibiOS_21.11.5/os/common/ext/ST/STM32F4xx
+    - -I../ChibiOS_21.11.5/os/common/ext/ARM/CMSIS/Core/Include
+    - -DSTM32F407xx

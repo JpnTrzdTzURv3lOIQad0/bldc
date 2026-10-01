@@ -38,8 +38,8 @@ static bool add_ticks(int64_t left, int64_t right, int64_t *sum) {
 }
 
 static bool request_is_valid(const pm_command_t *command) {
-	return command->type >= PM_COMMAND_ENABLE &&
-			command->type <= PM_COMMAND_CLEAR_FAULT &&
+	return (unsigned int)command->type <=
+			(unsigned int)PM_COMMAND_CLEAR_FAULT &&
 			command->command_id != 0 &&
 			command->owner_session != 0 &&
 			command->owner_generation != 0;
