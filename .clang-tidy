@@ -1,50 +1,160 @@
+# Validated with LLVM 22.1.8. This is a bug-finding policy, not certification.
+# C and C++ share the defect policy; language-specific checks self-select.
+# Do not replace this list with '*': many families target other frameworks.
+---
 InheritParentConfig: false
 Checks: >-
   -*,
-  bugprone-*,
-  clang-analyzer-*,
-  cert-*,
-  performance-*,
-  portability-*,
-  misc-*,
-  readability-*,
-  clang-diagnostic-*
-WarningsAsErrors: ''
+  clang-diagnostic-*,
+  clang-analyzer-core.*,
+  clang-analyzer-cplusplus.*,
+  clang-analyzer-deadcode.DeadStores,
+  clang-analyzer-optin.core.EnumCastOutOfRange,
+  clang-analyzer-optin.cplusplus.VirtualCall,
+  clang-analyzer-security.ArrayBound,
+  clang-analyzer-security.PointerSub,
+  clang-analyzer-security.VAList,
+  clang-analyzer-security.insecureAPI.gets,
+  clang-analyzer-security.insecureAPI.strcpy,
+  clang-analyzer-unix.Malloc,
+  clang-analyzer-unix.MallocSizeof,
+  clang-analyzer-unix.MismatchedDeallocator,
+  clang-analyzer-unix.cstring.BadSizeArg,
+  clang-analyzer-unix.cstring.NotNullTerminated,
+  clang-analyzer-unix.cstring.NullArg,
+  bugprone-assert-side-effect,
+  bugprone-assignment-in-if-condition,
+  bugprone-bool-pointer-implicit-conversion,
+  bugprone-branch-clone,
+  bugprone-chained-comparison,
+  bugprone-copy-constructor-init,
+  bugprone-dangling-handle,
+  bugprone-exception-escape,
+  bugprone-float-loop-counter,
+  bugprone-implicit-widening-of-multiplication-result,
+  bugprone-inaccurate-erase,
+  bugprone-inc-dec-in-conditions,
+  bugprone-infinite-loop,
+  bugprone-integer-division,
+  bugprone-macro-parentheses,
+  bugprone-macro-repeated-side-effects,
+  bugprone-misplaced-widening-cast,
+  bugprone-multi-level-implicit-pointer-conversion,
+  bugprone-multiple-statement-macro,
+  bugprone-narrowing-conversions,
+  bugprone-not-null-terminated-result,
+  bugprone-reserved-identifier,
+  bugprone-sizeof-expression,
+  bugprone-string-literal-with-embedded-nul,
+  bugprone-suspicious-enum-usage,
+  bugprone-suspicious-include,
+  bugprone-suspicious-memory-comparison,
+  bugprone-suspicious-memset-usage,
+  bugprone-suspicious-missing-comma,
+  bugprone-suspicious-realloc-usage,
+  bugprone-suspicious-semicolon,
+  bugprone-suspicious-string-compare,
+  bugprone-switch-missing-default-case,
+  bugprone-too-small-loop-variable,
+  bugprone-unchecked-string-to-number-conversion,
+  bugprone-undefined-memory-manipulation,
+  bugprone-unhandled-self-assignment,
+  bugprone-unused-raii,
+  bugprone-unused-return-value,
+  bugprone-use-after-move,
+  bugprone-virtual-near-miss,
+  cert-err52-cpp,
+  cert-err58-cpp,
+  cert-err60-cpp,
+  cppcoreguidelines-pro-type-const-cast,
+  cppcoreguidelines-pro-type-cstyle-cast,
+  cppcoreguidelines-pro-type-member-init,
+  cppcoreguidelines-pro-type-reinterpret-cast,
+  cppcoreguidelines-pro-type-static-cast-downcast,
+  cppcoreguidelines-pro-type-union-access,
+  cppcoreguidelines-slicing,
+  cppcoreguidelines-special-member-functions,
+  cppcoreguidelines-virtual-class-destructor,
+  google-explicit-constructor,
+  hicpp-signed-bitwise,
+  misc-definitions-in-headers,
+  misc-misleading-bidirectional,
+  misc-misplaced-const,
+  misc-no-recursion,
+  misc-redundant-expression,
+  misc-throw-by-value-catch-by-reference,
+  modernize-use-nullptr,
+  modernize-use-override,
+  performance-for-range-copy,
+  performance-implicit-conversion-in-loop,
+  performance-inefficient-algorithm,
+  performance-inefficient-vector-operation,
+  performance-move-const-arg,
+  performance-move-constructor-init,
+  performance-type-promotion-in-math-fn,
+  performance-unnecessary-copy-initialization,
+  performance-unnecessary-value-param,
+  readability-avoid-nested-conditional-operator,
+  readability-braces-around-statements,
+  readability-function-cognitive-complexity,
+  readability-function-size,
+  readability-implicit-bool-conversion,
+  readability-inconsistent-declaration-parameter-name,
+  readability-isolate-declaration,
+  readability-misleading-indentation,
+  readability-non-const-parameter,
+  readability-uppercase-literal-suffix
+WarningsAsErrors: '*'
 HeaderFilterRegex: '.*'
 SystemHeaders: false
 FormatStyle: none
+# Clang diagnostics only. GCC flags belong in compiler/*.rsp.
+# Target, language standard, macros and includes come from compile_commands.json.
 ExtraArgs:
   - '-Wall'
   - '-Wextra'
   - '-Wpedantic'
   - '-Wconversion'
   - '-Wsign-conversion'
+  - '-Wdouble-promotion'
+  - '-Wfloat-equal'
   - '-Wshadow'
   - '-Wformat=2'
   - '-Wundef'
   - '-Wvla'
+  - '-Walloca'
   - '-Wcast-align'
   - '-Wcast-qual'
+  - '-Wcast-function-type-strict'
   - '-Wwrite-strings'
-  - '-Wfloat-equal'
+  - '-Wpointer-arith'
   - '-Wswitch-enum'
   - '-Wswitch-default'
   - '-Wimplicit-fallthrough'
-  - '-Wstrict-prototypes'
-  - '-Wold-style-definition'
-  - '-Wpointer-arith'
-  - '-Wdouble-promotion'
+  - '-Wunreachable-code'
+  - '-Wunsequenced'
+  - '-Waddress-of-packed-member'
+  - '-Wdate-time'
+  - '-Werror=unknown-warning-option'
+  - '-Werror=ignored-optimization-argument'
+  - '-Werror=unused-command-line-argument'
 CheckOptions:
   bugprone-assert-side-effect.CheckFunctionCalls: 'true'
+  bugprone-assert-side-effect.AssertMacros: 'assert,chDbgAssert,chDbgCheck,osalDbgAssert,osalDbgCheck'
+  bugprone-narrowing-conversions.WarnWithinTemplateInstantiation: 'true'
+  bugprone-narrowing-conversions.WarnOnEquivalentBitWidth: 'true'
+  bugprone-narrowing-conversions.IgnoreConversionFromTypes: ''
+  # Deliberately broader than the stock standard-library-only list.
+  # A discarded non-void result needs a check-specific, justified deviation.
+  bugprone-unused-return-value.CheckedFunctions: '.*'
   bugprone-unused-return-value.AllowCastToVoid: 'false'
+  cppcoreguidelines-pro-type-member-init.IgnoreArrays: 'false'
+  cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor: 'true'
+  hicpp-signed-bitwise.IgnorePositiveIntegerLiterals: 'false'
   readability-braces-around-statements.ShortStatementLines: '0'
   readability-function-size.LineThreshold: '100'
   readability-function-size.NestingThreshold: '3'
-  readability-identifier-naming.FunctionCase: lower_case
-  readability-identifier-naming.VariableCase: lower_case
-  readability-identifier-naming.ParameterCase: lower_case
-  readability-identifier-naming.EnumConstantCase: UPPER_CASE
-  readability-identifier-naming.TypedefCase: lower_case
-  readability-identifier-naming.TypedefSuffix: '_t'
-  readability-identifier-naming.MacroDefinitionCase: UPPER_CASE
-  readability-magic-numbers.IgnorePowersOf2IntegerValues: 'true'
+  readability-function-size.ParameterThreshold: '6'
+  readability-function-cognitive-complexity.Threshold: '20'
+  readability-implicit-bool-conversion.AllowIntegerConditions: 'false'
+  readability-implicit-bool-conversion.AllowPointerConditions: 'false'

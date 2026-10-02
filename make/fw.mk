@@ -7,7 +7,7 @@ USE_LISPBM ?= 1
 
 # Compiler options here.
 ifeq ($(USE_OPT),)
-  USE_OPT = -Os -fno-math-errno -ggdb -fomit-frame-pointer -falign-functions=16 -std=gnu99 -D_GNU_SOURCE
+  USE_OPT = -Os -fno-math-errno -ggdb -fomit-frame-pointer -falign-functions=16 -D_GNU_SOURCE
   USE_OPT += -DBOARD_OTG_NOVBUSSENS $(build_args)
   USE_OPT += -DLBM_USE_DYN_FUNS -DLBM_USE_DYN_MACROS -DLBM_USE_DYN_LOOPS -DLBM_USE_TIME_QUOTA
   USE_OPT += -DLBM_USE_ERROR_LINENO -DLBM_USE_MACRO_REST_ARGS
@@ -35,7 +35,7 @@ endif
 
 # Linker extra options here.
 ifeq ($(USE_LDOPT),)
-  USE_LDOPT = --print-memory-usage
+  USE_LDOPT = --fatal-warnings,--print-memory-usage
 endif
 
 # Enable this if you want link time optimizations (LTO)
@@ -247,11 +247,6 @@ CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes -Wshadow -Wmissing-prototypes
 # Define C++ warning options here
 CPPWARN = -Wall -Wextra -Wundef
 
-ifeq ($(GCC_ANALYZER),yes)
-  CWARN += -Wpedantic -Wpointer-arith -fanalyzer
-  CPPWARN += -Wpedantic -Wpointer-arith -fanalyzer
-endif
-
 #
 # Compiler settings
 ##############################################################################
@@ -288,4 +283,36 @@ ifeq ($(USE_FWLIB),yes)
 endif
 
 RULESPATH = $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk
+include compiler/quality.mk
+QUALITY_SYSTEM_INCLUDE_DIRS := $(filter $(CHIBIOS)/% libstm32f4/% libcanard/% lispBM/% blackmagic/%,$(INCDIR))
+QUALITY_SYSTEM_INCLUDE_FLAGS := $(foreach dir,$(QUALITY_SYSTEM_INCLUDE_DIRS),-isystem $(dir))
+QUALITY_C += $(QUALITY_SYSTEM_INCLUDE_FLAGS)
+QUALITY_CXX += $(QUALITY_SYSTEM_INCLUDE_FLAGS)
+USE_COPT += @"$(QUALITY_DIR)/compiler/c-gnu23.rsp"
 include $(RULESPATH)/rules.mk
+
+# Dependency ownership is provisional; review these roots before release gating.
+QUALITY_PROVISIONAL_EXTERNAL_CSRC := $(filter $(CHIBIOS)/% libstm32f4/% libcanard/% lispBM/% blackmagic/%,$(CSRC))
+QUALITY_PROVISIONAL_EXTERNAL_C_OBJS := $(addprefix $(OBJDIR)/,$(notdir $(QUALITY_PROVISIONAL_EXTERNAL_CSRC:.c=.o)))
+QUALITY_C_OBJS := $(filter-out $(QUALITY_PROVISIONAL_EXTERNAL_C_OBJS),$(COBJS))
+QUALITY_PROVISIONAL_EXTERNAL_CPPSRC := $(filter $(CHIBIOS)/% libstm32f4/% libcanard/% lispBM/% blackmagic/%,$(CPPSRC))
+QUALITY_PROVISIONAL_EXTERNAL_CPPOBJS := $(addprefix $(OBJDIR)/,$(notdir $(patsubst %.cpp,%.o,$(filter %.cpp,$(QUALITY_PROVISIONAL_EXTERNAL_CPPSRC))) $(patsubst %.cc,%.o,$(filter %.cc,$(QUALITY_PROVISIONAL_EXTERNAL_CPPSRC)))))
+QUALITY_CXX_OBJS := $(filter-out $(QUALITY_PROVISIONAL_EXTERNAL_CPPOBJS),$(CPPOBJS) $(CCOBJS))
+ifneq ($(strip $(filter $(QUALITY_PROVISIONAL_EXTERNAL_C_OBJS),$(QUALITY_C_OBJS))),)
+$(error C object basename collision crosses the provisional ownership boundary)
+endif
+ifneq ($(strip $(filter $(QUALITY_PROVISIONAL_EXTERNAL_CPPOBJS),$(QUALITY_CXX_OBJS))),)
+$(error C++ object basename collision crosses the provisional ownership boundary)
+endif
+
+$(QUALITY_C_OBJS): CFLAGS += $(QUALITY_C)
+ifneq ($(strip $(QUALITY_CXX_OBJS)),)
+$(QUALITY_CXX_OBJS): CPPFLAGS += $(QUALITY_CXX)
+endif
+
+ifeq ($(GCC_ANALYZER),yes)
+$(QUALITY_C_OBJS): CFLAGS += $(QUALITY_ANALYZER_C)
+endif
+
+.PHONY: quality-analyzer-objects
+quality-analyzer-objects: $(QUALITY_C_OBJS)

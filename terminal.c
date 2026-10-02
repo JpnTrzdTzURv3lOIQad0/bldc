@@ -470,7 +470,7 @@ void terminal_process_string(char *str) {
 			commands_printf("Fault occured while measuring resistance and inductance: %s", mc_interface_fault_to_string(fault));
 			commands_printf("For more info type \"faults\" to view all logged faults\n");
 		}
-		
+
 
 		mc_interface_set_configuration(mcconf_old);
 

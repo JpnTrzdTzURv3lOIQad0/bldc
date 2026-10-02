@@ -23,14 +23,6 @@ MAKE_DIR := $(ROOT_DIR)/make
 BUILD_DIR := $(ROOT_DIR)/build
 DL_DIR    := $(ROOT_DIR)/downloads
 
-GCC_ANALYZER_TOOLCHAIN := $(firstword $(wildcard $(TOOLS_DIR)/arm-gnu-toolchain-*/bin/arm-none-eabi-gcc))
-GCC_ANALYZER_TOOLCHAIN_DIR := $(patsubst %/bin/arm-none-eabi-gcc,%,$(GCC_ANALYZER_TOOLCHAIN))
-ifneq ($(filter lint,$(MAKECMDGOALS)),)
-ifneq ($(GCC_ANALYZER_TOOLCHAIN_DIR),)
-override ARM_SDK_DIR := $(GCC_ANALYZER_TOOLCHAIN_DIR)
-endif
-endif
-
 # import macros common to all supported build systems
 include $(ROOT_DIR)/make/system-id.mk
 
@@ -39,6 +31,10 @@ include $(ROOT_DIR)/make/$(OSFAMILY).mk
 
 # include the tools makefile
 include $(ROOT_DIR)/make/tools.mk
+
+# Use the same configured SDK for lint and normal firmware builds.
+GCC_ANALYZER_TOOLCHAIN := $(ARM_SDK_PREFIX)gcc
+GCC_ANALYZER_TOOLCHAIN_DIR := $(ARM_SDK_DIR)
 
 # Clean out undesirable variables from the environment and command-line
 # to remove the chance that they will cause problems with our build
@@ -166,7 +162,7 @@ fw_$(1): fw_$(1)_vescfw
 ifeq ($(7),)
   $(1)_HW_DIR = $(dir $(filter %/hw_$(1).h, $(TARGET_PATHS)))
   $(1)_HW_HEADER = $$($(1)_HW_DIR)/hw_$(1).h
-  
+
   $$(eval $$(call FIND_TARGET_C_CODE,$(1)_HW_SRC_FILE,$(1),$$($(1)_HW_DIR)))
 else
   $(1)_HW_SRC_FILE = $(7)
@@ -191,7 +187,7 @@ fw_$(1)_vescfw:
 		BUILDDIR="$(2)" \
 		DEPDIR="$(2)/.dep" \
 		PROJECT="$(3)" \
-		build_args='$$($(1)_BUILD_MACROS)' USE_VERBOSE_COMPILE=no
+		build_args='$$($(1)_BUILD_MACROS)' USE_VERBOSE_COMPILE=no $(if $(QUALITY_ANALYZER_ONLY),quality-analyzer-objects,)
 
 $(1)_flash: fw_$(1)_flash
 fw_$(1)_flash: fw_$(1)_vescfw fw_$(1)_flash_only
@@ -279,7 +275,7 @@ ifeq ($(strip $(GCC_ANALYZER_VERSION)),)
 else ifneq ($(filter $(GCC_ANALYZER_UNSUPPORTED_VERSIONS),$(GCC_ANALYZER_MAJOR_VERSION)),)
 	$(error "make lint requires GCC 10 or newer for -fanalyzer; found $(GCC_ANALYZER_VERSION)")
 else
-	$(MAKE) --no-print-directory all_fw BUILD_DIR="$(ROOT_DIR)/build/lint" FW_TARGETS="$(LINT_TARGETS)" ARM_SDK_DIR="$(GCC_ANALYZER_TOOLCHAIN_DIR)" GCC_ANALYZER=yes
+	$(MAKE) --no-print-directory all_fw BUILD_DIR="$(ROOT_DIR)/build/lint" FW_TARGETS="$(LINT_TARGETS)" ARM_SDK_DIR="$(GCC_ANALYZER_TOOLCHAIN_DIR)" GCC_ANALYZER=yes USE_LTO=no QUALITY_ANALYZER_ONLY=yes
 endif
 
 # Expand the firmware rules

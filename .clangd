@@ -1,25 +1,21 @@
-
-# CompileFlags:
-# Remove: [-m*, -f*]
-
+# Uses the SAME prepared database as the command-line gate.
+# Never remove all -m* or -f*: those include target and semantic options.
+# Do not add -std=gnu23 here to mask a GNU99 build; fix the real C commands.
+CompileFlags:
+  CompilationDatabase: build/analysis
+  # clangd does not use .clang-tidy ExtraArgs; repeat frontend diagnostics here.
+  Add: [-Wall, -Wextra, -Wpedantic, -Wconversion, -Wsign-conversion,
+        -Wdouble-promotion, -Wfloat-equal, -Wshadow, -Wformat=2, -Wundef,
+        -Wvla, -Walloca, -Wcast-align, -Wcast-qual, -Wcast-function-type-strict,
+        -Wwrite-strings, -Wpointer-arith, -Wswitch-enum, -Wswitch-default,
+        -Wimplicit-fallthrough, -Wunreachable-code, -Wunsequenced,
+        -Waddress-of-packed-member, -Wdate-time,
+        -Werror=unknown-warning-option, -Werror=ignored-optimization-argument,
+        -Werror=unused-command-line-argument]
 Diagnostics:
   ClangTidy:
-    Add: [bugprone-*, clang-analyzer-*, cert-*, performance-*, portability-*, misc-*, readability-*]
----
-If:
-  PathMatch: hwconf/[^/]+\.h
-CompileFlags:
-  Compiler: clang
-  Add:
-    - -xc
-    - --target=arm-none-eabi
-    - -ffreestanding
-    - -I../libstm32f4/inc
-    - -I../ChibiOS_21.11.5/os/common/ext/ST/STM32F4xx
-    - -I../ChibiOS_21.11.5/os/common/ext/ARM/CMSIS/Core/Include
-    - -DSTM32F407xx
----
-If:
-  PathMatch: .*\.c
-CompileFlags:
-  Add: [-std=gnu23]
+    FastCheckFilter: Strict
+  UnusedIncludes: None
+  MissingIncludes: None
+# Interactive checking is intentionally a subset. The full CLI gate is required.
+# Include-cleaner is disabled because HAL/RTOS umbrella headers need separate review.

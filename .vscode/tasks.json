@@ -1,0 +1,15 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "quality: full analysis gate (WSL)",
+      "detail": "Run in a VSCode WSL window after a fresh build capture and database preparation; this task does not build firmware.",
+      "type": "process",
+      "command": "/usr/bin/python3",
+      "args": ["tools/quality_gate.py", "--database", "build/analysis", "--policy", "quality-policy.json"],
+      "options": {"cwd": "${workspaceFolder}"},
+      "problemMatcher": ["$gcc"],
+      "group": {"kind": "build", "isDefault": false}
+    }
+  ]
+}

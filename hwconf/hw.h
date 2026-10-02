@@ -474,7 +474,7 @@
 #define ADC_IND_EXT8 			ADC_IND_EXT
 #endif
 
-// Voltage on phase input used for FOC 
+// Voltage on phase input used for FOC
 #ifndef ADC_V_L1_VOLTS
 #define ADC_V_L1_VOLTS				((float)ADC_V_L1 / 4096.0 * V_REG)
 #endif
