@@ -1,0 +1,10 @@
+-Wstrict-prototypes
+-Wmissing-prototypes
+-Wmissing-declarations
+-Wold-style-definition
+-Wbad-function-cast
+-Wnested-externs
+-Wjump-misses-init
+-Wmissing-variable-declarations
+-Wunsuffixed-float-constants
+-Wzero-as-null-pointer-constant

@@ -1,0 +1,5 @@
+-fanalyzer
+-Wanalyzer-too-complex
+-Wanalyzer-symbol-too-complex
+-O0
+-fno-lto

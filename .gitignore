@@ -2,6 +2,10 @@
 
 build
 tools
+!tools/
+tools/*
+!tools/prepare_compdb.py
+!tools/quality_gate.py
 downloads
 package/
 
@@ -17,6 +21,10 @@ workspace.code-workspace
 *.pro.shared
 
 .vscode
+!.vscode/
+.vscode/*
+!.vscode/tasks.json
+!.vscode/extensions.json
 
 .cache
 compile_commands.json

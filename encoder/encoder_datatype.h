@@ -148,7 +148,7 @@ typedef enum tle5012_errortypes {
 	INVALID_ANGLE_ERROR    = 0x04,  //!< INVALID_ANGLE_ERROR = NO_GMR_A = 1 or NO_GMR_XY = 1
 	ANGLE_SPEED_ERROR      = 0x08,  //!< ANGLE_SPEED_ERROR = combined error, angular speed calculation wrong
 	CRC_ERROR              = 0xFF   //!< CRC_ERROR = Cyclic Redundancy Check (CRC), which includes the STAT and RESP bits wrong
-} tle5012_errortypes; 
+} tle5012_errortypes;
 
 typedef struct {
 	volatile bool index_found;

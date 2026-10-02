@@ -1,0 +1,6 @@
+-Wold-style-cast
+-Woverloaded-virtual
+-Wnon-virtual-dtor
+-Wzero-as-null-pointer-constant
+-Wsuggest-override
+-Wextra-semi

@@ -36,10 +36,10 @@ void enc_as5x47u_deinit(AS5x47U_config_t *cfg);
 
 /**
  * @brief Starts a new SPI transaction to get the current position from the position sensor.
- * 
+ *
  * Every call of enc_as5x47u_routine ends up doing two SPI transactions. The first one
  * always receives position, but will request one of MAGN, AGC, DIAG, or ERRFL. The next
- * transaction receives the requested register while requesting pos for the next 
+ * transaction receives the requested register while requesting pos for the next
  * transaction.
  * @param cfg A pointer to the encoder config struct.
  */
