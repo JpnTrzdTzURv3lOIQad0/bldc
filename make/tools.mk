@@ -11,7 +11,7 @@
 ####################
 # ARM (Cortex) SDK #
 ####################
-ARM_SDK_VER := 14.3.rel1
+ARM_SDK_VER := 15.3.rel1
 
 # The tar archives extract into a directory named after them; the Windows zip
 # has no top-level directory and is extracted into ARM_SDK_DIR explicitly.
@@ -33,8 +33,9 @@ endif
 ARM_SDK_DIR := $(TOOLS_DIR)/$(ARM_SDK_NAME)
 
 .PHONY: arm_sdk_install
-arm_sdk_install: ARM_SDK_URL  := https://developer.arm.com/-/media/Files/downloads/gnu/$(ARM_SDK_VER)/binrel/$(ARM_SDK_NAME).$(ARM_SDK_EXT)
 arm_sdk_install: ARM_SDK_FILE := $(ARM_SDK_NAME).$(ARM_SDK_EXT)
+arm_sdk_install: ARM_SDK_URL  := https://gitlab.arm.com/api/v4/projects/tooling%2Fgnu-toolchains-for-arm/packages/generic/gnu-toolchain/$(ARM_SDK_VER)/$(ARM_SDK_FILE)
+
 # order-only prereq on directory existance:
 arm_sdk_install: | $(DL_DIR) $(TOOLS_DIR)
 arm_sdk_install: arm_sdk_clean
