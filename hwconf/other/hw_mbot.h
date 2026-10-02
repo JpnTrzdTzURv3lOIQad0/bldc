@@ -359,29 +359,29 @@
 
 
 #ifndef MCCONF_L_MAX_VOLTAGE
-#define MCCONF_L_MAX_VOLTAGE		92.0
+#define MCCONF_L_MAX_VOLTAGE		92.0F
 #endif
 #ifndef MCCONF_M_DRV8301_OC_ADJ
 #define MCCONF_M_DRV8301_OC_ADJ		14
 #endif
 #ifndef MCCONF_L_DUTY_START
-#define MCCONF_L_DUTY_START			0.9 // Start limiting current at this duty cycle
+#define MCCONF_L_DUTY_START			0.9F // Start limiting current at this duty cycle
 #endif
 // Setting limits
 #ifdef HW_HAS_DUAL_PARALLEL
 #define HW_LIM_CURRENT				-300.0, 300.0
 #define HW_LIM_CURRENT_ABS			0.0, 400.0
 #ifndef MCCONF_L_MAX_ABS_CURRENT
-#define MCCONF_L_MAX_ABS_CURRENT	400.0	// The maximum absolute current above which a fault is generated
-#define MCCONF_FOC_OFFSETS_CURRENT_0	4096.0 // Current 0 offset
-#define MCCONF_FOC_OFFSETS_CURRENT_1	4096.0 // Current 1 offset
-#define MCCONF_FOC_OFFSETS_CURRENT_2	4096.0 // Current 2 offset
+#define MCCONF_L_MAX_ABS_CURRENT	400.0F	// The maximum absolute current above which a fault is generated
+#define MCCONF_FOC_OFFSETS_CURRENT_0	4096.0F // Current 0 offset
+#define MCCONF_FOC_OFFSETS_CURRENT_1	4096.0F // Current 1 offset
+#define MCCONF_FOC_OFFSETS_CURRENT_2	4096.0F // Current 2 offset
 #endif
 #else
 #define HW_LIM_CURRENT				-150.0, 150.0
 #define HW_LIM_CURRENT_ABS			0.0, 200.0
 #ifndef MCCONF_L_MAX_ABS_CURRENT
-#define MCCONF_L_MAX_ABS_CURRENT	200.0	// The maximum absolute current above which a fault is generated
+#define MCCONF_L_MAX_ABS_CURRENT	200.0F	// The maximum absolute current above which a fault is generated
 #endif
 #endif
 #define HW_LIM_CURRENT_IN			-100.0, 100.0

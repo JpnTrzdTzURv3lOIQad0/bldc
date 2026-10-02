@@ -25,8 +25,8 @@
 #define HW_JetFleetF6_32s
 
 #define VIN_R2				    3300.0
-#define MCCONF_L_MAX_VOLTAGE			140.0	// Maximum input voltage
-#define MCCONF_L_MAX_ABS_CURRENT		180.0	// The maximum absolute current above which a fault is generated
+#define MCCONF_L_MAX_VOLTAGE			140.0F	// Maximum input voltage
+#define MCCONF_L_MAX_ABS_CURRENT		180.0F	// The maximum absolute current above which a fault is generated
 #define HW_LIM_CURRENT			-180.0, 180.0
 #define HW_LIM_CURRENT_ABS		0.0, 270.0
 #define HW_LIM_VIN			    18.0, 140.0

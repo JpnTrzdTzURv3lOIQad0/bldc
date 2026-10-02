@@ -305,7 +305,7 @@
 #endif
 
 #ifndef MCCONF_L_MAX_VOLTAGE
-#define MCCONF_L_MAX_VOLTAGE			0.0		// For safety the board will be held in fault until mc_conf is configured by the user
+#define MCCONF_L_MAX_VOLTAGE			0.0F		// For safety the board will be held in fault until mc_conf is configured by the user
 #endif
 
 // Execute FOC loop once every "FOC_CONTROL_LOOP_FREQ_DIVIDER" ADC ISR calls

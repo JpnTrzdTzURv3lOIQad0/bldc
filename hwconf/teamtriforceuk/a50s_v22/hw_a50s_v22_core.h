@@ -214,32 +214,32 @@
 
 // Default setting overrides
 #ifndef MCCONF_L_MIN_VOLTAGE
-#define MCCONF_L_MIN_VOLTAGE		8.0	// Minimum input voltage
+#define MCCONF_L_MIN_VOLTAGE		8.0F	// Minimum input voltage
 #endif
 #ifndef MCCONF_DEFAULT_MOTOR_TYPE
 #define MCCONF_DEFAULT_MOTOR_TYPE	MOTOR_TYPE_FOC
 #endif
 #ifndef MCCONF_FOC_F_ZV
-#define MCCONF_FOC_F_ZV				25000.0 // Switching frequency reduced to allow rise time of low side shunts
+#define MCCONF_FOC_F_ZV				25000.0F // Switching frequency reduced to allow rise time of low side shunts
 #endif
 #define HW_LIM_FOC_CTRL_LOOP_FREQ	5000.0, 25000.0	//Limit to 50kHz max
 #ifndef MCCONF_L_MAX_ABS_CURRENT
-#define MCCONF_L_MAX_ABS_CURRENT	50.0	// The maximum absolute current above which a fault is generated
+#define MCCONF_L_MAX_ABS_CURRENT	50.0F	// The maximum absolute current above which a fault is generated
 #endif
 #ifndef MCCONF_FOC_SAMPLE_V0_V7
 #define MCCONF_FOC_SAMPLE_V0_V7		false	// Run control loop in both v0 and v7 (requires phase shunts)
 #endif
 #ifndef MCCONF_L_CURRENT_MAX
-#define MCCONF_L_CURRENT_MAX		20.0   // Current limit in Amperes (Upper)
+#define MCCONF_L_CURRENT_MAX		20.0F   // Current limit in Amperes (Upper)
 #endif
 #ifndef MCCONF_L_CURRENT_MIN
-#define MCCONF_L_CURRENT_MIN		-20.0	// Current limit in Amperes (Lower)
+#define MCCONF_L_CURRENT_MIN		-20.0F	// Current limit in Amperes (Lower)
 #endif
 #ifndef MCCONF_L_IN_CURRENT_MAX
-#define MCCONF_L_IN_CURRENT_MAX		20.0	// Input current limit in Amperes (Upper)
+#define MCCONF_L_IN_CURRENT_MAX		20.0F	// Input current limit in Amperes (Upper)
 #endif
 #ifndef MCCONF_L_IN_CURRENT_MIN
-#define MCCONF_L_IN_CURRENT_MIN		-10.0	// Input current limit in Amperes (Lower)
+#define MCCONF_L_IN_CURRENT_MIN		-10.0F	// Input current limit in Amperes (Lower)
 #endif
 
 // Setting limits
@@ -253,10 +253,10 @@
 
 #ifdef HW_A50S_12S
 #define HW_LIM_VIN					4.0, 56.0
-#define MCCONF_L_MAX_VOLTAGE		55	// Maximum input voltage
+#define MCCONF_L_MAX_VOLTAGE		55.0F	// Maximum input voltage
 #elif defined (HW_A50S_6S)
 #define HW_LIM_VIN					4.0, 28.0
-#define MCCONF_L_MAX_VOLTAGE		26	// Maximum input voltage
+#define MCCONF_L_MAX_VOLTAGE		26.0F	// Maximum input voltage
 #else
 #error "Must define a hardware type"
 #endif

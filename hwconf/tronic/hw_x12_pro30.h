@@ -217,29 +217,29 @@
 
 // Default setting overrides
 #ifndef MCCONF_L_MIN_VOLTAGE
-#define MCCONF_L_MIN_VOLTAGE			18.0 //Minimum input voltage, T12T turns on at any voltage, but we do not want to go lower than this because of risk of gate driver undervoltage
+#define MCCONF_L_MIN_VOLTAGE			18.0F //Minimum input voltage, T12T turns on at any voltage, but we do not want to go lower than this because of risk of gate driver undervoltage
 #endif
 #ifndef MCCONF_L_MAX_VOLTAGE
-#define MCCONF_L_MAX_VOLTAGE			135.0	
+#define MCCONF_L_MAX_VOLTAGE			135.0F
 //Set max in to 135V - targetting 30s = 30*4.2 = 126 , keep some headroom for the MOS (150V) and DCDC (140V)
 #endif
 #ifndef MCCONF_DEFAULT_MOTOR_TYPE
 #define MCCONF_DEFAULT_MOTOR_TYPE		MOTOR_TYPE_FOC
 #endif
 #ifndef MCCONF_FOC_F_ZV
-#define MCCONF_FOC_F_ZV					30000.0
+#define MCCONF_FOC_F_ZV					30000.0F
 #endif
 #ifndef MCCONF_L_MAX_ABS_CURRENT
-#define MCCONF_L_MAX_ABS_CURRENT		300.0	// The maximum absolute current above which a fault is generated
+#define MCCONF_L_MAX_ABS_CURRENT		300.0F	// The maximum absolute current above which a fault is generated
 #endif
 #ifndef MCCONF_FOC_SAMPLE_V0_V7
 #define MCCONF_FOC_SAMPLE_V0_V7			false	// Run control loop in both v0 and v7 (requires phase shunts)
 #endif
 #ifndef MCCONF_L_IN_CURRENT_MAX
-#define MCCONF_L_IN_CURRENT_MAX			200.0	// Input current limit in Amperes (Upper)
+#define MCCONF_L_IN_CURRENT_MAX			200.0F	// Input current limit in Amperes (Upper)
 #endif
 #ifndef MCCONF_L_IN_CURRENT_MIN
-#define MCCONF_L_IN_CURRENT_MIN			-200.0	// Input current limit in Amperes (Lower)
+#define MCCONF_L_IN_CURRENT_MIN			-200.0F	// Input current limit in Amperes (Lower)
 #endif
 
 // Setting limits

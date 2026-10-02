@@ -228,40 +228,40 @@
 
 // Default setting overrides
 #ifndef MCCONF_L_MIN_VOLTAGE
-#define MCCONF_L_MIN_VOLTAGE			12.0		// 最小电压值
+#define MCCONF_L_MIN_VOLTAGE			12.0F		// 最小电压值
 #endif
 #ifndef MCCONF_L_MAX_VOLTAGE
-#define MCCONF_L_MAX_VOLTAGE			90.0		// 最大电压值
+#define MCCONF_L_MAX_VOLTAGE			90.0F		// 最大电压值
 #endif
 #ifndef MCCONF_DEFAULT_MOTOR_TYPE
 #define MCCONF_DEFAULT_MOTOR_TYPE		MOTOR_TYPE_FOC
 #endif
 #ifndef MCCONF_FOC_F_ZV
-#define MCCONF_FOC_F_ZV					30000.0 	// PWM的开关频率为30kHz
+#define MCCONF_FOC_F_ZV					30000.0F 	// PWM的开关频率为30kHz
 #endif
 #ifndef MCCONF_L_MAX_ABS_CURRENT
-#define MCCONF_L_MAX_ABS_CURRENT		150.0		// 导致故障发生的最大绝对电流值
+#define MCCONF_L_MAX_ABS_CURRENT		150.0F		// 导致故障发生的最大绝对电流值
 #endif
 #ifndef MCCONF_FOC_SAMPLE_V0_V7
 #define MCCONF_FOC_SAMPLE_V0_V7			false		// 该装置有3个电池分流器，因此必须将此功能关闭。同时，需要在v0和v7处启用运行控制回路（此时需要使用相位分流器）。
 #endif
 #ifndef MCCONF_L_IN_CURRENT_MAX
-#define MCCONF_L_IN_CURRENT_MAX			100.0		// 输入电流上限值，单位为安培
+#define MCCONF_L_IN_CURRENT_MAX			100.0F		// 输入电流上限值，单位为安培
 #endif
 #ifndef MCCONF_L_IN_CURRENT_MIN
-#define MCCONF_L_IN_CURRENT_MIN			-100.0		// 输入电流下限值，单位：安培
+#define MCCONF_L_IN_CURRENT_MIN			-100.0F		// 输入电流下限值，单位：安培
 #endif
 #ifndef MCCONF_L_RPM_MAX
-#define MCCONF_L_RPM_MAX				150000.0	// 电机转速上限
+#define MCCONF_L_RPM_MAX				150000.0F	// 电机转速上限
 #endif
 #ifndef MCCONF_L_RPM_MIN
-#define MCCONF_L_RPM_MIN				-150000.0	// 电机转速上限（最低值）
+#define MCCONF_L_RPM_MIN				-150000.0F	// 电机转速上限（最低值）
 #endif
 #ifndef MCCONF_SI_BATTERY_CELLS
 #define MCCONF_SI_BATTERY_CELLS			12 			// 锂电池节数
 #endif
 #ifndef MCCONF_SI_BATTERY_AH
-#define MCCONF_SI_BATTERY_AH			10.0 		// 电池安时数
+#define MCCONF_SI_BATTERY_AH			10.0F 		// 电池安时数
 #endif
 
 // (jaykup) Suggested defaults

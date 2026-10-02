@@ -230,36 +230,36 @@
 
 // Default setting overrides
 #ifndef MCCONF_L_MIN_VOLTAGE
-#define MCCONF_L_MIN_VOLTAGE			14.0		// Minimum input voltage
+#define MCCONF_L_MIN_VOLTAGE			14.0F		// Minimum input voltage
 #endif
 
 #ifndef MCCONF_DEFAULT_MOTOR_TYPE
 #define MCCONF_DEFAULT_MOTOR_TYPE		MOTOR_TYPE_FOC
 #endif
 #ifndef MCCONF_FOC_F_ZV
-#define MCCONF_FOC_F_ZV					30000.0
+#define MCCONF_FOC_F_ZV					30000.0F
 #endif
 #define HW_LIM_FOC_CTRL_LOOP_FREQ		5000.0, 25000.0	//Limit to 50kHz max
 #ifndef MCCONF_L_MAX_ABS_CURRENT
-#define MCCONF_L_MAX_ABS_CURRENT		200.0	// The maximum absolute current above which a fault is generated
+#define MCCONF_L_MAX_ABS_CURRENT		200.0F	// The maximum absolute current above which a fault is generated
 #endif
 #ifndef MCCONF_FOC_SAMPLE_V0_V7
 #define MCCONF_FOC_SAMPLE_V0_V7			false	// Run control loop in both v0 and v7 (requires phase shunts)
 #endif
 #ifndef MCCONF_L_CURRENT_MAX
-#define MCCONF_L_CURRENT_MAX			100.0	// Current limit in Amperes (Upper)
+#define MCCONF_L_CURRENT_MAX			100.0F	// Current limit in Amperes (Upper)
 #endif
 #ifndef MCCONF_L_CURRENT_MIN
-#define MCCONF_L_CURRENT_MIN			-100.0	 // Current limit in Amperes (Lower)
+#define MCCONF_L_CURRENT_MIN			-100.0F	 // Current limit in Amperes (Lower)
 #endif
 #ifndef MCCONF_L_SLOW_ABS_OVERCURRENT
 #define MCCONF_L_SLOW_ABS_OVERCURRENT	false	// Use the raw current for the overcurrent fault detection
 #endif
 #ifndef MCCONF_L_IN_CURRENT_MAX
-#define MCCONF_L_IN_CURRENT_MAX			20.0	// Input current limit in Amperes (Upper)
+#define MCCONF_L_IN_CURRENT_MAX			20.0F	// Input current limit in Amperes (Upper)
 #endif
 #ifndef MCCONF_L_IN_CURRENT_MIN
-#define MCCONF_L_IN_CURRENT_MIN			-5.0	// Input current limit in Amperes (Lower)
+#define MCCONF_L_IN_CURRENT_MIN			-5.0F	// Input current limit in Amperes (Lower)
 #endif
 
 // Mosfet and K/W for working out temperatures
@@ -283,7 +283,7 @@
 #define MCCONF_L_MAX_VOLTAGE	16.0 * 4.2 + 5.0	// Maximum input voltage
 #endif
 #ifndef MCCONF_FOC_DT_US
-#define MCCONF_FOC_DT_US		0.1 // Microseconds for dead time compensation
+#define MCCONF_FOC_DT_US		0.1F // Microseconds for dead time compensation
 #endif
 #define HW_DEAD_TIME_NSEC		600.0 
 

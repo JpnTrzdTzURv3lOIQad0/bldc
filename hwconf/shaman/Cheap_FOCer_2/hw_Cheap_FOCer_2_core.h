@@ -266,19 +266,19 @@
 #endif
 
 #ifndef MCCONF_FOC_F_ZV
-#define MCCONF_FOC_F_ZV                 20000.0
+#define MCCONF_FOC_F_ZV                 20000.0F
 #endif
 
 #ifndef MCCONF_L_CURRENT_MAX
-#define MCCONF_L_CURRENT_MAX             60.0   // Current limit in Amperes (Upper)
+#define MCCONF_L_CURRENT_MAX             60.0F   // Current limit in Amperes (Upper)
 #endif
 
 #ifndef MCCONF_L_CURRENT_MIN
-#define MCCONF_L_CURRENT_MIN            -60.0   // Current limit in Amperes (Lower)
+#define MCCONF_L_CURRENT_MIN            -60.0F   // Current limit in Amperes (Lower)
 #endif
 
 #ifndef MCCONF_L_MAX_ABS_CURRENT
-#define MCCONF_L_MAX_ABS_CURRENT		100.0	// The maximum absolute current above which a fault is generated
+#define MCCONF_L_MAX_ABS_CURRENT		100.0F	// The maximum absolute current above which a fault is generated
 #endif
 
 #ifndef MCCONF_FOC_SAMPLE_V0_V7
@@ -292,10 +292,10 @@
 #define MCCONF_M_DRV8301_OC_ADJ          25     // DRV8301 over current protection threshold
 #endif
 #ifndef MCCONF_L_LIM_TEMP_FET_START
-#define MCCONF_L_LIM_TEMP_FET_START      60.0   // MOSFET temperature where current limiting should begin
+#define MCCONF_L_LIM_TEMP_FET_START      60.0F   // MOSFET temperature where current limiting should begin
 #endif
 #ifndef MCCONF_L_LIM_TEMP_FET_END
-#define MCCONF_L_LIM_TEMP_FET_END        70.0   // MOSFET temperature where everything should be shut off
+#define MCCONF_L_LIM_TEMP_FET_END        70.0F   // MOSFET temperature where everything should be shut off
 #endif
 
 // Setting limits

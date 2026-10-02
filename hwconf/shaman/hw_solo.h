@@ -231,37 +231,37 @@
 
 // Default setting overrides
 #ifndef MCCONF_L_MIN_VOLTAGE
-#define MCCONF_L_MIN_VOLTAGE            18.0        // Minimum input voltage
+#define MCCONF_L_MIN_VOLTAGE            18.0F        // Minimum input voltage
 #endif
 #ifndef MCCONF_L_MAX_VOLTAGE
-#define MCCONF_L_MAX_VOLTAGE            80.0    // Maximum input voltage
+#define MCCONF_L_MAX_VOLTAGE            80.0F    // Maximum input voltage
 #endif
 #ifndef MCCONF_L_CURRENT_MAX
-#define MCCONF_L_CURRENT_MAX                70.0    // Current limit in Amperes (Upper)
+#define MCCONF_L_CURRENT_MAX                70.0F    // Current limit in Amperes (Upper)
 #endif
 #ifndef MCCONF_L_CURRENT_MIN
-#define MCCONF_L_CURRENT_MIN                -50.0   // Current limit in Amperes (Lower)
+#define MCCONF_L_CURRENT_MIN                -50.0F   // Current limit in Amperes (Lower)
 #endif
 #ifndef MCCONF_L_IN_CURRENT_MAX
-#define MCCONF_L_IN_CURRENT_MAX             40.0    // Input current limit in Amperes (Upper)
+#define MCCONF_L_IN_CURRENT_MAX             40.0F    // Input current limit in Amperes (Upper)
 #endif
 #ifndef MCCONF_L_IN_CURRENT_MIN
-#define MCCONF_L_IN_CURRENT_MIN             -20.0   // Input current limit in Amperes (Lower)
+#define MCCONF_L_IN_CURRENT_MIN             -20.0F   // Input current limit in Amperes (Lower)
 #endif
 #ifndef MCCONF_L_MAX_ABS_CURRENT
-#define MCCONF_L_MAX_ABS_CURRENT            130.0   // The maximum absolute current above which a fault is generated
+#define MCCONF_L_MAX_ABS_CURRENT            130.0F   // The maximum absolute current above which a fault is generated
 #endif
 #ifndef MCCONF_L_LIM_TEMP_FET_START
-#define MCCONF_L_LIM_TEMP_FET_START     80.0    // MOSFET temperature where current limiting should begin
+#define MCCONF_L_LIM_TEMP_FET_START     80.0F    // MOSFET temperature where current limiting should begin
 #endif
 #ifndef MCCONF_L_LIM_TEMP_FET_END
-#define MCCONF_L_LIM_TEMP_FET_END       100.0   // MOSFET temperature where everything should be shut off
+#define MCCONF_L_LIM_TEMP_FET_END       100.0F   // MOSFET temperature where everything should be shut off
 #endif
 #ifndef MCCONF_DEFAULT_MOTOR_TYPE
 #define MCCONF_DEFAULT_MOTOR_TYPE       MOTOR_TYPE_FOC
 #endif
 #ifndef MCCONF_FOC_F_ZV
-#define MCCONF_FOC_F_ZV                 30000.0
+#define MCCONF_FOC_F_ZV                 30000.0F
 #endif
 #ifndef MCCONF_L_SLOW_ABS_OVERCURRENT
 #define MCCONF_L_SLOW_ABS_OVERCURRENT  true  // Use the filtered (and hence slower) current for the overcurrent fault detection

@@ -36,16 +36,16 @@ float utils_map_angle(float angle, float min, float max) {
 	utils_norm_angle(&range_pos);
 	float range_neg = min - max;
 	utils_norm_angle(&range_neg);
-	float margin = range_neg / 2.0;
+	float margin = range_neg / 2.0F;
 
 	angle -= min;
 	utils_norm_angle(&angle);
-	if (angle > (360 - margin)) {
-		angle -= 360.0;
+	if (angle > (360.0F - margin)) {
+		angle -= 360.0F;
 	}
 
 	float res = angle / range_pos;
-	utils_truncate_number(&res, 0.0, 1.0);
+	utils_truncate_number(&res, 0.0F, 1.0F);
 
 	return res;
 }
@@ -56,13 +56,13 @@ float utils_map_angle(float angle, float min, float max) {
  */
 void utils_deadband(float *value, float tres, float max) {
 	if (fabsf(*value) < tres) {
-		*value = 0.0;
+		*value = 0.0F;
 	} else {
 		float k = max / (max - tres);
-		if (*value > 0.0) {
-			*value = k * *value + max * (1.0 - k);
+		if (*value > 0.0F) {
+			*value = k * *value + max * (1.0F - k);
 		} else {
-			*value = -(k * -*value + max * (1.0 - k));
+			*value = -(k * -*value + max * (1.0F - k));
 		}
 	}
 }
@@ -83,8 +83,8 @@ void utils_deadband(float *value, float tres, float max) {
  * The average angle.
  */
 float utils_avg_angles_rad_fast(float *angles, float *weights, int angles_num) {
-	float s_sum = 0.0;
-	float c_sum = 0.0;
+	float s_sum = 0.0F;
+	float c_sum = 0.0F;
 
 	for (int i = 0; i < angles_num; i++) {
 		float s, c;
@@ -112,10 +112,10 @@ float utils_avg_angles_rad_fast(float *angles, float *weights, int angles_num) {
  *
  */
 float utils_interpolate_angles_rad(float a1, float a2, float weight_a1) {
-	while ((a1 - a2) > M_PI) a2 += 2.0 * M_PI;
-	while ((a2 - a1) > M_PI) a1 += 2.0 * M_PI;
+	while ((a1 - a2) > UTILS_PI_F) a2 += 2.0F * UTILS_PI_F;
+	while ((a2 - a1) > UTILS_PI_F) a1 += 2.0F * UTILS_PI_F;
 
-	float res = a1 * weight_a1 + a2 * (1.0 - weight_a1);
+	float res = a1 * weight_a1 + a2 * (1.0F - weight_a1);
 	utils_norm_angle_rad(&res);
 	return res;
 }
@@ -191,17 +191,17 @@ int utils_middle_of_3_int(int a, int b, int c) {
  * The angle in radians
  */
 float utils_fast_atan2(float y, float x) {
-	float abs_y = fabsf(y) + 1e-20; // kludge to prevent 0/0 condition
+	float abs_y = fabsf(y) + 1e-20F; // kludge to prevent 0/0 condition
 	float angle;
 
 	if (x >= 0) {
 		float r = (x - abs_y) / (x + abs_y);
 		float rsq = r * r;
-		angle = ((0.1963 * rsq) - 0.9817) * r + (M_PI / 4.0);
+		angle = ((0.1963F * rsq) - 0.9817F) * r + (UTILS_PI_F / 4.0F);
 	} else {
 		float r = (x + abs_y) / (abs_y - x);
 		float rsq = r * r;
-		angle = ((0.1963 * rsq) - 0.9817) * r + (3.0 * M_PI / 4.0);
+		angle = ((0.1963F * rsq) - 0.9817F) * r + (3.0F * UTILS_PI_F / 4.0F);
 	}
 
 	UTILS_NAN_ZERO(angle);
@@ -214,42 +214,42 @@ float utils_fast_atan2(float y, float x) {
 }
 
 float utils_fast_sin(float angle) {
-	while (angle < -M_PI) {
-		angle += 2.0 * M_PI;
+	while (angle < -UTILS_PI_F) {
+		angle += 2.0F * UTILS_PI_F;
 	}
 
-	while (angle >  M_PI) {
-		angle -= 2.0 * M_PI;
+	while (angle >  UTILS_PI_F) {
+		angle -= 2.0F * UTILS_PI_F;
 	}
 
-	float res = 0.0;
+	float res = 0.0F;
 
-	if (angle < 0.0) {
-		res = 1.27323954 * angle + 0.405284735 * angle * angle;
+	if (angle < 0.0F) {
+		res = 1.27323954F * angle + 0.405284735F * angle * angle;
 	} else {
-		res = 1.27323954 * angle - 0.405284735 * angle * angle;
+		res = 1.27323954F * angle - 0.405284735F * angle * angle;
 	}
 
 	return res;
 }
 
 float utils_fast_cos(float angle) {
-	angle += 0.5 * M_PI;
+	angle += 0.5F * UTILS_PI_F;
 
-	while (angle < -M_PI) {
-		angle += 2.0 * M_PI;
+	while (angle < -UTILS_PI_F) {
+		angle += 2.0F * UTILS_PI_F;
 	}
 
-	while (angle >  M_PI) {
-		angle -= 2.0 * M_PI;
+	while (angle >  UTILS_PI_F) {
+		angle -= 2.0F * UTILS_PI_F;
 	}
 
-	float res = 0.0;
+	float res = 0.0F;
 
-	if (angle < 0.0) {
-		res = 1.27323954 * angle + 0.405284735 * angle * angle;
+	if (angle < 0.0F) {
+		res = 1.27323954F * angle + 0.405284735F * angle * angle;
 	} else {
-		res = 1.27323954 * angle - 0.405284735 * angle * angle;
+		res = 1.27323954F * angle - 0.405284735F * angle * angle;
 	}
 
 	return res;
@@ -272,32 +272,32 @@ float utils_fast_cos(float angle) {
  */
 void utils_fast_sincos(float angle, float *sin, float *cos) {
 	//always wrap input angle to -PI..PI
-	while (angle < -M_PI) {
-		angle += 2.0 * M_PI;
+	while (angle < -UTILS_PI_F) {
+		angle += 2.0F * UTILS_PI_F;
 	}
 
-	while (angle >  M_PI) {
-		angle -= 2.0 * M_PI;
+	while (angle >  UTILS_PI_F) {
+		angle -= 2.0F * UTILS_PI_F;
 	}
 
 	// compute sine
-	if (angle < 0.0) {
-		*sin = 1.27323954 * angle + 0.405284735 * angle * angle;
+	if (angle < 0.0F) {
+		*sin = 1.27323954F * angle + 0.405284735F * angle * angle;
 	} else {
-		*sin = 1.27323954 * angle - 0.405284735 * angle * angle;
+		*sin = 1.27323954F * angle - 0.405284735F * angle * angle;
 	}
 
 	// compute cosine: sin(x + PI/2) = cos(x)
-	angle += 0.5 * M_PI;
+	angle += 0.5F * UTILS_PI_F;
 
-	if (angle >  M_PI) {
-		angle -= 2.0 * M_PI;
+	if (angle >  UTILS_PI_F) {
+		angle -= 2.0F * UTILS_PI_F;
 	}
 
-	if (angle < 0.0) {
-		*cos = 1.27323954 * angle + 0.405284735 * angle * angle;
+	if (angle < 0.0F) {
+		*cos = 1.27323954F * angle + 0.405284735F * angle * angle;
 	} else {
-		*cos = 1.27323954 * angle - 0.405284735 * angle * angle;
+		*cos = 1.27323954F * angle - 0.405284735F * angle * angle;
 	}
 }
 
@@ -318,54 +318,54 @@ void utils_fast_sincos(float angle, float *sin, float *cos) {
  */
 void utils_fast_sincos_better(float angle, float *sin, float *cos) {
 	//always wrap input angle to -PI..PI
-	while (angle < -M_PI) {
-		angle += 2.0 * M_PI;
+	while (angle < -UTILS_PI_F) {
+		angle += 2.0F * UTILS_PI_F;
 	}
 
-	while (angle >  M_PI) {
-		angle -= 2.0 * M_PI;
+	while (angle >  UTILS_PI_F) {
+		angle -= 2.0F * UTILS_PI_F;
 	}
 
 	//compute sine
-	if (angle < 0.0) {
-		*sin = 1.27323954 * angle + 0.405284735 * angle * angle;
+	if (angle < 0.0F) {
+		*sin = 1.27323954F * angle + 0.405284735F * angle * angle;
 
-		if (*sin < 0.0) {
-			*sin = 0.225 * (*sin * -*sin - *sin) + *sin;
+		if (*sin < 0.0F) {
+			*sin = 0.225F * (*sin * -*sin - *sin) + *sin;
 		} else {
-			*sin = 0.225 * (*sin * *sin - *sin) + *sin;
+			*sin = 0.225F * (*sin * *sin - *sin) + *sin;
 		}
 	} else {
-		*sin = 1.27323954 * angle - 0.405284735 * angle * angle;
+		*sin = 1.27323954F * angle - 0.405284735F * angle * angle;
 
-		if (*sin < 0.0) {
-			*sin = 0.225 * (*sin * -*sin - *sin) + *sin;
+		if (*sin < 0.0F) {
+			*sin = 0.225F * (*sin * -*sin - *sin) + *sin;
 		} else {
-			*sin = 0.225 * (*sin * *sin - *sin) + *sin;
+			*sin = 0.225F * (*sin * *sin - *sin) + *sin;
 		}
 	}
 
 	// compute cosine: sin(x + PI/2) = cos(x)
-	angle += 0.5 * M_PI;
-	if (angle >  M_PI) {
-		angle -= 2.0 * M_PI;
+	angle += 0.5F * UTILS_PI_F;
+	if (angle >  UTILS_PI_F) {
+		angle -= 2.0F * UTILS_PI_F;
 	}
 
-	if (angle < 0.0) {
-		*cos = 1.27323954 * angle + 0.405284735 * angle * angle;
+	if (angle < 0.0F) {
+		*cos = 1.27323954F * angle + 0.405284735F * angle * angle;
 
-		if (*cos < 0.0) {
-			*cos = 0.225 * (*cos * -*cos - *cos) + *cos;
+		if (*cos < 0.0F) {
+			*cos = 0.225F * (*cos * -*cos - *cos) + *cos;
 		} else {
-			*cos = 0.225 * (*cos * *cos - *cos) + *cos;
+			*cos = 0.225F * (*cos * *cos - *cos) + *cos;
 		}
 	} else {
-		*cos = 1.27323954 * angle - 0.405284735 * angle * angle;
+		*cos = 1.27323954F * angle - 0.405284735F * angle * angle;
 
-		if (*cos < 0.0) {
-			*cos = 0.225 * (*cos * -*cos - *cos) + *cos;
+		if (*cos < 0.0F) {
+			*cos = 0.225F * (*cos * -*cos - *cos) + *cos;
 		} else {
-			*cos = 0.225 * (*cos * *cos - *cos) + *cos;
+			*cos = 0.225F * (*cos * *cos - *cos) + *cos;
 		}
 	}
 }
@@ -435,20 +435,20 @@ void utils_byte_to_binary(int x, char *b) {
 }
 
 float utils_throttle_curve(float val, float curve_acc, float curve_brake, int mode) {
-	float ret = 0.0;
-	
-	if (val < -1.0) {
-		val = -1.0;
+	float ret = 0.0F;
+
+	if (val < -1.0F) {
+		val = -1.0F;
 	}
 
-	if (val > 1.0) {
-		val = 1.0;
+	if (val > 1.0F) {
+		val = 1.0F;
 	}
-	
+
 	float val_a = fabsf(val);
 
 	float curve;
-	if (val >= 0.0) {
+	if (val >= 0.0F) {
 		curve = curve_acc;
 	} else {
 		curve = curve_brake;
@@ -457,32 +457,32 @@ float utils_throttle_curve(float val, float curve_acc, float curve_brake, int mo
 	// See
 	// http://math.stackexchange.com/questions/297768/how-would-i-create-a-exponential-ramp-function-from-0-0-to-1-1-with-a-single-val
 	if (mode == 0) { // Exponential
-		if (curve >= 0.0) {
-			ret = 1.0 - powf(1.0 - val_a, 1.0 + curve);
+		if (curve >= 0.0F) {
+			ret = 1.0F - powf(1.0F - val_a, 1.0F + curve);
 		} else {
-			ret = powf(val_a, 1.0 - curve);
+			ret = powf(val_a, 1.0F - curve);
 		}
 	} else if (mode == 1) { // Natural
-		if (fabsf(curve) < 1e-10) {
+		if (fabsf(curve) < 1e-10F) {
 			ret = val_a;
 		} else {
-			if (curve >= 0.0) {
-				ret = 1.0 - ((expf(curve * (1.0 - val_a)) - 1.0) / (expf(curve) - 1.0));
+			if (curve >= 0.0F) {
+				ret = 1.0F - ((expf(curve * (1.0F - val_a)) - 1.0F) / (expf(curve) - 1.0F));
 			} else {
-				ret = (expf(-curve * val_a) - 1.0) / (expf(-curve) - 1.0);
+				ret = (expf(-curve * val_a) - 1.0F) / (expf(-curve) - 1.0F);
 			}
 		}
 	} else if (mode == 2) { // Polynomial
-		if (curve >= 0.0) {
-			ret = 1.0 - ((1.0 - val_a) / (1.0 + curve * val_a));
+		if (curve >= 0.0F) {
+			ret = 1.0F - ((1.0F - val_a) / (1.0F + curve * val_a));
 		} else {
-			ret = val_a / (1.0 - curve * (1.0 - val_a));
+			ret = val_a / (1.0F - curve * (1.0F - val_a));
 		}
 	} else { // Linear
 		ret = val_a;
 	}
 
-	if (val < 0.0) {
+	if (val < 0.0F) {
 		ret = -ret;
 	}
 
@@ -507,102 +507,102 @@ uint32_t utils_crc32c(uint8_t *data, uint32_t len) {
 
 // Yes, this is only the average...
 void utils_fft32_bin0(float *real_in, float *real, float *imag) {
-	*real = 0.0;
-	*imag = 0.0;
+	*real = 0.0F;
+	*imag = 0.0F;
 
 	for (int i = 0;i < 32;i++) {
 		*real += real_in[i];
 	}
 
-	*real /= 32.0;
+	*real /= 32.0F;
 }
 
 void utils_fft32_bin1(float *real_in, float *real, float *imag) {
-	*real = 0.0;
-	*imag = 0.0;
+	*real = 0.0F;
+	*imag = 0.0F;
 	for (int i = 0;i < 32;i++) {
 		*real += real_in[i] * utils_tab_cos_32_1[i];
 		*imag -= real_in[i] * utils_tab_sin_32_1[i];
 	}
-	*real /= 32.0;
-	*imag /= 32.0;
+	*real /= 32.0F;
+	*imag /= 32.0F;
 }
 
 void utils_fft32_bin2(float *real_in, float *real, float *imag) {
-	*real = 0.0;
-	*imag = 0.0;
+	*real = 0.0F;
+	*imag = 0.0F;
 	for (int i = 0;i < 32;i++) {
 		*real += real_in[i] * utils_tab_cos_32_2[i];
 		*imag -= real_in[i] * utils_tab_sin_32_2[i];
 	}
-	*real /= 32.0;
-	*imag /= 32.0;
+	*real /= 32.0F;
+	*imag /= 32.0F;
 }
 
 void utils_fft16_bin0(float *real_in, float *real, float *imag) {
-	*real = 0.0;
-	*imag = 0.0;
+	*real = 0.0F;
+	*imag = 0.0F;
 
 	for (int i = 0;i < 16;i++) {
 		*real += real_in[i];
 	}
 
-	*real /= 16.0;
+	*real /= 16.0F;
 }
 
 void utils_fft16_bin1(float *real_in, float *real, float *imag) {
-	*real = 0.0;
-	*imag = 0.0;
+	*real = 0.0F;
+	*imag = 0.0F;
 	for (int i = 0;i < 16;i++) {
 		*real += real_in[i] * utils_tab_cos_32_1[2 * i];
 		*imag -= real_in[i] * utils_tab_sin_32_1[2 * i];
 	}
-	*real /= 16.0;
-	*imag /= 16.0;
+	*real /= 16.0F;
+	*imag /= 16.0F;
 }
 
 void utils_fft16_bin2(float *real_in, float *real, float *imag) {
-	*real = 0.0;
-	*imag = 0.0;
+	*real = 0.0F;
+	*imag = 0.0F;
 	for (int i = 0;i < 16;i++) {
 		*real += real_in[i] * utils_tab_cos_32_2[2 * i];
 		*imag -= real_in[i] * utils_tab_sin_32_2[2 * i];
 	}
-	*real /= 16.0;
-	*imag /= 16.0;
+	*real /= 16.0F;
+	*imag /= 16.0F;
 }
 
 void utils_fft8_bin0(float *real_in, float *real, float *imag) {
-	*real = 0.0;
-	*imag = 0.0;
+	*real = 0.0F;
+	*imag = 0.0F;
 
 	for (int i = 0;i < 8;i++) {
 		*real += real_in[i];
 	}
 
-	*real /= 8.0;
+	*real /= 8.0F;
 }
 
 void utils_fft8_bin1(float *real_in, float *real, float *imag) {
-	*real = 0.0;
-	*imag = 0.0;
+	*real = 0.0F;
+	*imag = 0.0F;
 	for (int i = 0;i < 8;i++) {
 		*real += real_in[i] * utils_tab_cos_32_1[4 * i];
 		*imag -= real_in[i] * utils_tab_sin_32_1[4 * i];
 	}
-	*real /= 8.0;
-	*imag /= 8.0;
+	*real /= 8.0F;
+	*imag /= 8.0F;
 }
 
 void utils_fft8_bin2(float *real_in, float *real, float *imag) {
-	*real = 0.0;
-	*imag = 0.0;
+	*real = 0.0F;
+	*imag = 0.0F;
 	for (int i = 0;i < 8;i++) {
 		*real += real_in[i] * utils_tab_cos_32_2[4 * i];
 		*imag -= real_in[i] * utils_tab_sin_32_2[4 * i];
 	}
-	*real /= 8.0;
-	*imag /= 8.0;
+	*real /= 8.0F;
+	*imag /= 8.0F;
 }
 
 // A mapping of a samsung 30q cell for % remaining capacity vs. voltage from
@@ -610,8 +610,8 @@ void utils_fft8_bin2(float *real_in, float *real, float *imag) {
 float utils_batt_liion_norm_v_to_capacity(float norm_v) {
 	// constants for polynomial fit of lithium ion battery
 	const float li_p[] = {
-						  -2.979767, 5.487810, -3.501286, 1.675683, 0.317147};
-	utils_truncate_number(&norm_v,0.0,1.0);
+						  -2.979767F, 5.487810F, -3.501286F, 1.675683F, 0.317147F};
+	utils_truncate_number(&norm_v,0.0F,1.0F);
 	float v2 = norm_v*norm_v;
 	float v3 = v2*norm_v;
 	float v4 = v3*norm_v;
@@ -638,28 +638,28 @@ uint16_t utils_median_filter_uint16_run(uint16_t *buffer,
 void utils_rotate_vector3(float *input, float *rotation, float *output, bool reverse) {
 	float s1, c1, s2, c2, s3, c3;
 
-	if (rotation[2] != 0.0) {
+	if (rotation[2] != 0.0F) {
 		s1 = sinf(rotation[2]);
 		c1 = cosf(rotation[2]);
 	} else {
-		s1 = 0.0;
-		c1 = 1.0;
+		s1 = 0.0F;
+		c1 = 1.0F;
 	}
 
-	if (rotation[1] != 0.0) {
+	if (rotation[1] != 0.0F) {
 		s2 = sinf(rotation[1]);
 		c2 = cosf(rotation[1]);
 	} else {
-		s2 = 0.0;
-		c2 = 1.0;
+		s2 = 0.0F;
+		c2 = 1.0F;
 	}
 
-	if (rotation[0] != 0.0) {
+	if (rotation[0] != 0.0F) {
 		s3 = sinf(rotation[0]);
 		c3 = cosf(rotation[0]);
 	} else {
-		s3 = 0.0;
-		c3 = 1.0;
+		s3 = 0.0F;
+		c3 = 1.0F;
 	}
 
 	float m11 = c1 * c2;	float m12 = c1 * s2 * s3 - c3 * s1;	float m13 = s1 * s3 + c1 * c3 * s2;
@@ -678,25 +678,33 @@ void utils_rotate_vector3(float *input, float *rotation, float *output, bool rev
 }
 
 const float utils_tab_sin_32_1[] = {
-	0.000000, 0.195090, 0.382683, 0.555570, 0.707107, 0.831470, 0.923880, 0.980785,
-	1.000000, 0.980785, 0.923880, 0.831470, 0.707107, 0.555570, 0.382683, 0.195090,
-	0.000000, -0.195090, -0.382683, -0.555570, -0.707107, -0.831470, -0.923880, -0.980785,
-	-1.000000, -0.980785, -0.923880, -0.831470, -0.707107, -0.555570, -0.382683, -0.195090};
+	0.000000F, 0.195090F, 0.382683F, 0.555570F, 0.707107F, 0.831470F,
+	0.923880F, 0.980785F, 1.000000F, 0.980785F, 0.923880F, 0.831470F,
+	0.707107F, 0.555570F, 0.382683F, 0.195090F, 0.000000F, -0.195090F,
+	-0.382683F, -0.555570F, -0.707107F, -0.831470F, -0.923880F, -0.980785F,
+	-1.000000F, -0.980785F, -0.923880F, -0.831470F, -0.707107F, -0.555570F,
+	-0.382683F, -0.195090F};
 
 const float utils_tab_sin_32_2[] = {
-	0.000000, 0.382683, 0.707107, 0.923880, 1.000000, 0.923880, 0.707107, 0.382683,
-	0.000000, -0.382683, -0.707107, -0.923880, -1.000000, -0.923880, -0.707107, -0.382683,
-	-0.000000, 0.382683, 0.707107, 0.923880, 1.000000, 0.923880, 0.707107, 0.382683,
-	0.000000, -0.382683, -0.707107, -0.923880, -1.000000, -0.923880, -0.707107, -0.382683};
+	0.000000F, 0.382683F, 0.707107F, 0.923880F, 1.000000F, 0.923880F,
+	0.707107F, 0.382683F, 0.000000F, -0.382683F, -0.707107F, -0.923880F,
+	-1.000000F, -0.923880F, -0.707107F, -0.382683F, -0.000000F, 0.382683F,
+	0.707107F, 0.923880F, 1.000000F, 0.923880F, 0.707107F, 0.382683F,
+	0.000000F, -0.382683F, -0.707107F, -0.923880F, -1.000000F, -0.923880F,
+	-0.707107F, -0.382683F};
 
 const float utils_tab_cos_32_1[] = {
-	1.000000, 0.980785, 0.923880, 0.831470, 0.707107, 0.555570, 0.382683, 0.195090,
-	0.000000, -0.195090, -0.382683, -0.555570, -0.707107, -0.831470, -0.923880, -0.980785,
-	-1.000000, -0.980785, -0.923880, -0.831470, -0.707107, -0.555570, -0.382683, -0.195090,
-	-0.000000, 0.195090, 0.382683, 0.555570, 0.707107, 0.831470, 0.923880, 0.980785};
+	1.000000F, 0.980785F, 0.923880F, 0.831470F, 0.707107F, 0.555570F,
+	0.382683F, 0.195090F, 0.000000F, -0.195090F, -0.382683F, -0.555570F,
+	-0.707107F, -0.831470F, -0.923880F, -0.980785F, -1.000000F, -0.980785F,
+	-0.923880F, -0.831470F, -0.707107F, -0.555570F, -0.382683F, -0.195090F,
+	-0.000000F, 0.195090F, 0.382683F, 0.555570F, 0.707107F, 0.831470F,
+	0.923880F, 0.980785F};
 
 const float utils_tab_cos_32_2[] = {
-	1.000000, 0.923880, 0.707107, 0.382683, 0.000000, -0.382683, -0.707107, -0.923880,
-	-1.000000, -0.923880, -0.707107, -0.382683, -0.000000, 0.382683, 0.707107, 0.923880,
-	1.000000, 0.923880, 0.707107, 0.382683, 0.000000, -0.382683, -0.707107, -0.923880,
-	-1.000000, -0.923880, -0.707107, -0.382683, -0.000000, 0.382683, 0.707107, 0.923880};
+	1.000000F, 0.923880F, 0.707107F, 0.382683F, 0.000000F, -0.382683F,
+	-0.707107F, -0.923880F, -1.000000F, -0.923880F, -0.707107F, -0.382683F,
+	-0.000000F, 0.382683F, 0.707107F, 0.923880F, 1.000000F, 0.923880F,
+	0.707107F, 0.382683F, 0.000000F, -0.382683F, -0.707107F, -0.923880F,
+	-1.000000F, -0.923880F, -0.707107F, -0.382683F, -0.000000F, 0.382683F,
+	0.707107F, 0.923880F};

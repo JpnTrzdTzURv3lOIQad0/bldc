@@ -318,7 +318,7 @@
 // dangerous. Therefore it is disabled, and we rely on the DRV to limit the current
 // if needed.
 #ifndef MCCONF_L_MAX_ABS_CURRENT
-#define MCCONF_L_MAX_ABS_CURRENT		401.0	// The maximum absolute current above which a fault is generated
+#define MCCONF_L_MAX_ABS_CURRENT		401.0F	// The maximum absolute current above which a fault is generated
 #endif
 
 // Setting limits
@@ -327,17 +327,17 @@
 #define HW_LIM_CURRENT_ABS			800.0, 804.0
 #define HW_LIM_CURRENT_IN		-200.0, 200.0
 #ifndef MCCONF_L_MAX_ABS_CURRENT
-#define MCCONF_L_MAX_ABS_CURRENT	400.0	// The maximum absolute current above which a fault is generated
-#define MCCONF_FOC_OFFSETS_CURRENT_0	4096.0 // Current 0 offset
-#define MCCONF_FOC_OFFSETS_CURRENT_1	4096.0 // Current 1 offset
-#define MCCONF_FOC_OFFSETS_CURRENT_2	4096.0 // Current 2 offset
+#define MCCONF_L_MAX_ABS_CURRENT	400.0F	// The maximum absolute current above which a fault is generated
+#define MCCONF_FOC_OFFSETS_CURRENT_0	4096.0F // Current 0 offset
+#define MCCONF_FOC_OFFSETS_CURRENT_1	4096.0F // Current 1 offset
+#define MCCONF_FOC_OFFSETS_CURRENT_2	4096.0F // Current 2 offset
 #endif
 #else
 #define HW_LIM_CURRENT				-150.0, 150.0
 #define HW_LIM_CURRENT_ABS		400.0, 402.0
 #define HW_LIM_CURRENT_IN		-100.0, 100.0
 #ifndef MCCONF_L_MAX_ABS_CURRENT
-#define MCCONF_L_MAX_ABS_CURRENT	200.0	// The maximum absolute current above which a fault is generated
+#define MCCONF_L_MAX_ABS_CURRENT	200.0F	// The maximum absolute current above which a fault is generated
 #endif
 #endif
 

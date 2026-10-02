@@ -249,7 +249,7 @@ static void timer_reinit(int f_zv) {
 	#else
 	TIM_BDTRInitStructure.TIM_BreakPolarity = TIM_BreakPolarity_Low;
 	#endif
-	
+
 #else
 	TIM_BDTRInitStructure.TIM_Break = TIM_Break_Disable;
 	#ifdef BRK_HIGH
@@ -347,9 +347,9 @@ static void init_audio_state(volatile mc_audio_state *s) {
 	for (int i = 0;i < MC_AUDIO_CHANNELS;i++) {
 		s->table[i] = utils_tab_sin_32_1;
 		s->table_len[i] = 32;
-		s->table_voltage[i] = 0.0;
-		s->table_freq[i] = 1000.0;
-		s->table_pos[i] = 0.0;
+		s->table_voltage[i] = 0.0F;
+		s->table_freq[i] = 1000.0F;
+		s->table_pos[i] = 0.0F;
 	}
 }
 
@@ -368,8 +368,8 @@ void mcpwm_foc_init(mc_configuration *conf_m1, mc_configuration *conf_m2) {
 	m_motor_1.m_conf = conf_m1;
 	m_motor_1.m_state = MC_STATE_OFF;
 	m_motor_1.m_control_mode = CONTROL_MODE_NONE;
-	m_motor_1.m_hall_dt_diff_last = 1.0;
-	m_motor_1.m_hall_dt_diff_now = 1.0;
+	m_motor_1.m_hall_dt_diff_last = 1.0F;
+	m_motor_1.m_hall_dt_diff_now = 1.0F;
 	m_motor_1.m_ang_hall_int_prev = -1;
 	foc_precalc_values((motor_all_state_t*)&m_motor_1);
 	update_hfi_samples(m_motor_1.m_conf->foc_hfi_samples, &m_motor_1);
@@ -380,8 +380,8 @@ void mcpwm_foc_init(mc_configuration *conf_m1, mc_configuration *conf_m2) {
 	m_motor_2.m_conf = conf_m2;
 	m_motor_2.m_state = MC_STATE_OFF;
 	m_motor_2.m_control_mode = CONTROL_MODE_NONE;
-	m_motor_2.m_hall_dt_diff_last = 1.0;
-	m_motor_2.m_hall_dt_diff_now = 1.0;
+	m_motor_2.m_hall_dt_diff_last = 1.0F;
+	m_motor_2.m_hall_dt_diff_now = 1.0F;
 	m_motor_2.m_ang_hall_int_prev = -1;
 	foc_precalc_values((motor_all_state_t*)&m_motor_2);
 	update_hfi_samples(m_motor_2.m_conf->foc_hfi_samples, &m_motor_2);
@@ -490,7 +490,7 @@ void mcpwm_foc_init(mc_configuration *conf_m1, mc_configuration *conf_m2) {
 #else
 	if (m_motor_1.m_conf->foc_offsets_cal_mode & (1 << 0)) {
 		systime_t cal_start_time = chVTGetSystemTimeX();
-		float cal_start_timeout = 10.0;
+		float cal_start_timeout = 10.0F;
 
 		// Wait for input voltage to rise above minimum voltage
 		while (mc_interface_get_input_voltage_filtered() < m_motor_1.m_conf->l_min_vin) {
@@ -505,11 +505,11 @@ void mcpwm_foc_init(mc_configuration *conf_m1, mc_configuration *conf_m2) {
 		if (!m_dccal_done) {
 			float v_in_last = mc_interface_get_input_voltage_filtered();
 			systime_t v_in_stable_time = chVTGetSystemTimeX();
-			while (UTILS_AGE_S(v_in_stable_time) < 2.0) {
+			while (UTILS_AGE_S(v_in_stable_time) < 2.0F) {
 				chThdSleepMilliseconds(1);
 
 				float v_in_now = mc_interface_get_input_voltage_filtered();
-				if (fabsf(v_in_now - v_in_last) > 1.5) {
+				if (fabsf(v_in_now - v_in_last) > 1.5F) {
 					v_in_last = v_in_now;
 					v_in_stable_time = chVTGetSystemTimeX();
 				}
@@ -805,7 +805,7 @@ void mcpwm_foc_set_current(float current) {
 	motor->m_control_mode = CONTROL_MODE_CURRENT;
 	motor->m_iq_set = current;
 	motor->m_id_set = 0;
-	
+
 	if (fabsf(current) < motor->m_conf->cc_min_current) {
 		return;
 	}
@@ -2017,10 +2017,10 @@ int mcpwm_foc_measure_inductance(float duty, int samples, float *curr, float *ld
 		float amplitude = NORM2_f(real_bin2, imag_bin2) * 2.0;
 		float Ld_est = 1.0 / (offset + amplitude);
 		float Lq_est = 1.0 / (offset - amplitude);
-		
+
 		l_sum += (Ld_est + Lq_est) / 2.0;
 		ld_lq_diff_sum += (Lq_est - Ld_est);
-		
+
 		i_sum += real_bin0_i;
 
 		iterations++;
@@ -2747,7 +2747,7 @@ int mcpwm_foc_dc_cal(bool cal_undriven) {
 
 	stop_pwm_hw((motor_all_state_t*)&m_motor_1);
 	PHASE_FILTER_ON();
-	
+
 	// Start PWM on all phases at 50% to get a V0 measurement
 	TIM_SelectOCxM(TIM1, TIM_Channel_1, TIM_OCMode_PWM1);
 	TIM_CCxCmd(TIM1, TIM_Channel_1, TIM_CCx_Enable);
@@ -2760,10 +2760,10 @@ int mcpwm_foc_dc_cal(bool cal_undriven) {
 	TIM_SelectOCxM(TIM1, TIM_Channel_3, TIM_OCMode_PWM1);
 	TIM_CCxCmd(TIM1, TIM_Channel_3, TIM_CCx_Enable);
 	TIM_CCxNCmd(TIM1, TIM_Channel_3, TIM_CCxN_Enable);
-		
+
 	TIM_GenerateEvent(TIM1, TIM_EventSource_COM);
 
-	chThdSleep(1);	
+	chThdSleep(1);
 
 	for (float i = 0; i < samples; i++) {
 		current_sum[0] += m_motor_1.m_currents_adc[0];
@@ -2773,7 +2773,7 @@ int mcpwm_foc_dc_cal(bool cal_undriven) {
 		current_sum[2] += m_motor_1.m_currents_adc[2];
 		voltage_sum[2] += ADC_V_L3_VOLTS;
 		chThdSleep(1);
-	}	
+	}
 
 	stop_pwm_hw((motor_all_state_t*)&m_motor_1);
 
@@ -3041,7 +3041,7 @@ void mcpwm_foc_adc_int_handler(void *p, uint32_t flags) {
 	// Add both currents together
 	curr0 += GET_CURRENT1_M2();
 	curr1 += GET_CURRENT2_M2();
-	curr2 += GET_CURRENT3_M2();	
+	curr2 += GET_CURRENT3_M2();
 #endif
 
 	// Store raw ADC readings
@@ -3058,11 +3058,11 @@ void mcpwm_foc_adc_int_handler(void *p, uint32_t flags) {
 	ADC_curr_raw[0 + norm_curr_ofs] = curr0;
 	ADC_curr_raw[1 + norm_curr_ofs] = curr1;
 	ADC_curr_raw[2 + norm_curr_ofs] = curr2;
-	
-#ifdef HW_HAS_3_SHUNTS	
+
+#ifdef HW_HAS_3_SHUNTS
 	// Calculate unbalance to detect bad sensor
 	motor_now->m_curr_unbalance = curr0 + curr1 + curr2;
-#endif	
+#endif
 
 	// Scale to AMPs using calibrated scaling factors
 	if (is_second_motor) {
@@ -3075,7 +3075,7 @@ void mcpwm_foc_adc_int_handler(void *p, uint32_t flags) {
 		curr2 *= FAC_CURRENT3;
 	}
 
-#ifndef HW_HAS_3_SHUNTS	
+#ifndef HW_HAS_3_SHUNTS
 	// Calculate third current assuming they are balanced
 	curr2 = -(curr0 + curr1);
 #endif
@@ -3239,14 +3239,14 @@ void mcpwm_foc_adc_int_handler(void *p, uint32_t flags) {
 #endif
 	}
 #endif
-	
+
 	FOC_PROFILE_LINE_FINE();
 
 	// Store the currents for sampling
 	ADC_curr_norm_value[0 + norm_curr_ofs] = curr0;
 	ADC_curr_norm_value[1 + norm_curr_ofs] = curr1;
 	ADC_curr_norm_value[2 + norm_curr_ofs] = curr2;
-	
+
 	float ia = curr0;
 	float ib = curr1;
 	float ic = curr2;

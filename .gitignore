@@ -6,6 +6,7 @@ tools
 tools/*
 !tools/prepare_compdb.py
 !tools/quality_gate.py
+!tools/add_default_float_suffixes.py
 downloads
 package/
 
