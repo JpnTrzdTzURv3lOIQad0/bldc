@@ -273,13 +273,13 @@
 #endif
 
 #ifndef MCCONF_L_MAX_ABS_CURRENT
-#define MCCONF_L_MAX_ABS_CURRENT 120.0 // The maximum absolute current above which a fault is generated
+#define MCCONF_L_MAX_ABS_CURRENT 120.0F // The maximum absolute current above which a fault is generated
 #endif
 #ifndef MCCONF_L_CURRENT_MAX
-#define MCCONF_L_CURRENT_MAX 100.0 // Current limit in Amperes (Upper)
+#define MCCONF_L_CURRENT_MAX 100.0F // Current limit in Amperes (Upper)
 #endif
 #ifndef MCCONF_L_CURRENT_MIN
-#define MCCONF_L_CURRENT_MIN -100.0 // Current limit in Amperes (Lower)
+#define MCCONF_L_CURRENT_MIN -100.0F // Current limit in Amperes (Lower)
 #endif
 
 #ifndef MCCONF_FOC_SAMPLE_V0_V7
@@ -287,22 +287,22 @@
 #endif
 
 #ifndef MCCONF_L_IN_CURRENT_MAX
-#define MCCONF_L_IN_CURRENT_MAX 60.0 // Input current limit in Amperes (Upper)
+#define MCCONF_L_IN_CURRENT_MAX 60.0F // Input current limit in Amperes (Upper)
 #endif
 #ifndef MCCONF_L_IN_CURRENT_MIN
-#define MCCONF_L_IN_CURRENT_MIN -20.0 // Input current limit in Amperes (Lower)
+#define MCCONF_L_IN_CURRENT_MIN -20.0F // Input current limit in Amperes (Lower)
 #endif
 #ifndef MCCONF_L_MIN_VOLTAGE
-#define MCCONF_L_MIN_VOLTAGE 24.0 // Minimum input voltage
+#define MCCONF_L_MIN_VOLTAGE 24.0F // Minimum input voltage
 #endif
 #ifndef MCCONF_L_MAX_VOLTAGE
-#define MCCONF_L_MAX_VOLTAGE 85.0 // Maximum input voltage
+#define MCCONF_L_MAX_VOLTAGE 85.0F // Maximum input voltage
 #endif
 #ifndef MCCONF_FOC_F_ZV
-#define MCCONF_FOC_F_ZV 20000.0
+#define MCCONF_FOC_F_ZV 20000.0F
 #endif
 #ifndef MCCONF_FOC_DT_US
-#define MCCONF_FOC_DT_US 0.2 // Microseconds for dead time compensation
+#define MCCONF_FOC_DT_US 0.2F // Microseconds for dead time compensation
 #endif
 
 // Setting limits

@@ -163,7 +163,7 @@ __attribute__((section(".text2"))) bool conf_general_store_backup_data(void) {
 	mc_interface_ignore_input_both(5000);
 	mc_interface_release_motor_override_both();
 
-	if (!mc_interface_wait_for_motor_release_both(3.0)) {
+	if (!mc_interface_wait_for_motor_release_both(3.0F)) {
 		return false;
 	}
 
@@ -297,7 +297,7 @@ __attribute__((section(".text2"))) static bool store_eeprom_var(eeprom_var *v, i
 	mc_interface_ignore_input_both(5000);
 	mc_interface_release_motor_override_both();
 
-	if (!mc_interface_wait_for_motor_release_both(3.0)) {
+	if (!mc_interface_wait_for_motor_release_both(3.0F)) {
 		return 100;
 	}
 
@@ -377,7 +377,7 @@ __attribute__((section(".text2"))) bool conf_general_store_app_configuration(app
 	mc_interface_ignore_input_both(5000);
 	mc_interface_release_motor_override_both();
 
-	if (!mc_interface_wait_for_motor_release_both(3.0)) {
+	if (!mc_interface_wait_for_motor_release_both(3.0F)) {
 		return false;
 	}
 
@@ -476,7 +476,7 @@ __attribute__((section(".text2"))) bool conf_general_store_mc_configuration(mc_c
 	mc_interface_ignore_input_both(5000);
 	mc_interface_release_motor_override_both();
 
-	if (!mc_interface_wait_for_motor_release_both(3.0)) {
+	if (!mc_interface_wait_for_motor_release_both(3.0F)) {
 		return false;
 	}
 
@@ -515,7 +515,7 @@ __attribute__((section(".text2"))) bool conf_general_detect_motor_param(float cu
 		float *int_limit, float *bemf_coupling_k, int8_t *hall_table, int *hall_res) {
 
 	int ok_steps = 0;
-	const float spinup_to_duty = 0.5;
+	const float spinup_to_duty = 0.5F;
 
 	mc_configuration *mcconf = mempools_alloc_mcconf();
 	mc_configuration *mcconf_old = mempools_alloc_mcconf();
@@ -526,7 +526,7 @@ __attribute__((section(".text2"))) bool conf_general_detect_motor_param(float cu
 	mcconf->motor_type = MOTOR_TYPE_BLDC;
 	mcconf->sensor_mode = SENSOR_MODE_SENSORLESS;
 	mcconf->comm_mode = COMM_MODE_INTEGRATE;
-	mcconf->sl_phase_advance_at_br = 1.0;
+	mcconf->sl_phase_advance_at_br = 1.0F;
 	mcconf->sl_min_erpm = min_rpm;
 	mcconf->sl_bemf_coupling_k = 300;
 	mcconf->sl_cycle_int_limit = 50;
@@ -551,7 +551,7 @@ __attribute__((section(".text2"))) bool conf_general_detect_motor_param(float cu
 	float tout_c = timeout_get_brake_current();
 	KILL_SW_MODE tout_ksw = timeout_get_kill_sw_mode();
 	timeout_reset();
-	timeout_configure(60000, 0.0, KILL_SW_MODE_DISABLED);
+	timeout_configure(60000, 0.0F, KILL_SW_MODE_DISABLED);
 
 	mc_interface_lock();
 
@@ -564,7 +564,7 @@ __attribute__((section(".text2"))) bool conf_general_detect_motor_param(float cu
 		if (i == 1) {
 			mc_interface_lock_override_once();
 			mc_interface_release_motor();
-			mc_interface_wait_for_motor_release(1.0);
+			mc_interface_wait_for_motor_release(1.0F);
 			mcconf->sl_min_erpm = 2 * min_rpm;
 			mcconf->sl_cycle_int_limit = 20;
 			mc_interface_lock_override_once();
@@ -575,7 +575,7 @@ __attribute__((section(".text2"))) bool conf_general_detect_motor_param(float cu
 		} else if (i == 2) {
 			mc_interface_lock_override_once();
 			mc_interface_release_motor();
-			mc_interface_wait_for_motor_release(1.0);
+			mc_interface_wait_for_motor_release(1.0F);
 			mcconf->sl_min_erpm = 4 * min_rpm;
 			mcconf->comm_mode = COMM_MODE_DELAY;
 			mc_interface_lock_override_once();
@@ -593,7 +593,7 @@ __attribute__((section(".text2"))) bool conf_general_detect_motor_param(float cu
 			chThdSleepMilliseconds(1);
 			cnt++;
 
-			if (mc_interface_get_duty_cycle_now() >= (spinup_to_duty / 2.0) && !switch_done) {
+			if (mc_interface_get_duty_cycle_now() >= (spinup_to_duty / 2.0F) && !switch_done) {
 				mcpwm_switch_comm_mode(COMM_MODE_DELAY);
 				switch_done = true;
 			}
@@ -615,7 +615,7 @@ __attribute__((section(".text2"))) bool conf_general_detect_motor_param(float cu
 	}
 
 	if (!started) {
-		mc_interface_set_current(0.0);
+		mc_interface_set_current(0.0F);
 		timeout_configure(tout, tout_c, tout_ksw);
 		mc_interface_set_configuration(mcconf_old);
 		mc_interface_unlock();
@@ -636,7 +636,7 @@ __attribute__((section(".text2"))) bool conf_general_detect_motor_param(float cu
 
 	// Release the motor and wait a few commutations
 	mc_interface_lock_override_once();
-	mc_interface_set_current(0.0);
+	mc_interface_set_current(0.0F);
 	int tacho = mc_interface_get_tachometer_value(0);
 	for (int i = 0;i < 2000;i++) {
 		if ((mc_interface_get_tachometer_value(0) - tacho) < 3) {
@@ -680,12 +680,12 @@ __attribute__((section(".text2"))) bool conf_general_detect_motor_param(float cu
 	// Average the cycle integrator for 100 commutations
 	mcpwm_read_reset_avg_cycle_integrator();
 	tacho = mc_interface_get_tachometer_value(0);
-	float rpm_sum = 0.0;
-	float rpm_iterations = 0.0;
+	float rpm_sum = 0.0F;
+	float rpm_iterations = 0.0F;
 	for (int i = 0;i < 3000;i++) {
 		if ((mc_interface_get_tachometer_value(0) - tacho) < 100) {
 			rpm_sum += mc_interface_get_rpm();
-			rpm_iterations += 1;
+			rpm_iterations += 1.0F;
 			chThdSleepMilliseconds(1);
 		} else {
 			ok_steps++;
@@ -698,7 +698,7 @@ __attribute__((section(".text2"))) bool conf_general_detect_motor_param(float cu
 
 	mc_interface_lock_override_once();
 	mc_interface_release_motor();
-	mc_interface_wait_for_motor_release(1.0);
+	mc_interface_wait_for_motor_release(1.0F);
 
 	// Try to figure out the coupling factor
 	avg_cycle_integrator_running -= *int_limit;
@@ -751,9 +751,9 @@ __attribute__((section(".text2"))) bool conf_general_measure_flux_linkage(float 
 	mcconf->motor_type = MOTOR_TYPE_BLDC;
 	mcconf->sensor_mode = SENSOR_MODE_SENSORLESS;
 	mcconf->comm_mode = COMM_MODE_INTEGRATE;
-	mcconf->sl_phase_advance_at_br = 1.0;
+	mcconf->sl_phase_advance_at_br = 1.0F;
 	mcconf->sl_min_erpm = min_erpm;
-	mcconf->m_bldc_f_sw_min = 10000.0;
+	mcconf->m_bldc_f_sw_min = 10000.0F;
 	mcconf->sl_bemf_coupling_k = 300;
 	mcconf->sl_cycle_int_limit = 50;
 	mcconf->sl_min_erpm_cycle_int_limit = 1100;
@@ -783,7 +783,7 @@ __attribute__((section(".text2"))) bool conf_general_measure_flux_linkage(float 
 	float tout_c = timeout_get_brake_current();
 	KILL_SW_MODE tout_ksw = timeout_get_kill_sw_mode();
 	timeout_reset();
-	timeout_configure(60000, 0.0, KILL_SW_MODE_DISABLED);
+	timeout_configure(60000, 0.0F, KILL_SW_MODE_DISABLED);
 
 	mc_interface_lock();
 
@@ -796,7 +796,7 @@ __attribute__((section(".text2"))) bool conf_general_measure_flux_linkage(float 
 		if (i == 1) {
 			mc_interface_lock_override_once();
 			mc_interface_release_motor();
-			mc_interface_wait_for_motor_release(1.0);
+			mc_interface_wait_for_motor_release(1.0F);
 			mcconf->sl_cycle_int_limit = 250;
 			mc_interface_lock_override_once();
 			mc_interface_set_configuration(mcconf);
@@ -806,7 +806,7 @@ __attribute__((section(".text2"))) bool conf_general_measure_flux_linkage(float 
 		} else if (i == 2) {
 			mc_interface_lock_override_once();
 			mc_interface_release_motor();
-			mc_interface_wait_for_motor_release(1.0);
+			mc_interface_wait_for_motor_release(1.0F);
 			mcconf->sl_min_erpm = 2 * min_erpm;
 			mcconf->sl_cycle_int_limit = 20;
 			mc_interface_lock_override_once();
@@ -817,7 +817,7 @@ __attribute__((section(".text2"))) bool conf_general_measure_flux_linkage(float 
 		} else if (i == 3) {
 			mc_interface_lock_override_once();
 			mc_interface_release_motor();
-			mc_interface_wait_for_motor_release(1.0);
+			mc_interface_wait_for_motor_release(1.0F);
 			mcconf->sl_min_erpm = 4 * min_erpm;
 			mcconf->comm_mode = COMM_MODE_DELAY;
 			mc_interface_lock_override_once();
@@ -835,7 +835,7 @@ __attribute__((section(".text2"))) bool conf_general_measure_flux_linkage(float 
 			chThdSleepMilliseconds(1);
 			cnt++;
 
-			if (mc_interface_get_duty_cycle_now() >= (duty / 2.0) && !switch_done) {
+			if (mc_interface_get_duty_cycle_now() >= (duty / 2.0F) && !switch_done) {
 				mcpwm_switch_comm_mode(COMM_MODE_DELAY);
 				switch_done = true;
 			}
@@ -857,7 +857,7 @@ __attribute__((section(".text2"))) bool conf_general_measure_flux_linkage(float 
 	}
 
 	if (!started) {
-		mc_interface_set_current(0.0);
+		mc_interface_set_current(0.0F);
 		timeout_configure(tout, tout_c, tout_ksw);
 		mc_interface_set_configuration(mcconf);
 		mc_interface_unlock();
@@ -869,29 +869,29 @@ __attribute__((section(".text2"))) bool conf_general_measure_flux_linkage(float 
 	mc_interface_lock_override_once();
 	mc_interface_set_duty(duty);
 
-	float avg_voltage = 0.0;
-	float avg_rpm = 0.0;
-	float avg_current = 0.0;
-	float samples = 0.0;
+	float avg_voltage = 0.0F;
+	float avg_rpm = 0.0F;
+	float avg_current = 0.0F;
+	float samples = 0.0F;
 	for (int i = 0;i < 2000;i++) {
 		avg_voltage += GET_INPUT_VOLTAGE() * mc_interface_get_duty_cycle_now();
 		avg_rpm += mc_interface_get_rpm();
 		avg_current += mc_interface_get_tot_current();
-		samples += 1.0;
-		chThdSleepMilliseconds(1.0);
+		samples += 1.0F;
+		chThdSleepMilliseconds(1);
 	}
 
 	timeout_configure(tout, tout_c, tout_ksw);
 	mc_interface_set_configuration(mcconf_old);
 	mc_interface_unlock();
-	mc_interface_set_current(0.0);
+	mc_interface_set_current(0.0F);
 
 	avg_voltage /= samples;
 	avg_rpm /= samples;
 	avg_current /= samples;
-	avg_voltage -= avg_current * res * 2.0;
+	avg_voltage -= avg_current * res * 2.0F;
 
-	*linkage = avg_voltage / (sqrtf(3.0) * RPM2RADPS_f(avg_rpm));
+	*linkage = avg_voltage / (sqrtf(3.0F) * RPM2RADPS_f(avg_rpm));
 
 	mempools_free_mcconf(mcconf);
 	mempools_free_mcconf(mcconf_old);
@@ -902,21 +902,21 @@ __attribute__((section(".text2"))) bool conf_general_measure_flux_linkage(float 
 /* Calculate DTG register */
 __attribute__((section(".text2"))) uint8_t conf_general_calculate_deadtime(float deadtime_ns, float core_clock_freq) {
 	uint8_t DTG = 0;
-	float timebase = 1.0 / (core_clock_freq / 1000000.0) * 1000.0;
+	float timebase = 1.0F / (core_clock_freq / 1000000.0F) * 1000.0F;
 
-	if (deadtime_ns <= (timebase * 127.0)) {
+	if (deadtime_ns <= (timebase * 127.0F)) {
 		DTG = deadtime_ns / timebase;
 	} else {
-		if (deadtime_ns <= ((63.0 + 64.0) * 2.0 * timebase)) {
-			DTG = deadtime_ns / (2.0 * timebase) - 64.0;
+		if (deadtime_ns <= ((63.0F + 64.0F) * 2.0F * timebase)) {
+			DTG = deadtime_ns / (2.0F * timebase) - 64.0F;
 			DTG |= 0x80;
 		} else {
-			if (deadtime_ns <= ((31.0 + 32.0) * 8.0 * timebase)) {
-				DTG = deadtime_ns / (8.0 * timebase) - 32.0;
+			if (deadtime_ns <= ((31.0F + 32.0F) * 8.0F * timebase)) {
+				DTG = deadtime_ns / (8.0F * timebase) - 32.0F;
 				DTG |= 0xC0;
 			} else {
-				if (deadtime_ns <= ((31.0 + 32) * 16 * timebase)) {
-					DTG = deadtime_ns / (16.0 * timebase) - 32.0;
+				if (deadtime_ns <= ((31.0F + 32.0F) * 16.0F * timebase)) {
+					DTG = deadtime_ns / (16.0F * timebase) - 32.0F;
 					DTG |= 0xE0;
 				} else {
 					// Deadtime requested is longer than max achievable. Set deadtime at
@@ -973,10 +973,10 @@ __attribute__((section(".text2"))) int conf_general_measure_flux_linkage_openloo
 	int fault = FAULT_CODE_NONE;
 
 	if (enc_offset) {
-		*enc_offset = -1;
+		*enc_offset = -1.0F;
 	}
 	if (enc_ratio) {
-		*enc_ratio = -1;
+		*enc_ratio = -1.0F;
 	}
 	if (enc_inverted) {
 		*enc_inverted = false;
@@ -984,21 +984,21 @@ __attribute__((section(".text2"))) int conf_general_measure_flux_linkage_openloo
 
 	// Allow using old values when only measuring the flux linkage undriven
 	if (fabsf(current) <= mc_interface_get_configuration()->cc_min_current) {
-		if (res <= 0.0) {
+		if (res <= 0.0F) {
 			res = mc_interface_get_configuration()->foc_motor_r;
 		}
-		if (ind <= 0.0) {
+		if (ind <= 0.0F) {
 			ind = mc_interface_get_configuration()->foc_motor_l;
 		}
 	}
 
 	// Don't let impossible values through.
-	if (res <= 0.0 || ind <= 0.0) {
+	if (res <= 0.0F || ind <= 0.0F) {
 		return fault;
 	}
 	// Calculate kp and ki from supplied resistance and inductance, default to 1000us time constant.
-	float tc = 1500;
-	float bw = 1.0 / (tc * 1e-6);
+	float tc = 1500.0F;
+	float bw = 1.0F / (tc * 1e-6F);
 	float kp = ind * bw;
 	float ki = res * bw;
 
@@ -1008,8 +1008,8 @@ __attribute__((section(".text2"))) int conf_general_measure_flux_linkage_openloo
 	*mcconf = *mc_interface_get_configuration();
 	*mcconf_old = *mcconf;
 
-	if (duty > (mcconf->l_max_duty * 0.9)) {
-		duty = mcconf->l_max_duty * 0.9;
+	if (duty > (mcconf->l_max_duty * 0.9F)) {
+		duty = mcconf->l_max_duty * 0.9F;
 	}
 
 	mcconf->motor_type = MOTOR_TYPE_FOC;
@@ -1017,7 +1017,7 @@ __attribute__((section(".text2"))) int conf_general_measure_flux_linkage_openloo
 	mcconf->foc_current_kp = kp;
 	mcconf->foc_current_ki = ki;
 	mcconf->foc_cc_decoupling = FOC_CC_DECOUPLING_DISABLED;
-	mcconf->m_encoder_sincos_filter_constant = 1.0;
+	mcconf->m_encoder_sincos_filter_constant = 1.0F;
 	mc_interface_set_configuration(mcconf);
 
 	// Wait maximum 5s for fault code to disappear
@@ -1045,24 +1045,24 @@ __attribute__((section(".text2"))) int conf_general_measure_flux_linkage_openloo
 	float tout_c = timeout_get_brake_current();
 	KILL_SW_MODE tout_ksw = timeout_get_kill_sw_mode();
 	timeout_reset();
-	timeout_configure(60000, 0.0, KILL_SW_MODE_DISABLED);
+	timeout_configure(60000, 0.0F, KILL_SW_MODE_DISABLED);
 
 	mc_interface_lock();
 
 	int cnt = 0;
-	float rpm_now = 0;
+	float rpm_now = 0.0F;
 
 	if (fabsf(current) > mcconf->cc_min_current) {
 		// Start by locking the motor
 		for (int i = 0;i < 200;i++) {
 			mc_interface_lock_override_once();
-			mc_interface_set_openloop_current((float)i * current / 200.0, rpm_now);
+			mc_interface_set_openloop_current((float)i * current / 200.0F, rpm_now);
 			fault = mc_interface_get_fault();
 			if (fault != FAULT_CODE_NONE) {
 				timeout_configure(tout, tout_c, tout_ksw);
 				mc_interface_unlock();
 				mc_interface_release_motor();
-				mc_interface_wait_for_motor_release(1.0);
+				mc_interface_wait_for_motor_release(1.0F);
 				mc_interface_set_configuration(mcconf_old);
 				mempools_free_mcconf(mcconf);
 				mempools_free_mcconf(mcconf_old);
@@ -1071,11 +1071,11 @@ __attribute__((section(".text2"))) int conf_general_measure_flux_linkage_openloo
 			chThdSleepMilliseconds(1);
 		}
 
-		float duty_still = 0;
-		float samples = 0;
+		float duty_still = 0.0F;
+		float samples = 0.0F;
 		for (int i = 0;i < 1000;i++) {
 			duty_still += fabsf(mc_interface_get_duty_cycle_now());
-			samples += 1.0;
+			samples += 1.0F;
 			chThdSleepMilliseconds(1);
 		}
 
@@ -1084,7 +1084,7 @@ __attribute__((section(".text2"))) int conf_general_measure_flux_linkage_openloo
 			timeout_configure(tout, tout_c, tout_ksw);
 			mc_interface_unlock();
 			mc_interface_release_motor();
-			mc_interface_wait_for_motor_release(1.0);
+			mc_interface_wait_for_motor_release(1.0F);
 			mc_interface_set_configuration(mcconf_old);
 			mempools_free_mcconf(mcconf);
 			mempools_free_mcconf(mcconf_old);
@@ -1092,11 +1092,11 @@ __attribute__((section(".text2"))) int conf_general_measure_flux_linkage_openloo
 		}
 
 		duty_still /= samples;
-		float duty_max = 0.0;
+		float duty_max = 0.0F;
 		const int max_time = 15000;
 
 		while (fabsf(mc_interface_get_duty_cycle_now()) < duty) {
-			rpm_now += erpm_per_sec / 1000.0;
+			rpm_now += erpm_per_sec / 1000.0F;
 			mc_interface_lock_override_once();
 			mc_interface_set_openloop_current(current, mcconf->m_invert_direction ? -rpm_now : rpm_now);
 
@@ -1105,7 +1105,7 @@ __attribute__((section(".text2"))) int conf_general_measure_flux_linkage_openloo
 				timeout_configure(tout, tout_c, tout_ksw);
 				mc_interface_unlock();
 				mc_interface_release_motor();
-				mc_interface_wait_for_motor_release(1.0);
+				mc_interface_wait_for_motor_release(1.0F);
 				mc_interface_set_configuration(mcconf_old);
 				mempools_free_mcconf(mcconf);
 				mempools_free_mcconf(mcconf_old);
@@ -1123,23 +1123,23 @@ __attribute__((section(".text2"))) int conf_general_measure_flux_linkage_openloo
 			}
 
 			if (cnt >= max_time) {
-				*linkage = -1.0;
+				*linkage = -1.0F;
 				break;
 			}
 
-			if (cnt > 4000 && duty_now < (duty_max * 0.7)) {
+			if (cnt > 4000 && duty_now < (duty_max * 0.7F)) {
 				cnt = max_time;
-				*linkage = -2.0;
+				*linkage = -2.0F;
 				break;
 			}
 
-			if (cnt > 4000 && duty < duty_still * 1.1) {
+			if (cnt > 4000 && duty < duty_still * 1.1F) {
 				cnt = max_time;
-				*linkage = -3.0;
+				*linkage = -3.0F;
 				break;
 			}
 
-			if (rpm_now >= 12000) {
+			if (rpm_now >= 12000.0F) {
 				break;
 			}
 		}
@@ -1147,18 +1147,18 @@ __attribute__((section(".text2"))) int conf_general_measure_flux_linkage_openloo
 		chThdSleepMilliseconds(1000);
 
 		if (cnt < max_time) {
-			float vq_avg = 0.0;
-			float vd_avg = 0.0;
-			float iq_avg = 0.0;
-			float id_avg = 0.0;
-			float samples2 = 0.0;
+			float vq_avg = 0.0F;
+			float vd_avg = 0.0F;
+			float iq_avg = 0.0F;
+			float id_avg = 0.0F;
+			float samples2 = 0.0F;
 
 			for (int i = 0;i < 10000;i++) {
 				vq_avg += mcpwm_foc_get_vq();
 				vd_avg += mcpwm_foc_get_vd();
 				iq_avg += mcpwm_foc_get_iq();
 				id_avg += mcpwm_foc_get_id();
-				samples2 += 1.0;
+				samples2 += 1.0F;
 				chThdSleep(1);
 
 				fault = mc_interface_get_fault();
@@ -1180,7 +1180,7 @@ __attribute__((section(".text2"))) int conf_general_measure_flux_linkage_openloo
 			mcconf->foc_motor_r = res;
 			mcconf->foc_motor_l = ind;
 			mcconf->foc_motor_flux_linkage = *linkage;
-			mcconf->foc_observer_gain = 0.5e3 / SQ(*linkage);
+			mcconf->foc_observer_gain = 0.5e3F / SQ(*linkage);
 			mc_interface_set_configuration(mcconf);
 
 			// Give the observer time to settle
@@ -1190,30 +1190,30 @@ __attribute__((section(".text2"))) int conf_general_measure_flux_linkage_openloo
 			mcpwm_foc_stop_pwm(mc_interface_get_motor_thread() == 2);
 
 			// Clear any lingering current set points
-			mcpwm_foc_set_current(0.0);
+			mcpwm_foc_set_current(0.0F);
 
 			// Let the H-bridges settle
 			chThdSleepMilliseconds(5);
 		}
 	} else {
-		*linkage = 0.0;
+		*linkage = 0.0F;
 	}
 
-	float enc_diff_sin = 0.0;
-	float enc_diff_cos = 0.0;
+	float enc_diff_sin = 0.0F;
+	float enc_diff_cos = 0.0F;
 	float enc_val_last = encoder_read_deg();
 	float phase_val_last = mcpwm_foc_get_phase_observer();
-	float enc_ratio_sum = 0.0;
-	float enc_samples = 0.0;
-	float enc_travel = 0.0;
+	float enc_ratio_sum = 0.0F;
+	float enc_samples = 0.0F;
+	float enc_travel = 0.0F;
 	bool enc_res_set = false;
 
-	float linkage_sum = 0.0;
-	float linkage_samples = 0.0;
+	float linkage_sum = 0.0F;
+	float linkage_samples = 0.0F;
 	if (fault == FAULT_CODE_NONE) {
 		for (int i = 0;i < 2000;i++) {
 			float rad_s_now = RPM2RADPS_f(mcpwm_foc_get_rpm_faster());
-			if (fabsf(mcpwm_foc_get_duty_cycle_now()) < 0.02) {
+			if (fabsf(mcpwm_foc_get_duty_cycle_now()) < 0.02F) {
 				break;
 			}
 
@@ -1232,26 +1232,26 @@ __attribute__((section(".text2"))) int conf_general_measure_flux_linkage_openloo
 
 			float diff_encoder = utils_angle_difference(encoder_read_deg(), enc_val_last);
 
-			if (fabsf(diff_encoder) >= 5.0) {
+			if (fabsf(diff_encoder) >= 5.0F) {
 				float diff_observer = utils_angle_difference(phase_bemf, phase_val_last);
 
 				enc_val_last = encoder_read_deg();
 				phase_val_last = phase_bemf;
 
 				enc_ratio_sum += diff_observer / diff_encoder;
-				enc_samples += 1.0;
+				enc_samples += 1.0F;
 				enc_travel += fabsf(diff_encoder);
 			}
 
-			const float travel_for_ratio = 40.0;
+			const float travel_for_ratio = 40.0F;
 
 			if (enc_travel >= travel_for_ratio) {
 				float ratio = roundf(SIGN(enc_ratio_sum) * enc_ratio_sum / enc_samples);
-				bool inverted = enc_ratio_sum < 0.0;
+				bool inverted = enc_ratio_sum < 0.0F;
 
 				float phase_tmp = encoder_read_deg();
 				if (inverted) {
-					phase_tmp = 360.0 - phase_tmp;
+					phase_tmp = 360.0F - phase_tmp;
 				}
 				phase_tmp *= ratio;
 
@@ -1260,7 +1260,7 @@ __attribute__((section(".text2"))) int conf_general_measure_flux_linkage_openloo
 				enc_diff_sin += s;
 				enc_diff_cos += c;
 
-				if (enc_travel >= (360.0 + travel_for_ratio) && !enc_res_set) {
+				if (enc_travel >= (360.0F + travel_for_ratio) && !enc_res_set) {
 					if (enc_offset) {
 						*enc_offset = RAD2DEG_f(atan2f(enc_diff_sin, enc_diff_cos));
 						utils_norm_angle(enc_offset);
@@ -1276,7 +1276,7 @@ __attribute__((section(".text2"))) int conf_general_measure_flux_linkage_openloo
 				}
 			}
 
-			linkage_samples += 1.0;
+			linkage_samples += 1.0F;
 			chThdSleep(1);
 
 			fault = mc_interface_get_fault();
@@ -1287,28 +1287,28 @@ __attribute__((section(".text2"))) int conf_general_measure_flux_linkage_openloo
 
 		*undriven_samples = linkage_samples;
 
-		if (linkage_samples > 0) {
+		if (linkage_samples > 0.0F) {
 			*linkage_undriven = linkage_sum / linkage_samples;
 			*result = true;
 		} else {
-			*linkage_undriven = 0.0;
+			*linkage_undriven = 0.0F;
 		}
 
-		if (*linkage > 0.0) {
+		if (*linkage > 0.0F) {
 			*result = true;
 		}
 	}
 
 	// Some functions use 0 to detect a failure
 	if (fault != FAULT_CODE_NONE) {
-		*linkage_undriven = 0.0;
-		*linkage = 0.0;
+		*linkage_undriven = 0.0F;
+		*linkage = 0.0F;
 	}
 
 	timeout_configure(tout, tout_c, tout_ksw);
 	mc_interface_unlock();
 	mc_interface_release_motor();
-	mc_interface_wait_for_motor_release(1.0);
+	mc_interface_wait_for_motor_release(1.0F);
 	mc_interface_set_configuration(mcconf_old);
 	mempools_free_mcconf(mcconf);
 	mempools_free_mcconf(mcconf_old);
@@ -1348,8 +1348,8 @@ __attribute__((section(".text2"))) int conf_general_autodetect_apply_sensors_foc
 
 	mcconf->motor_type = MOTOR_TYPE_FOC;
 	mcconf->foc_sensor_mode = FOC_SENSOR_MODE_SENSORLESS;
-	mcconf->foc_current_kp = 0.0005;
-	mcconf->foc_current_ki = 1.0;
+	mcconf->foc_current_kp = 0.0005F;
+	mcconf->foc_current_ki = 1.0F;
 	mc_interface_set_configuration(mcconf);
 
 	// Wait maximum 5s for fault code to disappear
@@ -1376,7 +1376,7 @@ __attribute__((section(".text2"))) int conf_general_autodetect_apply_sensors_foc
 	float tout_c = timeout_get_brake_current();
 	KILL_SW_MODE tout_ksw = timeout_get_kill_sw_mode();
 	timeout_reset();
-	timeout_configure(60000, 0.0, KILL_SW_MODE_DISABLED);
+	timeout_configure(60000, 0.0F, KILL_SW_MODE_DISABLED);
 
 	mc_interface_lock();
 
@@ -1391,7 +1391,7 @@ __attribute__((section(".text2"))) int conf_general_autodetect_apply_sensors_foc
 		timeout_configure(tout, tout_c, tout_ksw);
 		mc_interface_unlock();
 		mc_interface_release_motor();
-		mc_interface_wait_for_motor_release(1.0);
+		mc_interface_wait_for_motor_release(1.0F);
 		mc_interface_set_configuration(mcconf_old);
 		mempools_free_mcconf(mcconf);
 		mempools_free_mcconf(mcconf_old);
@@ -1418,13 +1418,13 @@ __attribute__((section(".text2"))) int conf_general_autodetect_apply_sensors_foc
 
 		for (int i = 0;i < 1000;i++) {
 			mc_interface_lock_override_once();
-			mc_interface_set_openloop_phase((float)i * current / 1000.0, 0.0);
+			mc_interface_set_openloop_phase((float)i * current / 1000.0F, 0.0F);
 			fault = mc_interface_get_fault();
 			if (fault != FAULT_CODE_NONE) {
 				timeout_configure(tout, tout_c, tout_ksw);
 				mc_interface_unlock();
 				mc_interface_release_motor();
-				mc_interface_wait_for_motor_release(1.0);
+				mc_interface_wait_for_motor_release(1.0F);
 				mc_interface_set_configuration(mcconf_old);
 				mempools_free_mcconf(mcconf);
 				mempools_free_mcconf(mcconf_old);
@@ -1434,18 +1434,18 @@ __attribute__((section(".text2"))) int conf_general_autodetect_apply_sensors_foc
 		}
 
 		float phase_start = encoder_read_deg();
-		float phase_mid = 0.0;
-		float phase_end = 0.0;
+		float phase_mid = 0.0F;
+		float phase_end = 0.0F;
 
-		for (int i = 0;i < 180.0;i++) {
+		for (int i = 0;i < 180;i++) {
 			mc_interface_lock_override_once();
-			mc_interface_set_openloop_phase(current, i);
+			mc_interface_set_openloop_phase(current, (float)i);
 			fault = mc_interface_get_fault();
 			if (fault != FAULT_CODE_NONE) {
 				timeout_configure(tout, tout_c, tout_ksw);
 				mc_interface_unlock();
 				mc_interface_release_motor();
-				mc_interface_wait_for_motor_release(1.0);
+				mc_interface_wait_for_motor_release(1.0F);
 				mc_interface_set_configuration(mcconf_old);
 				mempools_free_mcconf(mcconf);
 				mempools_free_mcconf(mcconf_old);
@@ -1463,7 +1463,7 @@ __attribute__((section(".text2"))) int conf_general_autodetect_apply_sensors_foc
 		float diff = fabsf(utils_angle_difference(phase_start, phase_end));
 		float diff_mid = fabsf(utils_angle_difference(phase_mid, phase_end));
 
-		if (diff > 2.0 && (diff_mid - diff / 2.0) < (diff / 4)) {
+		if (diff > 2.0F && (diff_mid - diff / 2.0F) < (diff / 4.0F)) {
 			float offset, ratio;
 			bool inverted;
 			mcpwm_foc_encoder_detect(current, false, &offset, &ratio, &inverted);
@@ -1489,7 +1489,7 @@ __attribute__((section(".text2"))) int conf_general_autodetect_apply_sensors_foc
 	timeout_configure(tout, tout_c, tout_ksw);
 	mc_interface_unlock();
 	mc_interface_release_motor();
-	mc_interface_wait_for_motor_release(1.0);
+	mc_interface_wait_for_motor_release(1.0F);
 	mc_interface_set_configuration(mcconf_old);
 
 	// On success store the mc configuration, also send it to VESC Tool.
@@ -1515,22 +1515,22 @@ __attribute__((section(".text2"))) void conf_general_calc_apply_foc_cc_kp_ki_gai
 	float l = mcconf->foc_motor_l;
 	float lambda = mcconf->foc_motor_flux_linkage;
 
-	float bw = 1.0 / (tc * 1e-6);
+	float bw = 1.0F / (tc * 1e-6F);
 	float kp = l * bw;
 	float ki = r * bw;
-	float gain = 1.0e-3 / SQ(lambda);
+	float gain = 1.0e-3F / SQ(lambda);
 	//	float gain = (0.00001 / r) / SQ(lambda); // Old method
 
 	mcconf->foc_current_kp = kp;
 	mcconf->foc_current_ki = ki;
-	mcconf->foc_observer_gain = gain * 1e6;
+	mcconf->foc_observer_gain = gain * 1e6F;
 }
 
 __attribute__((section(".text2"))) static int measure_r_l_imax(float current_min, float current_max,
 							float max_power_loss, float *r, float *l, float *ld_lq_diff, float *i_max) {
-	float current_start = current_max / 50;
-	if (current_start < (current_min * 1.1)) {
-		current_start = current_min * 1.1;
+	float current_start = current_max / 50.0F;
+	if (current_start < (current_min * 1.1F)) {
+		current_start = current_min * 1.1F;
 	}
 
 	int fault = FAULT_CODE_NONE;
@@ -1540,9 +1540,9 @@ __attribute__((section(".text2"))) static int measure_r_l_imax(float current_min
 
 	const float res_old = mcconf->foc_motor_r;
 
-	float i_last = 0.0;
-	for (float i = current_start;i < current_max;i *= 1.5) {
-		float res_tmp = 0.0;
+	float i_last = 0.0F;
+	for (float i = current_start;i < current_max;i *= 1.5F) {
+		float res_tmp = 0.0F;
 		fault = mcpwm_foc_measure_resistance(i, 5, false, &res_tmp);
 		i_last = i;
 
@@ -1551,7 +1551,7 @@ __attribute__((section(".text2"))) static int measure_r_l_imax(float current_min
 			return fault;
 		}
 
-		if ((i * i * res_tmp * 1.5) >= (max_power_loss / 5.0)) {
+		if ((i * i * res_tmp * 1.5F) >= (max_power_loss / 5.0F)) {
 			break;
 		}
 	}
@@ -1567,9 +1567,9 @@ __attribute__((section(".text2"))) static int measure_r_l_imax(float current_min
 
 	fault = mcpwm_foc_measure_inductance_current(i_last, 100, 0, ld_lq_diff, l);
 
-	*l *= 1e-6;
-	*ld_lq_diff *= 1e-6;
-	*i_max = sqrtf(max_power_loss / *r / 1.5);
+	*l *= 1e-6F;
+	*ld_lq_diff *= 1e-6F;
+	*i_max = sqrtf(max_power_loss / *r / 1.5F);
 	utils_truncate_number(i_max, HW_LIM_CURRENT);
 
 	mcconf->foc_motor_r = res_old;
@@ -1614,7 +1614,7 @@ static bool wait_motor_stop(int timeout_ms) {
 		mc_interface_select_motor_thread(2);
 		float rpm2 = mc_interface_get_rpm();
 
-		if (fabsf(rpm1) < 100.0 && fabsf(rpm2) < 100.0) {
+		if (fabsf(rpm1) < 100.0F && fabsf(rpm2) < 100.0F) {
 			break;
 		}
 		chThdSleepMilliseconds(10);
@@ -1627,7 +1627,7 @@ static bool wait_motor_stop(int timeout_ms) {
 
 	mc_interface_select_motor_thread(motor_last);
 
-	return fabsf(rpm1) < 100.0 && fabsf(rpm2) < 100.0;
+	return fabsf(rpm1) < 100.0F && fabsf(rpm2) < 100.0F;
 }
 
 #ifdef HW_HAS_DUAL_MOTORS
@@ -1768,9 +1768,9 @@ int conf_general_detect_apply_all_foc(float max_power_loss,
 
 	mcconf->motor_type = MOTOR_TYPE_FOC;
 	mcconf->foc_sensor_mode = FOC_SENSOR_MODE_SENSORLESS;
-	mcconf->foc_f_zv = 10000.0; // Lower f_zv => less dead-time distortion
-	mcconf->foc_current_kp = 0.0005;
-	mcconf->foc_current_ki = 1.0;
+	mcconf->foc_f_zv = 10000.0F; // Lower f_zv => less dead-time distortion
+	mcconf->foc_current_kp = 0.0005F;
+	mcconf->foc_current_ki = 1.0F;
 	mcconf->l_current_max = MCCONF_L_CURRENT_MAX;
 	mcconf->l_current_min = MCCONF_L_CURRENT_MIN;
 	mcconf->l_abs_current_max = MCCONF_L_MAX_ABS_CURRENT;
@@ -1785,9 +1785,9 @@ int conf_general_detect_apply_all_foc(float max_power_loss,
 #ifdef HW_HAS_DUAL_MOTORS
 	mcconf_second->motor_type = MOTOR_TYPE_FOC;
 	mcconf_second->foc_sensor_mode = FOC_SENSOR_MODE_SENSORLESS;
-	mcconf_second->foc_f_zv = 10000.0; // Lower f_zv => less dead-time distortion
-	mcconf_second->foc_current_kp = 0.0005;
-	mcconf_second->foc_current_ki = 1.0;
+	mcconf_second->foc_f_zv = 10000.0F; // Lower f_zv => less dead-time distortion
+	mcconf_second->foc_current_kp = 0.0005F;
+	mcconf_second->foc_current_ki = 1.0F;
 	mcconf_second->l_current_max = MCCONF_L_CURRENT_MAX;
 	mcconf_second->l_current_min = MCCONF_L_CURRENT_MIN;
 	mcconf_second->l_abs_current_max = MCCONF_L_MAX_ABS_CURRENT;
@@ -1828,7 +1828,7 @@ int conf_general_detect_apply_all_foc(float max_power_loss,
 	float tout_c = timeout_get_brake_current();
 	KILL_SW_MODE tout_ksw = timeout_get_kill_sw_mode();
 	timeout_reset();
-	timeout_configure(60000, 0.0, KILL_SW_MODE_DISABLED);
+	timeout_configure(60000, 0.0F, KILL_SW_MODE_DISABLED);
 
 	mc_interface_lock();
 
@@ -1847,10 +1847,10 @@ int conf_general_detect_apply_all_foc(float max_power_loss,
 	worker_execute(measure_r_l_imax_task, &r_l_imax_args);
 #endif
 
-	float r = 0.0;
-	float l = 0.0;
+	float r = 0.0F;
+	float l = 0.0F;
 	float ld_lq_diff;
-	float i_max = 0.0;
+	float i_max = 0.0F;
 	faultM1 = measure_r_l_imax(mcconf->cc_min_current,
 							   mcconf->l_current_max, max_power_loss, &r, &l, &ld_lq_diff, &i_max);
 
@@ -1863,7 +1863,7 @@ int conf_general_detect_apply_all_foc(float max_power_loss,
 		timeout_configure(tout, tout_c, tout_ksw);
 		mc_interface_unlock();
 		mc_interface_release_motor();
-		mc_interface_wait_for_motor_release(1.0);
+		mc_interface_wait_for_motor_release(1.0F);
 		mc_interface_set_configuration(mcconf_old);
 		mempools_free_mcconf(mcconf);
 		mempools_free_mcconf(mcconf_old);
@@ -1886,47 +1886,47 @@ int conf_general_detect_apply_all_foc(float max_power_loss,
 	// as dead-time distortion has less effect at higher modulation.
 	// Having a smooth rotation is more important.
 #ifdef HW_HAS_DUAL_MOTORS
-	mcconf->foc_f_zv = 25000.0;
+	mcconf->foc_f_zv = 25000.0F;
 #else
 	if (mcconf->foc_control_sample_mode == FOC_CONTROL_SAMPLE_MODE_V0_V7) {
-		mcconf->foc_f_zv = 25000.0;
+		mcconf->foc_f_zv = 25000.0F;
 	} else {
-		mcconf->foc_f_zv = 40000.0;
+		mcconf->foc_f_zv = 40000.0F;
 	}
 #endif
 	mc_interface_set_configuration(mcconf);
 
 #ifdef HW_HAS_DUAL_MOTORS
 	mc_interface_select_motor_thread(2);
-	mcconf_second->foc_f_zv = 25000.0; // TODO: Is 40khz here actually OK?
+	mcconf_second->foc_f_zv = 25000.0F; // TODO: Is 40khz here actually OK?
 	mc_interface_set_configuration(mcconf_second);
 	mc_interface_select_motor_thread(1);
 #endif
 
 #ifdef HW_HAS_DUAL_MOTORS
 	measure_flux_linkage_arg_t linkage_args;
-	linkage_args.current = r_l_imax_args.i_max / 2.5;
-	linkage_args.duty = 0.3;
-	linkage_args.erpm_per_sec = 1800;
+	linkage_args.current = r_l_imax_args.i_max / 2.5F;
+	linkage_args.duty = 0.3F;
+	linkage_args.erpm_per_sec = 1800.0F;
 	linkage_args.res = r_l_imax_args.r;
 	linkage_args.ind = r_l_imax_args.l;
 	linkage_args.motor = 2;
 	worker_execute(measure_flux_linkage_task, &linkage_args);
 #endif
 
-	float lambda = 0.0;
-	float lambda_undriven = 0.0;
-	float lambda_undriven_samples = 0.0;
+	float lambda = 0.0F;
+	float lambda_undriven = 0.0F;
+	float lambda_undriven_samples = 0.0F;
 	bool res;
-	float enc_offset = 0.0, enc_ratio = 0.0;
-	bool enc_inverted = 0.0;
-	faultM1 = conf_general_measure_flux_linkage_openloop(i_max / 2.5, 0.3, 1800, r, l,
+	float enc_offset = 0.0F, enc_ratio = 0.0F;
+	bool enc_inverted = false;
+	faultM1 = conf_general_measure_flux_linkage_openloop(i_max / 2.5F, 0.3F, 1800.0F, r, l,
 														 &lambda, &lambda_undriven, &lambda_undriven_samples, &res,
 														 &enc_offset, &enc_ratio, &enc_inverted);
 
 	if (lambda_undriven_samples > 60) {
 		lambda = lambda_undriven;
-		if (lambda <= 0.0){
+		if (lambda <= 0.0F){
 			res = false;
 		}
 	}
@@ -1945,7 +1945,7 @@ int conf_general_detect_apply_all_foc(float max_power_loss,
 		timeout_configure(tout, tout_c, tout_ksw);
 		mc_interface_unlock();
 		mc_interface_release_motor();
-		mc_interface_wait_for_motor_release(1.0);
+		mc_interface_wait_for_motor_release(1.0F);
 		mc_interface_set_configuration(mcconf_old);
 		mempools_free_mcconf(mcconf);
 		mempools_free_mcconf(mcconf_old);
@@ -1968,7 +1968,7 @@ int conf_general_detect_apply_all_foc(float max_power_loss,
 		mcconf_old->l_current_max = i_max;
 		mcconf_old->l_current_min = -i_max;
 #ifndef HW_NO_ABS_MAX_CALC
-		float abs_max = i_max * 1.5;
+		float abs_max = i_max * 1.5F;
 		utils_truncate_number(&abs_max, HW_LIM_CURRENT_ABS);
 		mcconf_old->l_abs_current_max = abs_max;
 #endif
@@ -1978,7 +1978,7 @@ int conf_general_detect_apply_all_foc(float max_power_loss,
 		mcconf_old->foc_motor_ld_lq_diff = ld_lq_diff;
 		mcconf_old->foc_motor_flux_linkage = lambda;
 
-		if (enc_offset >= 0.0 && enc_ratio >= 0.0) {
+		if (enc_offset >= 0.0F && enc_ratio >= 0.0F) {
 			mcconf_old->foc_encoder_offset = enc_offset;
 			mcconf_old->foc_encoder_ratio = enc_ratio;
 			mcconf_old->foc_encoder_inverted = enc_inverted;
@@ -1996,7 +1996,7 @@ int conf_general_detect_apply_all_foc(float max_power_loss,
 		mcconf_old_second->l_current_max = r_l_imax_args.i_max;
 		mcconf_old_second->l_current_min = -r_l_imax_args.i_max;
 #ifndef HW_NO_ABS_MAX_CALC
-		abs_max = r_l_imax_args.i_max * 1.5;
+		abs_max = r_l_imax_args.i_max * 1.5F;
 		utils_truncate_number(&abs_max, HW_LIM_CURRENT_ABS);
 		mcconf_old_second->l_abs_current_max = abs_max;
 #endif
@@ -2021,7 +2021,7 @@ int conf_general_detect_apply_all_foc(float max_power_loss,
 
 #ifdef HW_HAS_DUAL_MOTORS
 		detect_sensors_arg_t sensors_args;
-		sensors_args.current = r_l_imax_args.i_max / 3.0;
+		sensors_args.current = r_l_imax_args.i_max / 3.0F;
 		sensors_args.store_mcconf_on_success = store_mcconf_on_success;
 		sensors_args.send_mcconf_on_success = send_mcconf_on_success;
 		sensors_args.motor = 2;
@@ -2029,7 +2029,7 @@ int conf_general_detect_apply_all_foc(float max_power_loss,
 #endif
 
 		// This will also store the settings to emulated eeprom and send them to vesc tool
-		faultM1 = conf_general_autodetect_apply_sensors_foc(i_max / 3.0,
+		faultM1 = conf_general_autodetect_apply_sensors_foc(i_max / 3.0F,
 															store_mcconf_on_success, send_mcconf_on_success, &result);
 
 #ifdef HW_HAS_DUAL_MOTORS
@@ -2048,7 +2048,7 @@ int conf_general_detect_apply_all_foc(float max_power_loss,
 			timeout_configure(tout, tout_c, tout_ksw);
 			mc_interface_unlock();
 			mc_interface_release_motor();
-			mc_interface_wait_for_motor_release(1.0);
+			mc_interface_wait_for_motor_release(1.0F);
 			mc_interface_set_configuration(mcconf_old);
 			mempools_free_mcconf(mcconf);
 			mempools_free_mcconf(mcconf_old);
@@ -2073,7 +2073,7 @@ int conf_general_detect_apply_all_foc(float max_power_loss,
 	timeout_configure(tout, tout_c, tout_ksw);
 	mc_interface_lock_override_once();
 	mc_interface_release_motor();
-	mc_interface_wait_for_motor_release(1.0);
+	mc_interface_wait_for_motor_release(1.0F);
 	mc_interface_unlock();
 
 	if (result < 0) {
@@ -2147,25 +2147,25 @@ int conf_general_detect_apply_all_foc_can(bool detect_can, float max_power_loss,
 
 	uint8_t id_new = appconf->controller_id;
 
-	if (fabsf(min_current_in) > 0.001) {
+	if (fabsf(min_current_in) > 0.001F) {
 		mcconf->l_in_current_min = min_current_in;
 	} else {
 		mcconf->l_in_current_min = MCCONF_L_IN_CURRENT_MIN;
 	}
 
-	if (fabsf(max_current_in) > 0.001) {
+	if (fabsf(max_current_in) > 0.001F) {
 		mcconf->l_in_current_max = max_current_in;
 	} else {
 		mcconf->l_in_current_max = MCCONF_L_IN_CURRENT_MAX;
 	}
 
-	if (fabsf(openloop_rpm) > 0.001) {
+	if (fabsf(openloop_rpm) > 0.001F) {
 		mcconf->foc_openloop_rpm = openloop_rpm;
 	} else {
 		mcconf->foc_openloop_rpm = MCCONF_FOC_OPENLOOP_RPM;
 	}
 
-	if (fabsf(sl_erpm) > 0.001) {
+	if (fabsf(sl_erpm) > 0.001F) {
 		mcconf->foc_sl_erpm = sl_erpm;
 	} else {
 		mcconf->foc_sl_erpm = MCCONF_FOC_SL_ERPM;

@@ -180,35 +180,35 @@
 
 // Default setting overrides
 
-#define MCCONF_L_MIN_VOLTAGE		8.0	// Minimum input voltage
+#define MCCONF_L_MIN_VOLTAGE		8.0F	// Minimum input voltage
 
 #define MCCONF_DEFAULT_MOTOR_TYPE	MOTOR_TYPE_FOC
 
-#define MCCONF_FOC_F_ZV				25000.0 // Switching frequency reduced to allow rise time of low side shunts
+#define MCCONF_FOC_F_ZV				25000.0F // Switching frequency reduced to allow rise time of low side shunts
 
 #define HW_LIM_FOC_CTRL_LOOP_FREQ	5000.0, 25000.0	// Limit to 50kHz max 
 
-#define MCCONF_FOC_DT_US			0.0 // Microseconds for dead time compensation
+#define MCCONF_FOC_DT_US			0.0F // Microseconds for dead time compensation
 
 #define MCCONF_M_MOTOR_TEMP_SENS_TYPE TEMP_SENSOR_DISABLED // Motor Temperature Sensor Type
 // Only use phase filters for detection by default to get good resistance measurement. 
 // In testing I found that phase filters gave worse startup
-#define MCCONF_FOC_PHASE_FILTER_MAX_ERPM	10.0 
+#define MCCONF_FOC_PHASE_FILTER_MAX_ERPM	10.0F
 
 // Use full clarke transform by default
 #define MCCONF_FOC_CURRENT_SAMPLE_MODE FOC_CURRENT_SAMPLE_MODE_ALL_SENSORS
 #define MCCONF_FOC_OFFSETS_CAL_ON_BOOT	true // cal on boot to account for temperature changes
 
-#define MCCONF_L_MAX_ABS_CURRENT	60.0	// The maximum absolute current above which a fault is generated
+#define MCCONF_L_MAX_ABS_CURRENT	60.0F	// The maximum absolute current above which a fault is generated
 #define MCCONF_FOC_SAMPLE_V0_V7		false	// Run control loop in both v0 and v7 (requires phase shunts)
-#define MCCONF_L_CURRENT_MAX		40.0   // Current limit in Amperes (Upper)
-#define MCCONF_L_CURRENT_MIN		-40.0	// Current limit in Amperes (Lower)
-#define MCCONF_L_IN_CURRENT_MAX		30.0	// Input current limit in Amperes (Upper)
-#define MCCONF_L_IN_CURRENT_MIN		-30.0	// Input current limit in Amperes (Lower)
+#define MCCONF_L_CURRENT_MAX		40.0F   // Current limit in Amperes (Upper)
+#define MCCONF_L_CURRENT_MIN		-40.0F	// Current limit in Amperes (Lower)
+#define MCCONF_L_IN_CURRENT_MAX		30.0F	// Input current limit in Amperes (Upper)
+#define MCCONF_L_IN_CURRENT_MIN		-30.0F	// Input current limit in Amperes (Lower)
 
 // Defaults for BLDC
 #define MCCONF_M_BLDC_F_SW_MIN			10000 // Minimum switching frequency in bldc mode
-#define MCCONF_SL_MIN_ERPM_CYCLE_INT_LIMIT	4000.0	// Minimum RPM to calculate the BEMF coupling from
+#define MCCONF_SL_MIN_ERPM_CYCLE_INT_LIMIT	4000.0F	// Minimum RPM to calculate the BEMF coupling from
 
 // Setting limits
 #define HW_LIM_CURRENT				-50.0, 50.0 
@@ -221,16 +221,16 @@
 
 #ifdef HW_A50S_20S
 #define HW_LIM_VIN					4.0, 90.0
-#define MCCONF_L_MAX_VOLTAGE		86	// Maximum input voltage
+#define MCCONF_L_MAX_VOLTAGE		86.0F	// Maximum input voltage
 #elif defined (HW_A50S_12S)
 #define HW_LIM_VIN					4.0, 56.0
-#define MCCONF_L_MAX_VOLTAGE		55	// Maximum input voltage
+#define MCCONF_L_MAX_VOLTAGE		55.0F	// Maximum input voltage
 #elif defined (HW_A50S_8S)
 #define HW_LIM_VIN					4.0, 37.0
-#define MCCONF_L_MAX_VOLTAGE		36	// Maximum input voltage
+#define MCCONF_L_MAX_VOLTAGE		36.0F	// Maximum input voltage
 #elif defined (HW_A50S_6S)
 #define HW_LIM_VIN					4.0, 28.0
-#define MCCONF_L_MAX_VOLTAGE		26	// Maximum input voltage
+#define MCCONF_L_MAX_VOLTAGE		26.0F	// Maximum input voltage
 #else
 #error "Must define a hardware type"
 #endif

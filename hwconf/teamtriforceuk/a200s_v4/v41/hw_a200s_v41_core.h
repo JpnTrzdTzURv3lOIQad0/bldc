@@ -216,27 +216,27 @@
 #define READ_HALL3()			palReadPad(HW_HALL_ENC_GPIO3, HW_HALL_ENC_PIN3)
 
 // Default setting overrides
-#define MCCONF_L_MIN_VOLTAGE			14.0		// Minimum input voltage
+#define MCCONF_L_MIN_VOLTAGE			14.0F		// Minimum input voltage
 
 #define MCCONF_DEFAULT_MOTOR_TYPE		MOTOR_TYPE_FOC
 
-#define MCCONF_FOC_F_ZV					30000.0
+#define MCCONF_FOC_F_ZV					30000.0F
 
 #define HW_LIM_FOC_CTRL_LOOP_FREQ		5000.0, 25000.0	//Limit to 50kHz max
 
-#define MCCONF_L_MAX_ABS_CURRENT		200.0	// The maximum absolute current above which a fault is generated
+#define MCCONF_L_MAX_ABS_CURRENT		200.0F	// The maximum absolute current above which a fault is generated
 
 #define MCCONF_FOC_SAMPLE_V0_V7			false	// Run control loop in both v0 and v7 (requires phase shunts)
 
-#define MCCONF_L_CURRENT_MAX			100.0	// Current limit in Amperes (Upper)
+#define MCCONF_L_CURRENT_MAX			100.0F	// Current limit in Amperes (Upper)
 
-#define MCCONF_L_CURRENT_MIN			-100.0	 // Current limit in Amperes (Lower)
+#define MCCONF_L_CURRENT_MIN			-100.0F	 // Current limit in Amperes (Lower)
 
 #define MCCONF_L_SLOW_ABS_OVERCURRENT	false	// Use the raw current for the overcurrent fault detection
 
-#define MCCONF_L_IN_CURRENT_MAX			20.0	// Input current limit in Amperes (Upper)
+#define MCCONF_L_IN_CURRENT_MAX			20.0F	// Input current limit in Amperes (Upper)
 
-#define MCCONF_L_IN_CURRENT_MIN			-5.0	// Input current limit in Amperes (Lower)
+#define MCCONF_L_IN_CURRENT_MIN			-5.0F	// Input current limit in Amperes (Lower)
 
 #define MCCONF_M_MOTOR_TEMP_SENS_TYPE TEMP_SENSOR_DISABLED // Motor Temperature Sensor Type
 
@@ -255,7 +255,7 @@
 #define MCCONF_L_MAX_VOLTAGE	20.0 * 4.2 + 5.0	// Maximum input voltage
 #endif
 #ifndef MCCONF_FOC_DT_US
-#define MCCONF_FOC_DT_US		0.1 // Microseconds for dead time compensation
+#define MCCONF_FOC_DT_US		0.1F // Microseconds for dead time compensation
 #endif
 
 #define HW_DEAD_TIME_NSEC		700.0 

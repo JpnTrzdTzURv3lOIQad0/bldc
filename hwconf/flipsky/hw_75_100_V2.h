@@ -229,40 +229,40 @@
 
 // Default setting overrides
 #ifndef MCCONF_L_MIN_VOLTAGE
-#define MCCONF_L_MIN_VOLTAGE			12.0	// (jaykup) (flipsky firmware)
+#define MCCONF_L_MIN_VOLTAGE			12.0F	// (jaykup) (flipsky firmware)
 #endif
 #ifndef MCCONF_L_MAX_VOLTAGE
-#define MCCONF_L_MAX_VOLTAGE			90.0	// (jaykup) (flipsky firmware)
+#define MCCONF_L_MAX_VOLTAGE			90.0F	// (jaykup) (flipsky firmware)
 #endif
 #ifndef MCCONF_DEFAULT_MOTOR_TYPE
 #define MCCONF_DEFAULT_MOTOR_TYPE		MOTOR_TYPE_FOC
 #endif
 #ifndef MCCONF_FOC_F_ZV
-#define MCCONF_FOC_F_ZV					30000.0 // (jaykup) (flipsky firmware)
+#define MCCONF_FOC_F_ZV					30000.0F // (jaykup) (flipsky firmware)
 #endif
 #ifndef MCCONF_L_MAX_ABS_CURRENT
-#define MCCONF_L_MAX_ABS_CURRENT		150.0	// (jaykup) (flipsky firmware) The maximum absolute current above which a fault is generated
+#define MCCONF_L_MAX_ABS_CURRENT		150.0F	// (jaykup) (flipsky firmware) The maximum absolute current above which a fault is generated
 #endif
 #ifndef MCCONF_FOC_SAMPLE_V0_V7
 #define MCCONF_FOC_SAMPLE_V0_V7			false	// (jaykup) unit has 3 battery shunts so this needs to be off - Run control loop in both v0 and v7 (requires phase shunts)
 #endif
 #ifndef MCCONF_L_IN_CURRENT_MAX
-#define MCCONF_L_IN_CURRENT_MAX			100.0	// (jaykup) (flipsky firmware) Input current limit in Amperes (Upper)
+#define MCCONF_L_IN_CURRENT_MAX			100.0F	// (jaykup) (flipsky firmware) Input current limit in Amperes (Upper)
 #endif
 #ifndef MCCONF_L_IN_CURRENT_MIN
-#define MCCONF_L_IN_CURRENT_MIN			-100.0	// (jaykup) (flipsky firmware) Input current limit in Amperes (Lower)
+#define MCCONF_L_IN_CURRENT_MIN			-100.0F	// (jaykup) (flipsky firmware) Input current limit in Amperes (Lower)
 #endif
 #ifndef MCCONF_L_RPM_MAX
-#define MCCONF_L_RPM_MAX				150000.0	// (jaykup) (flipsky firmware) The motor speed limit (Upper)
+#define MCCONF_L_RPM_MAX				150000.0F	// (jaykup) (flipsky firmware) The motor speed limit (Upper)
 #endif
 #ifndef MCCONF_L_RPM_MIN
-#define MCCONF_L_RPM_MIN				-150000.0	// (jaykup) (flipsky firmware) The motor speed limit (Lower)
+#define MCCONF_L_RPM_MIN				-150000.0F	// (jaykup) (flipsky firmware) The motor speed limit (Lower)
 #endif
 #ifndef MCCONF_SI_BATTERY_CELLS
 #define MCCONF_SI_BATTERY_CELLS			12 // (jaykup) Battery Cells
 #endif
 #ifndef MCCONF_SI_BATTERY_AH
-#define MCCONF_SI_BATTERY_AH			10.0 // (jaykup) Battery amp hours
+#define MCCONF_SI_BATTERY_AH			10.0F // (jaykup) Battery amp hours
 #endif
 
 // (jaykup) Suggested defaults

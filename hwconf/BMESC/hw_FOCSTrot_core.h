@@ -218,41 +218,41 @@
 
 // Default setting overrides
 #ifndef MCCONF_L_MIN_VOLTAGE
-#define MCCONF_L_MIN_VOLTAGE            18.0        // Minimum input voltage
+#define MCCONF_L_MIN_VOLTAGE            18.0F        // Minimum input voltage
 #endif
 #ifndef MCCONF_L_MAX_VOLTAGE
 #ifdef FOCSTROT_V3
-#define MCCONF_L_MAX_VOLTAGE            95.0    // Maximum input voltage
+#define MCCONF_L_MAX_VOLTAGE            95.0F    // Maximum input voltage
 #else
-#define MCCONF_L_MAX_VOLTAGE            140.0    // Maximum input voltage
+#define MCCONF_L_MAX_VOLTAGE            140.0F    // Maximum input voltage
 #endif
 #endif
 #ifndef MCCONF_L_CURRENT_MAX
-#define MCCONF_L_CURRENT_MAX                120.0    // Current limit in Amperes (Upper)
+#define MCCONF_L_CURRENT_MAX                120.0F    // Current limit in Amperes (Upper)
 #endif
 #ifndef MCCONF_L_CURRENT_MIN
-#define MCCONF_L_CURRENT_MIN                -100.0   // Current limit in Amperes (Lower)
+#define MCCONF_L_CURRENT_MIN                -100.0F   // Current limit in Amperes (Lower)
 #endif
 #ifndef MCCONF_L_IN_CURRENT_MAX
-#define MCCONF_L_IN_CURRENT_MAX             60.0    // Input current limit in Amperes (Upper)
+#define MCCONF_L_IN_CURRENT_MAX             60.0F    // Input current limit in Amperes (Upper)
 #endif
 #ifndef MCCONF_L_IN_CURRENT_MIN
-#define MCCONF_L_IN_CURRENT_MIN             -50.0   // Input current limit in Amperes (Lower)
+#define MCCONF_L_IN_CURRENT_MIN             -50.0F   // Input current limit in Amperes (Lower)
 #endif
 #ifndef MCCONF_L_MAX_ABS_CURRENT
-#define MCCONF_L_MAX_ABS_CURRENT            240.0   // The maximum absolute current above which a fault is generated
+#define MCCONF_L_MAX_ABS_CURRENT            240.0F   // The maximum absolute current above which a fault is generated
 #endif
 #ifndef MCCONF_L_LIM_TEMP_FET_START
-#define MCCONF_L_LIM_TEMP_FET_START     70.0    // MOSFET temperature where current limiting should begin
+#define MCCONF_L_LIM_TEMP_FET_START     70.0F    // MOSFET temperature where current limiting should begin
 #endif
 #ifndef MCCONF_L_LIM_TEMP_FET_END
-#define MCCONF_L_LIM_TEMP_FET_END       85.0   // MOSFET temperature where everything should be shut off
+#define MCCONF_L_LIM_TEMP_FET_END       85.0F   // MOSFET temperature where everything should be shut off
 #endif
 #ifndef MCCONF_DEFAULT_MOTOR_TYPE
 #define MCCONF_DEFAULT_MOTOR_TYPE       MOTOR_TYPE_FOC
 #endif
 #ifndef MCCONF_FOC_F_ZV
-#define MCCONF_FOC_F_ZV                 26000.0
+#define MCCONF_FOC_F_ZV                 26000.0F
 #endif
 
 // Setting limits

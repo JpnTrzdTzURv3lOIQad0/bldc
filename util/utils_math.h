@@ -55,7 +55,7 @@ uint16_t utils_median_filter_uint16_run(uint16_t *buffer,
 void utils_rotate_vector3(float *input, float *rotation, float *output, bool reverse);
 
 // Return the sign of the argument. -1.0 if negative, 1.0 if zero or positive.
-#define SIGN(x)				(((x) < 0.0) ? -1.0 : 1.0)
+#define SIGN(x)				(((x) < 0.0F) ? -1.0F : 1.0F)
 
 // Squared
 #define SQ(x)				((x) * (x))
@@ -67,13 +67,14 @@ void utils_rotate_vector3(float *input, float *rotation, float *output, bool rev
 // nan and infinity check for floats
 #define UTILS_IS_INF(x)		((x) == (1.0 / 0.0) || (x) == (-1.0 / 0.0))
 #define UTILS_IS_NAN(x)		((x) != (x))
-#define UTILS_NAN_ZERO(x)	(x = UTILS_IS_NAN(x) ? 0.0 : x)
+#define UTILS_NAN_ZERO(x)	(x = UTILS_IS_NAN(x) ? 0.0F : x)
 
 // Handy conversions for radians/degrees and RPM/radians-per-second
-#define DEG2RAD_f(deg) ((deg) * (float)(M_PI / 180.0))
-#define RAD2DEG_f(rad) ((rad) * (float)(180.0 / M_PI))
-#define RPM2RADPS_f(rpm) ((rpm) * (float)((2.0 * M_PI) / 60.0))
-#define RADPS2RPM_f(rad_per_sec) ((rad_per_sec) * (float)(60.0 / (2.0 * M_PI)))
+#define UTILS_PI_F (3.14159265358979323846F)
+#define DEG2RAD_f(deg) ((deg) * (UTILS_PI_F / 180.0F))
+#define RAD2DEG_f(rad) ((rad) * (180.0F / UTILS_PI_F))
+#define RPM2RADPS_f(rpm) ((rpm) * ((2.0F * UTILS_PI_F) / 60.0F))
+#define RADPS2RPM_f(rad_per_sec) ((rad_per_sec) * (60.0F / (2.0F * UTILS_PI_F)))
 
 #ifndef MIN
 #define MIN(a,b) (((a)<(b))?(a):(b))
@@ -155,8 +156,8 @@ static inline void utils_norm_angle(float *angle) {
 //	}
 
 	// This is much faster than fmodf
-	while (*angle < 0.0) { *angle += 360.0; }
-	while (*angle >= 360.0) { *angle -= 360.0; }
+	while (*angle < 0.0F) { *angle += 360.0F; }
+	while (*angle >= 360.0F) { *angle -= 360.0F; }
 }
 
 /**
@@ -167,8 +168,8 @@ static inline void utils_norm_angle(float *angle) {
  * WARNING: Don't use too large angles.
  */
 static inline void utils_norm_angle_rad(float *angle) {
-	while (*angle < -M_PI) { *angle += 2.0 * M_PI; }
-	while (*angle >=  M_PI) { *angle -= 2.0 * M_PI; }
+	while (*angle < -UTILS_PI_F) { *angle += 2.0F * UTILS_PI_F; }
+	while (*angle >=  UTILS_PI_F) { *angle -= 2.0F * UTILS_PI_F; }
 }
 
 static inline void utils_truncate_number(float *number, float min, float max) {
@@ -231,8 +232,8 @@ static inline bool utils_saturate_vector_2d(float *x, float *y, float max) {
 	float mag = NORM2_f(*x, *y);
 	max = fabsf(max);
 
-	if (mag < 1e-10) {
-		mag = 1e-10;
+	if (mag < 1e-10F) {
+		mag = 1e-10F;
 	}
 
 	if (mag > max) {
@@ -256,8 +257,8 @@ static inline bool utils_saturate_vector_2d(float *x, float *y, float max) {
  */
 static inline float utils_angle_difference(float angle1, float angle2) {
 	float difference = angle1 - angle2;
-	while (difference < -180.0) difference += 2.0 * 180.0;
-	while (difference > 180.0) difference -= 2.0 * 180.0;
+	while (difference < -180.0F) difference += 2.0F * 180.0F;
+	while (difference > 180.0F) difference -= 2.0F * 180.0F;
 	return difference;
 }
 
@@ -272,8 +273,8 @@ static inline float utils_angle_difference(float angle1, float angle2) {
  */
 static inline float utils_angle_difference_rad(float angle1, float angle2) {
 	float difference = angle1 - angle2;
-	while (difference < -M_PI) difference += 2.0 * M_PI;
-	while (difference > M_PI) difference -= 2.0 * M_PI;
+	while (difference < -UTILS_PI_F) difference += 2.0F * UTILS_PI_F;
+	while (difference > UTILS_PI_F) difference -= 2.0F * UTILS_PI_F;
 	return difference;
 }
 

@@ -331,16 +331,16 @@
 
 // Setting limits
 #ifndef MCCONF_L_MAX_ABS_CURRENT
-#define MCCONF_L_MAX_ABS_CURRENT	150.0	// The maximum absolute current above which a fault is generated
+#define MCCONF_L_MAX_ABS_CURRENT	150.0F	// The maximum absolute current above which a fault is generated
 #endif
 #ifndef MCCONF_L_MIN_VOLTAGE
-#define MCCONF_L_MIN_VOLTAGE		12.0	// Minimum input voltage
+#define MCCONF_L_MIN_VOLTAGE		12.0F	// Minimum input voltage
 #endif
 #ifndef MCCONF_L_MAX_VOLTAGE
-#define MCCONF_L_MAX_VOLTAGE		92.0	// Maximum input voltage
+#define MCCONF_L_MAX_VOLTAGE		92.0F	// Maximum input voltage
 #endif
 #ifndef MCCONF_FOC_F_ZV
-#define MCCONF_FOC_F_ZV				23000.0
+#define MCCONF_FOC_F_ZV				23000.0F
 #endif
 
 #define HW_LIM_CURRENT				-200.0, 200.0
