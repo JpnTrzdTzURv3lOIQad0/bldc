@@ -1,5 +1,7 @@
-CompileFlags:
-  Remove: [-m*, -f*]
+
+# CompileFlags:
+# Remove: [-m*, -f*]
+
 Diagnostics:
   ClangTidy:
     Add: [bugprone-*, clang-analyzer-*, cert-*, performance-*, portability-*, misc-*, readability-*]
@@ -16,3 +18,8 @@ CompileFlags:
     - -I../ChibiOS_21.11.5/os/common/ext/ST/STM32F4xx
     - -I../ChibiOS_21.11.5/os/common/ext/ARM/CMSIS/Core/Include
     - -DSTM32F407xx
+---
+If:
+  PathMatch: .*\.c
+CompileFlags:
+  Add: [-std=gnu23]
