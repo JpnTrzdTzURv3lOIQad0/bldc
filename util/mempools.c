@@ -20,6 +20,8 @@
 #include "mempools.h"
 #include "packet.h"
 
+#include <stddef.h>
+
 // Private types
 typedef struct {
 	volatile bool is_taken;
@@ -60,7 +62,7 @@ mc_configuration *mempools_alloc_mcconf(void) {
 
 	m_mcconf_highest++;
 
-	return 0;
+	return NULL;
 }
 
 void mempools_free_mcconf(mc_configuration *conf) {
@@ -85,7 +87,7 @@ app_configuration *mempools_alloc_appconf(void) {
 
 	m_appconf_highest++;
 
-	return 0;
+	return NULL;
 }
 
 void mempools_free_appconf(app_configuration *conf) {

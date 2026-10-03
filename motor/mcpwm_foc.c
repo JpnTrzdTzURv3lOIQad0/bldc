@@ -2089,7 +2089,7 @@ int mcpwm_foc_measure_inductance_current(float curr_goal, int samples, float *cu
 	for (float i = 0.02F;i < 0.5F;i *= 1.5F) {
 		utils_truncate_number_abs(&i, 0.6F);
 		float i_tmp;
-		fault = mcpwm_foc_measure_inductance(i, 10, &i_tmp, 0, 0);
+		fault = mcpwm_foc_measure_inductance(i, 10, &i_tmp, NULL, NULL);
 		if (fault != FAULT_CODE_NONE) {
 			return fault;
 		}
@@ -2354,7 +2354,7 @@ int mcpwm_foc_measure_res_ind(float *res, float *ind, float *ld_lq_diff) {
 		motor->m_conf->foc_motor_r = *res;
 		mcpwm_foc_set_current(0.0F);
 		chThdSleepMilliseconds(10);
-		fault = mcpwm_foc_measure_inductance_current(i_last, 200, 0, ld_lq_diff, ind);
+		fault = mcpwm_foc_measure_inductance_current(i_last, 200, NULL, ld_lq_diff, ind);
 	}
 
 	exit_measure_res_ind:
@@ -3705,7 +3705,7 @@ void mcpwm_foc_adc_int_handler(void *p, uint32_t flags) {
 		// Run observer
 		foc_observer_update(state_now->v_alpha, state_now->v_beta,
 						state_now->i_alpha, state_now->i_beta,
-						dt, &(motor_now->m_observer_state), 0, motor_now);
+						dt, &(motor_now->m_observer_state), NULL, motor_now);
 		motor_now->m_phase_now_observer = utils_fast_atan2(motor_now->m_x2_prev + motor_now->m_observer_state.x2,
 														   motor_now->m_x1_prev + motor_now->m_observer_state.x1);
 
@@ -4671,6 +4671,7 @@ static void control_current(motor_all_state_t *motor, float dt) {
 			dec_bemf = motor->m_speed_est_fast * conf_now->foc_motor_flux_linkage;
 			break;
 
+		case FOC_CC_DECOUPLING_DISABLED:
 		default:
 			break;
 		}
@@ -4780,6 +4781,7 @@ static void control_current(motor_all_state_t *motor, float dt) {
 		utils_saturate_vector_2d((float*)&state_m->mod_alpha_raw, (float*)&state_m->mod_beta_raw, SQRT3_BY_2 * 0.95F);
 	} break;
 
+	case MC_AUDIO_OFF:
 	default:
 		break;
 

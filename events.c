@@ -24,6 +24,7 @@
 #include "ch.h"
 #include <string.h>
 #include <math.h>
+#include <stddef.h>
 
 // Settings
 #define EVENTS_LEN	30
@@ -56,7 +57,7 @@ void events_init(void) {
 	terminal_register_command_callback(
 			"events",
 			"Print recent motor events",
-			0,
+			NULL,
 			terminal_print);
 }
 

@@ -77,12 +77,12 @@ static uint8_t blocking_thread_cmd_buffer[PACKET_MAX_PL_LEN];
 static volatile unsigned int blocking_thread_cmd_len = 0;
 static volatile bool is_blocking = false;
 static volatile int blocking_thread_motor = 1;
-static void(* volatile send_func)(unsigned char *data, unsigned int len) = 0;
-static void(* volatile send_func_blocking)(unsigned char *data, unsigned int len) = 0;
-static void(* volatile send_func_nrf)(unsigned char *data, unsigned int len) = 0;
-static void(* volatile send_func_can_fwd)(unsigned char *data, unsigned int len) = 0;
-static void(* volatile appdata_func)(unsigned char *data, unsigned int len) = 0;
-static void(* volatile hwdata_func)(unsigned char *data, unsigned int len) = 0;
+static void(* volatile send_func)(unsigned char *data, unsigned int len) = NULL;
+static void(* volatile send_func_blocking)(unsigned char *data, unsigned int len) = NULL;
+static void(* volatile send_func_nrf)(unsigned char *data, unsigned int len) = NULL;
+static void(* volatile send_func_can_fwd)(unsigned char *data, unsigned int len) = NULL;
+static void(* volatile appdata_func)(unsigned char *data, unsigned int len) = NULL;
+static void(* volatile hwdata_func)(unsigned char *data, unsigned int len) = NULL;
 static disp_pos_mode display_position_mode;
 static mutex_t print_mutex;
 static mutex_t terminal_mutex;
@@ -201,7 +201,7 @@ void commands_process_packet(unsigned char *data, unsigned int len,
 		return;
 	}
 
-	COMM_PACKET_ID packet_id;
+	uint8_t packet_id;
 
 	packet_id = data[0];
 	data++;
@@ -349,8 +349,7 @@ void commands_process_packet(unsigned char *data, unsigned int len,
 		data[-1] = COMM_WRITE_NEW_APP_DATA;
 
 		comm_can_send_buffer(255, data - 1, len + 1, 2);
-		/* Falls through. */
-		/* no break */
+		__attribute__((fallthrough));
 	case COMM_WRITE_NEW_APP_DATA_LZO:
 	case COMM_WRITE_NEW_APP_DATA: {
 		if (packet_id == COMM_WRITE_NEW_APP_DATA_LZO) {
@@ -484,31 +483,36 @@ void commands_process_packet(unsigned char *data, unsigned int len,
 
 	case COMM_SET_DUTY: {
 		int32_t ind = 0;
-		mc_interface_set_duty((float)buffer_get_int32(data, &ind) / 100000.0F);
+		int32_t duty = buffer_get_int32(data, &ind);
+		mc_interface_set_duty((float)duty / 100000.0F);
 		timeout_reset();
 	} break;
 
 	case COMM_SET_CURRENT: {
 		int32_t ind = 0;
-		mc_interface_set_current((float)buffer_get_int32(data, &ind) / 1000.0F);
+		int32_t current = buffer_get_int32(data, &ind);
+		mc_interface_set_current((float)current / 1000.0F);
 		timeout_reset();
 	} break;
 
 	case COMM_SET_CURRENT_BRAKE: {
 		int32_t ind = 0;
-		mc_interface_set_brake_current((float)buffer_get_int32(data, &ind) / 1000.0F);
+		int32_t current = buffer_get_int32(data, &ind);
+		mc_interface_set_brake_current((float)current / 1000.0F);
 		timeout_reset();
 	} break;
 
 	case COMM_SET_RPM: {
 		int32_t ind = 0;
-		mc_interface_set_pid_speed((float)buffer_get_int32(data, &ind));
+		int32_t rpm = buffer_get_int32(data, &ind);
+		mc_interface_set_pid_speed((float)rpm);
 		timeout_reset();
 	} break;
 
 	case COMM_SET_POS: {
 		int32_t ind = 0;
-		mc_interface_set_pid_pos((float)buffer_get_int32(data, &ind) / 1000000.0F);
+		int32_t position = buffer_get_int32(data, &ind);
+		mc_interface_set_pid_pos((float)position / 1000000.0F);
 		timeout_reset();
 	} break;
 
@@ -1326,7 +1330,7 @@ void commands_process_packet(unsigned char *data, unsigned int len,
 			}
 		}
 
-		psw_status *stat = 0;
+		psw_status *stat = NULL;
 		if (by_id) {
 			stat = comm_can_get_psw_status_id(id_ind);
 		} else if (id_ind < psws_num) {
@@ -1851,7 +1855,7 @@ bool commands_set_app_data_handler(void(*func)(unsigned char *data, unsigned int
 		appdata_func = func;
 		return true;
 	} else {
-		appdata_func = 0;
+		appdata_func = NULL;
 	}
 
 	return false;
@@ -2085,7 +2089,7 @@ static THD_FUNCTION(blocking_thread, arg) {
 		uint8_t *data = blocking_thread_cmd_buffer;
 		unsigned int len = blocking_thread_cmd_len;
 
-		COMM_PACKET_ID packet_id;
+		uint8_t packet_id;
 		static uint8_t send_buffer[512];
 
 		packet_id = data[0];

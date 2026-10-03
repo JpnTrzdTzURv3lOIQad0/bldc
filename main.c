@@ -187,6 +187,11 @@ static THD_FUNCTION(periodic_thread, arg) {
 			commands_send_rotor_pos(utils_angle_difference(mc_interface_get_pid_pos_set(), mc_interface_get_pid_pos_now()));
 			break;
 
+		case DISP_POS_MODE_NONE:
+		case DISP_POS_MODE_INDUCTANCE:
+		case DISP_POS_MODE_OBSERVER:
+		case DISP_POS_MODE_ENCODER_OBSERVER_ERROR:
+		case DISP_POS_MODE_HALL_OBSERVER_ERROR:
 		default:
 			break;
 		}
@@ -205,6 +210,11 @@ static THD_FUNCTION(periodic_thread, arg) {
 				commands_send_rotor_pos(utils_angle_difference(mcpwm_foc_get_phase_observer(), mcpwm_foc_get_phase_hall()));
 				break;
 
+			case DISP_POS_MODE_NONE:
+			case DISP_POS_MODE_INDUCTANCE:
+			case DISP_POS_MODE_ENCODER:
+			case DISP_POS_MODE_PID_POS:
+			case DISP_POS_MODE_PID_POS_ERROR:
 			default:
 				break;
 			}
@@ -237,7 +247,7 @@ uint32_t main_calc_hw_crc(void) {
 #endif
 
 	for (int i = 0;i < conf_custom_cfg_num();i++) {
-		uint8_t *data = 0;
+		uint8_t *data = NULL;
 		int len = conf_custom_get_cfg_xml(i, &data);
 		if (len > 0) {
 			crc = crc32_with_init(data, len, crc);

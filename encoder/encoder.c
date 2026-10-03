@@ -338,6 +338,8 @@ bool encoder_init(volatile mc_configuration *conf) {
 		res = true;
 	} break;
 
+	case SENSOR_PORT_MODE_HALL:
+		break;
 	default:
 		SENSOR_PORT_5V();
 		m_encoder_type_now = ENCODER_TYPE_NONE;
@@ -347,19 +349,19 @@ bool encoder_init(volatile mc_configuration *conf) {
 	terminal_register_command_callback(
 			"encoder",
 			"Prints the status of the AS5047, AS5x47U, AD2S1205, TLE5012, MT6816, MT6835, or TS5700N8501 encoder.",
-			0,
+			NULL,
 			terminal_encoder);
 
 	terminal_register_command_callback(
 			"encoder_clear_errors",
 			"Clear error of the TS5700N8501 encoder, AD2S1205 resolver.",
-			0,
+			NULL,
 			terminal_encoder_clear_errors);
 
 	terminal_register_command_callback(
 			"encoder_clear_multiturn",
 			"Clear multiturn counter of the TS5700N8501 encoder.",
-			0,
+			NULL,
 			terminal_encoder_clear_multiturn);
 
 	return res;
@@ -406,6 +408,20 @@ void encoder_update_config(volatile mc_configuration *conf) {
 		break;
 	}
 
+	case SENSOR_PORT_MODE_HALL:
+	case SENSOR_PORT_MODE_AD2S1205:
+	case SENSOR_PORT_MODE_TS5700N8501:
+	case SENSOR_PORT_MODE_TS5700N8501_MULTITURN:
+	case SENSOR_PORT_MODE_MT6816_SPI_HW:
+	case SENSOR_PORT_MODE_AS5x47U_SPI:
+	case SENSOR_PORT_MODE_BISSC:
+	case SENSOR_PORT_MODE_TLE5012_SSC_SW:
+	case SENSOR_PORT_MODE_TLE5012_SSC_HW:
+	case SENSOR_PORT_MODE_CUSTOM_ENCODER:
+	case SENSOR_PORT_MODE_PWM:
+	case SENSOR_PORT_MODE_MA782:
+	case SENSOR_PORT_MODE_MT6835_SPI_HW:
+		break;
 	default:
 		break;
 	}
@@ -674,6 +690,13 @@ float encoder_get_error_rate(void) {
 	case ENCODER_TYPE_AMT22:
 		res = encoder_cfg_amt22.state.spi_error_rate;
 		break;
+	case ENCODER_TYPE_NONE:
+	case ENCODER_TYPE_TS5700N8501:
+	case ENCODER_TYPE_ABI:
+	case ENCODER_TYPE_CUSTOM:
+	case ENCODER_TYPE_PWM:
+	case ENCODER_TYPE_PWM_ABI:
+		break;
 	default:
 		break;
 	}
@@ -765,7 +788,7 @@ void encoder_check_faults(volatile mc_configuration *m_conf, bool is_second_moto
 			}
 			break;
 
-		case SENSOR_PORT_MODE_AS5x47U_SPI:
+		case SENSOR_PORT_MODE_AS5x47U_SPI: {
 			if (encoder_cfg_as5x47u.state.spi_error_rate > 0.05F) {
 				mc_interface_fault_stop(FAULT_CODE_ENCODER_SPI, is_second_motor, false);
 			}
@@ -784,6 +807,7 @@ void encoder_check_faults(volatile mc_configuration *m_conf, bool is_second_moto
 			}
 
 			break;
+		}
 
 		case SENSOR_PORT_MODE_BISSC:
 			if (encoder_cfg_bissc.state.spi_comm_error_rate > 0.04F) {
@@ -807,6 +831,15 @@ void encoder_check_faults(volatile mc_configuration *m_conf, bool is_second_moto
 			}
 			break;
 
+		case SENSOR_PORT_MODE_HALL:
+		case SENSOR_PORT_MODE_ABI:
+		case SENSOR_PORT_MODE_TS5700N8501:
+		case SENSOR_PORT_MODE_TS5700N8501_MULTITURN:
+		case SENSOR_PORT_MODE_PWM:
+		case SENSOR_PORT_MODE_PWM_ABI:
+		case SENSOR_PORT_MODE_MA782:
+		case SENSOR_PORT_MODE_PWM_ABI_INVERTED:
+			break;
 		default:
 			break;
 		}
@@ -887,7 +920,7 @@ static void terminal_encoder(int argc, const char **argv) {
 		break;
 
 	case SENSOR_PORT_MODE_TLE5012_SSC_HW:
-	case SENSOR_PORT_MODE_TLE5012_SSC_SW: ;
+	case SENSOR_PORT_MODE_TLE5012_SSC_SW: {
 		uint8_t status = encoder_cfg_tle5012.state.last_status_error; // get before other queries
 		double temperature = 0;
 		uint16_t magnet_magnitude = 0;
@@ -900,6 +933,7 @@ static void terminal_encoder(int argc, const char **argv) {
 				temperature);
 		// todo, get/report status word (reg 0x00), make "last error" verbose
 		break;
+	}
 
 	case SENSOR_PORT_MODE_TS5700N8501:
 	case SENSOR_PORT_MODE_TS5700N8501_MULTITURN: {
@@ -1028,6 +1062,8 @@ static void terminal_encoder(int argc, const char **argv) {
 		commands_printf("Error cnt: %d", encoder_cfg_amt22.state.spi_error_cnt);
 		break;
 
+	case SENSOR_PORT_MODE_HALL:
+		break;
 	default:
 		commands_printf("No encoder debug info available.");
 		break;
@@ -1090,6 +1126,14 @@ static THD_FUNCTION(routine_thread, arg) {
 			enc_amt22_routine(&encoder_cfg_amt22);
 			break;
 
+		case ENCODER_TYPE_NONE:
+		case ENCODER_TYPE_SINCOS:
+		case ENCODER_TYPE_TS5700N8501:
+		case ENCODER_TYPE_ABI:
+		case ENCODER_TYPE_CUSTOM:
+		case ENCODER_TYPE_PWM:
+		case ENCODER_TYPE_PWM_ABI:
+			break;
 		default:
 			break;
 		}

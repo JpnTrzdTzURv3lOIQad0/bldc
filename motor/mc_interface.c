@@ -141,7 +141,13 @@ typedef struct {
 	float info_args[2];
 } fault_data_local;
 
-static volatile fault_data_local m_fault_data = {0, FAULT_CODE_NONE, 0, 0, {0, 0}};
+static volatile fault_data_local m_fault_data = {
+	.is_second_motor = false,
+	.fault_code = FAULT_CODE_NONE,
+	.info_str = NULL,
+	.info_argn = 0,
+	.info_args = {0, 0}
+};
 
 // Private functions
 static void update_override_limits(volatile motor_if_state_t *motor, volatile mc_configuration *conf);
@@ -151,8 +157,8 @@ static volatile motor_if_state_t *motor_now(void);
 static void send_sample_block(int ind, int offset);
 
 // Function pointers
-static void(*pwn_done_func)(void) = 0;
-static void(* volatile send_func_sample)(unsigned char *data, unsigned int len) = 0;
+static void(*pwn_done_func)(void) = NULL;
+static void(* volatile send_func_sample)(unsigned char *data, unsigned int len) = NULL;
 
 // Threads
 static THD_WORKING_AREA(timer_thread_wa, 512);
@@ -558,6 +564,8 @@ mc_control_mode mc_interface_get_control_mode(void) {
 		ret = mcpwm_foc_control_mode();
 		break;
 
+	case MOTOR_TYPE_BLDC:
+	case MOTOR_TYPE_DC:
 	default:
 		break;
 	}
@@ -1580,6 +1588,7 @@ float mc_interface_get_battery_level(float *wh_left) {
 
 	switch (conf->si_battery_type) {
 	case BATTERY_TYPE_LIION_3_0__4_2:
+	{
 		battery_avg_voltage = ((3.2F + 4.2F) / 2.0F) * (float)(conf->si_battery_cells);
 		battery_avg_voltage_left = ((3.2F * (float)(conf->si_battery_cells) + v_in) / 2.0F);
 		float batt_left = utils_map(v_in / (float)(conf->si_battery_cells),
@@ -1588,6 +1597,7 @@ float mc_interface_get_battery_level(float *wh_left) {
 		ah_tot *= 0.85F; // 0.85F because the battery is not fully depleted at 3.2V / cell
 		ah_left = batt_left * ah_tot;
 		break;
+	}
 
 	case BATTERY_TYPE_LIIRON_2_6__3_6:
 		battery_avg_voltage = ((2.8F + 3.6F) / 2.0F) * (float)(conf->si_battery_cells);
@@ -2145,6 +2155,9 @@ __attribute__((aligned(16))) void mc_interface_mc_timer_isr(bool is_second_motor
 		}
 	} break;
 
+	case DEBUG_SAMPLING_OFF:
+	case DEBUG_SAMPLING_SEND_LAST_SAMPLES:
+	case DEBUG_SAMPLING_SEND_SINGLE_SAMPLE:
 	default:
 		break;
 	}
@@ -2955,6 +2968,9 @@ static THD_FUNCTION(sample_send_thread, arg) {
 			offset = m_sample_trigger - m_sample_len;
 			break;
 
+		case DEBUG_SAMPLING_OFF:
+		case DEBUG_SAMPLING_SEND_LAST_SAMPLES:
+		case DEBUG_SAMPLING_SEND_SINGLE_SAMPLE:
 		default:
 			break;
 		}
@@ -3038,7 +3054,7 @@ static THD_FUNCTION(fault_stop_thread, arg) {
 			fdata.info_argn = fault_data_copy.info_argn;
 			fdata.info_args[0] = fault_data_copy.info_args[0];
 			fdata.info_args[1] = fault_data_copy.info_args[1];
-			fault_data_copy.info_str = 0;
+			fault_data_copy.info_str = NULL;
 			fault_data_copy.info_argn = 0;
 			terminal_add_fault_data(&fdata);
 		}

@@ -42,6 +42,7 @@
 
 #include <string.h>
 #include <math.h>
+#include <stddef.h>
 
 //#define TEST_BAD_MC_CRC
 //#define TEST_BAD_APP_CRC
@@ -1500,7 +1501,7 @@ __attribute__((section(".text2"))) int conf_general_autodetect_apply_sensors_foc
 		}
 
 		if (send_mcconf_on_success) {
-			commands_send_mcconf(COMM_GET_MCCONF, mcconf_old, 0);
+			commands_send_mcconf(COMM_GET_MCCONF, mcconf_old, NULL);
 		}
 	}
 
@@ -1565,7 +1566,7 @@ __attribute__((section(".text2"))) static int measure_r_l_imax(float current_min
 	mcconf->foc_motor_r = *r;
 	mc_interface_set_configuration(mcconf);
 
-	fault = mcpwm_foc_measure_inductance_current(i_last, 100, 0, ld_lq_diff, l);
+		fault = mcpwm_foc_measure_inductance_current(i_last, 100, NULL, ld_lq_diff, l);
 
 	*l *= 1e-6F;
 	*ld_lq_diff *= 1e-6F;

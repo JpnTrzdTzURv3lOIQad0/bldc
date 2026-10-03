@@ -1058,6 +1058,8 @@ static void set_duty_cycle_ll(float dutyCycle) {
 			return;
 			break;
 
+		case MC_STATE_OFF:
+		case MC_STATE_FULL_BRAKE:
 		default:
 			return;
 		}

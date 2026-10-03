@@ -115,7 +115,7 @@ void virtual_motor_init(volatile mc_configuration *conf){
 	terminal_register_command_callback(
 				"disconnect_virtual_motor",
 				"disconnect virtual motor",
-				0,
+			NULL,
 				terminal_cmd_disconnect_virtual_motor);
 }
 

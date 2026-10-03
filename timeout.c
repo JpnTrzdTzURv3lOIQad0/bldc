@@ -233,6 +233,7 @@ static THD_FUNCTION(timeout_thread, arg) {
 			kill_sw = palReadPad(GPIOA, 14);
 			break;
 
+		case KILL_SW_MODE_DISABLED:
 		default:
 			break;
 		}

@@ -40,7 +40,7 @@ static volatile bool use_median_filter = false;
 static volatile bool is_running = false;
 
 // Function pointers
-static void(*done_func)(void) = 0;
+static void(*done_func)(void) = NULL;
 
 static void icuwidthcb(ICUDriver *icup) {
 	float len_received = ((float)icuGetWidthX(icup) / ((float)TIMER_FREQ / 1000.0F));
@@ -138,7 +138,7 @@ void servodec_stop(void) {
 		pulse_start = 1.0F;
 		pulse_end = 2.0F;
 		use_median_filter = false;
-		done_func = 0;
+		done_func = NULL;
 	}
 
 	is_running = false;

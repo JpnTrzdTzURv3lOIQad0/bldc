@@ -150,6 +150,14 @@ static THD_FUNCTION(ppm_thread, arg) {
 			servo_val /= 2.0F;
 			break;
 
+		case PPM_CTRL_TYPE_NONE:
+		case PPM_CTRL_TYPE_CURRENT:
+		case PPM_CTRL_TYPE_CURRENT_NOREV_BRAKE:
+		case PPM_CTRL_TYPE_DUTY:
+		case PPM_CTRL_TYPE_PID:
+		case PPM_CTRL_TYPE_CURRENT_BRAKE_REV_HYST:
+		case PPM_CTRL_TYPE_CURRENT_SMART_REV:
+		case PPM_CTRL_TYPE_PID_POSITION_180:
 		default:
 			// Mapping with respect to center pulsewidth
 			if (servo_ms < config.pulse_center) {
@@ -379,6 +387,7 @@ static THD_FUNCTION(ppm_thread, arg) {
 			}
 			break;
 
+		case PPM_CTRL_TYPE_NONE:
 		default:
 			continue;
 		}

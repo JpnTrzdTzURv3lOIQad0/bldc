@@ -43,7 +43,7 @@ AS504x_config_t encoder_cfg_as504x = {
 #ifdef AS504x_MOSI_GPIO
 				AS504x_MOSI_GPIO, AS504x_MOSI_PIN,		// MOSI
 #else
-				0, 0,
+				NULL, 0,
 #endif
 				HW_HALL_ENC_GPIO2, HW_HALL_ENC_PIN2,	// MISO
 				{{NULL, NULL}, NULL, NULL}, // Mutex
@@ -60,7 +60,7 @@ AD2S1205_config_t encoder_cfg_ad2s1205 = {
 #if defined(HW_SPI_PORT_MOSI) && AS504x_USE_SW_MOSI_PIN
 				HW_SPI_PORT_MOSI, HW_SPI_PIN_MOSI,
 #else
-				0, 0,
+				NULL, 0,
 #endif
 				HW_SPI_PORT_MISO, HW_SPI_PIN_MISO,
 				{{NULL, NULL}, NULL, NULL}, // Mutex
@@ -297,7 +297,7 @@ AMT22_config_t encoder_cfg_amt22 = {
 		{
 				HW_HALL_ENC_GPIO3, HW_HALL_ENC_PIN3,	// CS
 				HW_HALL_ENC_GPIO1, HW_HALL_ENC_PIN1,	// SCK
-				0, 0,									// MOSI (unused)
+				NULL, 0,									// MOSI (unused)
 				HW_HALL_ENC_GPIO2, HW_HALL_ENC_PIN2,	// MISO
 				{{NULL, NULL}, NULL, NULL}, // Mutex
 				false // Mutex init done

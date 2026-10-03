@@ -30,6 +30,7 @@
 #include "crc.h"
 #include "buffer.h"
 #include <string.h>
+#include <stddef.h>
 
 #ifdef USE_LISPBM
 #include "lispif.h"
@@ -219,7 +220,7 @@ uint8_t* flash_helper_code_data(int ind) {
 	if (code_checks[ind].check_done && code_checks[ind].ok) {
 		return (uint8_t*)(flash_addr[code_sectors[ind]]) + 8;
 	} else {
-		return 0;
+		return NULL;
 	}
 }
 
@@ -298,7 +299,7 @@ void flash_helper_jump_to_bootloader(void) {
 }
 
 uint8_t* flash_helper_get_sector_address(uint32_t fsector) {
-	uint8_t *res = 0;
+	uint8_t *res = NULL;
 
 	for (int i = 0;i < FLASH_SECTORS;i++) {
 		if (flash_sector[i] == fsector) {

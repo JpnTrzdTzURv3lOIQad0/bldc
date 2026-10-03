@@ -24,12 +24,13 @@
 #include "buffer.h"
 #include "utils_sys.h"
 
+#include <stddef.h>
 #include <string.h>
 
 // Function pointers
-static int (*m_get_cfg)(uint8_t *data, bool is_default) = 0;
-static bool (*m_set_cfg)(uint8_t *data) = 0;
-static int (*m_get_cfg_xml)(uint8_t **data) = 0;
+static int (*m_get_cfg)(uint8_t *data, bool is_default) = NULL;
+static bool (*m_set_cfg)(uint8_t *data) = NULL;
+static int (*m_get_cfg_xml)(uint8_t **data) = NULL;
 
 void conf_custom_add_config(
 		int (*get_cfg)(uint8_t *data, bool is_default),
@@ -46,16 +47,16 @@ void conf_custom_add_config(
 }
 
 void conf_custom_clear_configs(void) {
-	m_get_cfg = 0;
-	m_set_cfg = 0;
-	m_get_cfg_xml = 0;
+	m_get_cfg = NULL;
+	m_set_cfg = NULL;
+	m_get_cfg_xml = NULL;
 }
 
 int conf_custom_cfg_num(void) {
 	int res = 0;
 
 	if (m_get_cfg_xml) {
-		uint8_t *xml_data = 0;
+		uint8_t *xml_data = NULL;
 		m_get_cfg_xml(&xml_data);
 
 		if (utils_is_func_valid(xml_data)) {
@@ -67,7 +68,7 @@ int conf_custom_cfg_num(void) {
 }
 
 int conf_custom_get_cfg_xml(int conf_ind, uint8_t **data) {
-	if (conf_ind != 0 || m_get_cfg_xml == 0) {
+	if (conf_ind != 0 || m_get_cfg_xml == NULL) {
 		return 0;
 	}
 
@@ -76,7 +77,7 @@ int conf_custom_get_cfg_xml(int conf_ind, uint8_t **data) {
 
 void conf_custom_process_cmd(unsigned char *data, unsigned int len,
 		void(*reply_func)(unsigned char *data, unsigned int len)) {
-	COMM_PACKET_ID packet_id;
+	uint8_t packet_id;
 
 	packet_id = data[0];
 	data++;
@@ -115,14 +116,14 @@ void conf_custom_process_cmd(unsigned char *data, unsigned int len,
 
 		int conf_ind = data[ind++];
 
-		if (conf_ind != 0 || m_get_cfg_xml == 0) {
+		if (conf_ind != 0 || m_get_cfg_xml == NULL) {
 			break;
 		}
 
 		int32_t len_conf = buffer_get_int32(data, &ind);
 		int32_t ofs_conf = buffer_get_int32(data, &ind);
 
-		uint8_t *xml_data = 0;
+		uint8_t *xml_data = NULL;
 		int xml_len = m_get_cfg_xml(&xml_data);
 
 		if ((len_conf + ofs_conf) > xml_len || len_conf > (PACKET_MAX_PL_LEN - 10)) {

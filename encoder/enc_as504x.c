@@ -31,6 +31,7 @@
 
 #include <string.h>
 #include <math.h>
+#include <stddef.h>
 
 #define AS504x_SPI_READ_BIT 								0x4000
 #define AS504x_SPI_WRITE_BIT 								0x0000
@@ -87,15 +88,15 @@ void enc_as504x_routine(AS504x_config_t *cfg) {
 	cfg->state.last_update_time = timer_time_now();
 
 	// if MOSI is defined, use diagnostics
-	if (cfg->sw_spi.mosi_gpio != 0) {
+	if (cfg->sw_spi.mosi_gpio != NULL) {
 		spi_bb_begin(&(cfg->sw_spi));
-		spi_bb_transfer_16(&(cfg->sw_spi), 0, 0, 1);
+		spi_bb_transfer_16(&(cfg->sw_spi), NULL, NULL, 1);
 		spi_bb_end(&(cfg->sw_spi));
 
 		long_delay();
 
 		spi_bb_begin(&(cfg->sw_spi));
-		cfg->state.spi_data_err_raised = AS504x_spi_transfer_err_check(&cfg->sw_spi, &pos, 0, 1);
+		cfg->state.spi_data_err_raised = AS504x_spi_transfer_err_check(&cfg->sw_spi, &pos, NULL, 1);
 		spi_bb_end(&(cfg->sw_spi));
 		cfg->state.spi_val = pos;
 
@@ -120,7 +121,7 @@ void enc_as504x_routine(AS504x_config_t *cfg) {
 		}
 	} else {
 		spi_bb_begin(&(cfg->sw_spi));
-		spi_bb_transfer_16(&(cfg->sw_spi), &pos, 0, 1);
+		spi_bb_transfer_16(&(cfg->sw_spi), &pos, NULL, 1);
 		spi_bb_end(&(cfg->sw_spi));
 		cfg->state.spi_val = pos;
 
@@ -189,7 +190,7 @@ static uint8_t AS504x_fetch_diag(AS504x_config_t *cfg) {
 	uint8_t ret = 0;
 
 	spi_bb_begin(&(cfg->sw_spi));
-	spi_bb_transfer_16(&(cfg->sw_spi), 0, senf, 1);
+	spi_bb_transfer_16(&(cfg->sw_spi), NULL, senf, 1);
 	spi_bb_end(&(cfg->sw_spi));
 
 	long_delay();
@@ -201,7 +202,7 @@ static uint8_t AS504x_fetch_diag(AS504x_config_t *cfg) {
 	long_delay();
 
 	spi_bb_begin(&(cfg->sw_spi));
-	ret |= AS504x_spi_transfer_err_check(&(cfg->sw_spi), recf + 1, 0, 1);
+	ret |= AS504x_spi_transfer_err_check(&(cfg->sw_spi), recf + 1, NULL, 1);
 	spi_bb_end(&(cfg->sw_spi));
 
 	if (!ret) {
@@ -232,13 +233,13 @@ static void AS504x_fetch_clear_err_diag(AS504x_config_t *cfg) {
 	uint16_t recf, senf = AS504x_SPI_READ_CLEAR_ERROR_MSG;
 
 	spi_bb_begin(&(cfg->sw_spi));
-	spi_bb_transfer_16(&(cfg->sw_spi), 0, &senf, 1);
+	spi_bb_transfer_16(&(cfg->sw_spi), NULL, &senf, 1);
 	spi_bb_end(&(cfg->sw_spi));
 
 	long_delay();
 
 	spi_bb_begin(&(cfg->sw_spi));
-	spi_bb_transfer_16(&(cfg->sw_spi), &recf, 0, 1);
+	spi_bb_transfer_16(&(cfg->sw_spi), &recf, NULL, 1);
 	spi_bb_end(&(cfg->sw_spi));
 
 	cfg->state.sensor_diag.serial_error_flags = recf;

@@ -144,7 +144,7 @@ void terminal_process_string(char *str) {
 	char *p2 = strtok(str, " ");
 	while (p2 && argc < kMaxArgs) {
 		argv[argc++] = p2;
-		p2 = strtok(0, " ");
+		p2 = strtok(NULL, " ");
 	}
 
 	if (argc == 0) {
@@ -158,7 +158,7 @@ void terminal_process_string(char *str) {
 	}
 
 	for (int i = 0;i < callback_write;i++) {
-		if (callbacks[i].cbf != 0 && strcmp(argv[0], callbacks[i].command) == 0) {
+		if (callbacks[i].cbf != NULL && strcmp(argv[0], callbacks[i].command) == 0) {
 			callbacks[i].cbf(argc, (const char**)argv);
 			return;
 		}
@@ -234,7 +234,7 @@ void terminal_process_string(char *str) {
 					commands_printf("DRV8323S_FAULTS  : %s", drv8323s_faults_to_string(fault_vec[i].drv8301_faults));
 				}
 #endif
-				if (fault_vec[i].info_str != 0) {
+				if (fault_vec[i].info_str != NULL) {
 					char f_str[100];
 					strcpy(f_str, "Info             : ");
 					strcpy(f_str + 19, fault_vec[i].info_str);
@@ -1316,7 +1316,7 @@ void terminal_process_string(char *str) {
 		commands_printf("  Print (or clear) the crash/reset diagnostics.");
 
 		for (int i = 0;i < callback_write;i++) {
-			if (callbacks[i].cbf == 0) {
+			if (callbacks[i].cbf == NULL) {
 				continue;
 			}
 
@@ -1394,7 +1394,7 @@ void terminal_register_command_callback(
 		}
 
 		// Check if the callback is empty (unregistered)
-		if (callbacks[i].cbf == 0) {
+		if (callbacks[i].cbf == NULL) {
 			callback_num = i;
 			break;
 		}
@@ -1416,7 +1416,7 @@ void terminal_register_command_callback(
 void terminal_unregister_callback(void(*cbf)(int argc, const char **argv)) {
 	for (int i = 0;i < callback_write;i++) {
 		if (callbacks[i].cbf == cbf) {
-			callbacks[i].cbf = 0;
+			callbacks[i].cbf = NULL;
 		}
 	}
 }

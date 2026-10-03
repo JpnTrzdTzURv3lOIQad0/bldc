@@ -117,9 +117,10 @@ bool bms_process_can_frame(uint32_t can_id, uint8_t *data8, int len, bool is_ext
 					break;
 				}
 
+			}
+
 				default:
 					break;
-			}
 			}
 
 			switch (cmd) {

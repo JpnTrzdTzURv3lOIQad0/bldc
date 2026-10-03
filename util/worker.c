@@ -21,6 +21,8 @@
 #include "ch.h"
 #include "hal.h"
 
+#include <stddef.h>
+
 // Private types
 typedef struct {
 	void *arg;
@@ -28,7 +30,7 @@ typedef struct {
 } worker_arg_t;
 
 // Private variables
-static thread_t *m_tp = 0;
+static thread_t *m_tp = NULL;
 static worker_arg_t m_wa;
 static THD_WORKING_AREA(work_thread_wa, 768);
 static THD_FUNCTION(work_thread, arg);
@@ -50,5 +52,5 @@ static THD_FUNCTION(work_thread, arg) {
 	chRegSetThreadName("Worker");
 	m_tp = chThdGetSelfX();
 	((worker_arg_t*)arg)->func(((worker_arg_t*)arg)->arg);
-	m_tp = 0;
+	m_tp = NULL;
 }

@@ -62,6 +62,7 @@ void foc_observer_update(float v_alpha, float v_beta, float i_alpha, float i_bet
 		L -= L * comp_fact;
 	} break;
 
+	case SAT_COMP_DISABLED:
 	default:
 		break;
 	}

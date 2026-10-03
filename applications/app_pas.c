@@ -271,6 +271,8 @@ static THD_FUNCTION(pas_thread, arg) {
 				}
 			}
 #endif
+			case PAS_CTRL_TYPE_TORQUE:
+			case PAS_CTRL_TYPE_TORQUE_WITH_CADENCE_TIMEOUT:
 			default:
 				break;
 		}

@@ -24,6 +24,8 @@
 #include "spi_sw.h"
 #include "ch.h"
 
+#include <stddef.h>
+
 void rf_init(void) {
 	spi_sw_init();
 }
@@ -63,7 +65,7 @@ void rf_set_power(NRF_POWER power) {
 	if (power == NRF_POWER_OFF){
 		return;
 	}
-	
+
 	char reg_old = rf_read_reg_byte(NRF_REG_RF_SETUP);
 	char reg_new = reg_old;
 
@@ -147,8 +149,8 @@ void rf_set_tx_addr(const char *address, int addr_len) {
 void rf_write_tx_payload(const char *data, int length) {
 	char cmd = NRF_CMD_WRITE_TX_PAYLOAD;
 	spi_sw_begin();
-	spi_sw_transfer(0, &cmd, 1);
-	spi_sw_transfer(0, data, length);
+	spi_sw_transfer(NULL, &cmd, 1);
+	spi_sw_transfer(NULL, data, length);
 	spi_sw_end();
 
 }
@@ -157,8 +159,8 @@ void rf_write_tx_payload(const char *data, int length) {
 void rf_write_tx_payload_no_ack(const char *data, int length) {
 	char cmd = NRF_CMD_WRITE_TX_PAYLOAD_NO_ACK;
 	spi_sw_begin();
-	spi_sw_transfer(0, &cmd, 1);
-	spi_sw_transfer(0, data, length);
+	spi_sw_transfer(NULL, &cmd, 1);
+	spi_sw_transfer(NULL, data, length);
 	spi_sw_end();
 
 }
@@ -167,8 +169,8 @@ void rf_write_tx_payload_no_ack(const char *data, int length) {
 void rf_write_ack_payload(int pipe, const char *data, int length) {
 	char cmd = NRF_CMD_WRITE_ACK_PAYLOAD | (pipe & 0x7);
 	spi_sw_begin();
-	spi_sw_transfer(0, &cmd, 1);
-	spi_sw_transfer(0, data, length);
+	spi_sw_transfer(NULL, &cmd, 1);
+	spi_sw_transfer(NULL, data, length);
 	spi_sw_end();
 
 }
@@ -177,8 +179,8 @@ void rf_write_ack_payload(int pipe, const char *data, int length) {
 void rf_read_rx_payload(char *data, int length) {
 	char cmd = NRF_CMD_READ_RX_PAYLOAD;
 	spi_sw_begin();
-	spi_sw_transfer(0, &cmd, 1);
-	spi_sw_transfer(data, 0, length);
+	spi_sw_transfer(NULL, &cmd, 1);
+	spi_sw_transfer(data, NULL, length);
 	spi_sw_end();
 
 }
@@ -274,14 +276,14 @@ void rf_enable_features(int features) {
 void rf_flush_tx(void) {
 	char cmd = NRF_CMD_FLUSH_TX;
 	spi_sw_begin();
-	spi_sw_transfer(0, &cmd, 1);
+	spi_sw_transfer(NULL, &cmd, 1);
 	spi_sw_end();
 }
 
 void rf_flush_rx(void) {
 	char cmd = NRF_CMD_FLUSH_RX;
 	spi_sw_begin();
-	spi_sw_transfer(0, &cmd, 1);
+	spi_sw_transfer(NULL, &cmd, 1);
 	spi_sw_end();
 }
 
@@ -310,8 +312,8 @@ int rf_get_payload_width(void) {
 	char w;
 	char cmd = NRF_CMD_READ_RX_PAYLOAD_WIDTH;
 	spi_sw_begin();
-	spi_sw_transfer(0, &cmd, 1);
-	spi_sw_transfer(&w, 0, 1);
+	spi_sw_transfer(NULL, &cmd, 1);
+	spi_sw_transfer(&w, NULL, 1);
 	spi_sw_end();
 	return w;
 }
@@ -336,8 +338,8 @@ void rf_write_reg(int reg, const char *data, int len) {
 	char cmd = NRF_CMD_WRITE_REGISTER | reg;
 
 	spi_sw_begin();
-	spi_sw_transfer(0, &cmd, 1);
-	spi_sw_transfer(0, data, len);
+	spi_sw_transfer(NULL, &cmd, 1);
+	spi_sw_transfer(NULL, data, len);
 	spi_sw_end();
 }
 
@@ -349,8 +351,8 @@ void rf_read_reg(int reg, char *data, int len) {
 	char cmd = NRF_CMD_READ_REGISTER | reg;
 
 	spi_sw_begin();
-	spi_sw_transfer(0, &cmd, 1);
-	spi_sw_transfer(data, 0, len);
+	spi_sw_transfer(NULL, &cmd, 1);
+	spi_sw_transfer(data, NULL, len);
 	spi_sw_end();
 }
 

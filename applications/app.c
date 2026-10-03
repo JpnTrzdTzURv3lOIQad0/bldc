@@ -33,7 +33,7 @@
 
 // Private variables
 static app_configuration appconf = {0};
-static virtual_timer_t output_vt = {0};
+static virtual_timer_t output_vt;
 static bool output_vt_init_done = false;
 static volatile bool output_disabled_now = false;
 
@@ -155,6 +155,7 @@ void app_set_configuration(app_configuration *conf) {
 #endif
 			break;
 
+		case APP_NONE:
 		default:
 			break;
 		}
@@ -200,7 +201,7 @@ void app_disable_output(int time_ms) {
 		chVTReset(&output_vt);
 	} else {
 		output_disabled_now = true;
-		chVTSet(&output_vt, MS2ST(time_ms), output_vt_cb, 0);
+		chVTSet(&output_vt, MS2ST(time_ms), output_vt_cb, NULL);
 	}
 }
 

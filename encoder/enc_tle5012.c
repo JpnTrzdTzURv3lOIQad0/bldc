@@ -37,6 +37,7 @@
 
 #include <math.h>
 #include <string.h>
+#include <stddef.h>
 
 // Bitmasks for several read and write functions
 #define TLE5012_SYSTEM_ERROR_MASK           0x4000    //!< System error masks for safety words
@@ -286,7 +287,7 @@ tle5012_errortypes enc_tle5012_transfer(TLE5012_config_t *cfg, uint8_t address, 
 	ssc_bb_transfer_16(&(cfg->sw_spi), &safety_word, &command_word, 1, 1); // send command
 	ssc_bb_transfer_16(&(cfg->sw_spi), data, data, 1, !read); // read register
 	if (safety) {
-		ssc_bb_transfer_16(&(cfg->sw_spi), &safety_word, 0, 1, false); // read safety word
+		ssc_bb_transfer_16(&(cfg->sw_spi), &safety_word, NULL, 1, false); // read safety word
 	}
 	spi_bb_end(&(cfg->sw_spi));
 

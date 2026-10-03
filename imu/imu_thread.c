@@ -139,7 +139,7 @@ void imu_thread_set_device(imu_device_t *dev, uint16_t rate_hz, drdy_t *drdy) {
 		terminal_register_command_callback(
 				"imu_status",
 				"Print status of the active IMU",
-				0,
+				NULL,
 				terminal_status);
 		m_cmds_registered = true;
 	}

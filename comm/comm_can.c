@@ -86,8 +86,8 @@ static rx_state m_rx_state;
 static rx_state m_rx_state2;
 #endif
 
-static thread_t *process_tp = 0;
-static thread_t *ping_tp = 0;
+static thread_t *process_tp = NULL;
+static thread_t *ping_tp = NULL;
 static volatile HW_TYPE ping_hw_last = HW_TYPE_VESC;
 static volatile int ping_hw_last_id = -1;
 static volatile bool init_done = false;
@@ -126,8 +126,8 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced);
 #endif
 
 // Function pointers
-static bool(*sid_callback)(uint32_t id, uint8_t *data, uint8_t len) = 0;
-static bool(*eid_callback)(uint32_t id, uint8_t *data, uint8_t len) = 0;
+static bool(*sid_callback)(uint32_t id, uint8_t *data, uint8_t len) = NULL;
+static bool(*eid_callback)(uint32_t id, uint8_t *data, uint8_t len) = NULL;
 
 void comm_can_init(void) {
 	for (int i = 0;i < CAN_STATUS_MSGS_TO_STORE;i++) {
@@ -249,6 +249,7 @@ void comm_can_set_baud(CAN_BAUD baud, int delay_msec) {
 	case CAN_BAUD_50K:	set_timing(59, 10, 1); break;
 	case CAN_BAUD_75K:	set_timing(39, 10, 1); break;
 	case CAN_BAUD_100K:	set_timing(29, 10, 1); break;
+	case CAN_BAUD_INVALID: break;
 	default: break;
 	}
 }
@@ -668,7 +669,7 @@ bool comm_can_ping(uint8_t controller_id, HW_TYPE *hw_type) {
 			((uint32_t)CAN_PACKET_PING << 8), buffer, 1, true, 0);
 
 	int ret = chEvtWaitAnyTimeout(1 << 29, MS2ST(10));
-	ping_tp = 0;
+	ping_tp = NULL;
 
 	if (ret != 0) {
 		if (hw_type) {
@@ -842,7 +843,7 @@ can_status_msg *comm_can_get_status_msg_index(int index) {
 	if (index < CAN_STATUS_MSGS_TO_STORE) {
 		return &stat_msgs[index];
 	} else {
-		return 0;
+		return NULL;
 	}
 }
 
@@ -862,7 +863,7 @@ can_status_msg *comm_can_get_status_msg_id(int id) {
 		}
 	}
 
-	return 0;
+	return NULL;
 }
 
 /**
@@ -878,7 +879,7 @@ can_status_msg_2 *comm_can_get_status_msg_2_index(int index) {
 	if (index < CAN_STATUS_MSGS_TO_STORE) {
 		return &stat_msgs_2[index];
 	} else {
-		return 0;
+		return NULL;
 	}
 }
 
@@ -898,7 +899,7 @@ can_status_msg_2 *comm_can_get_status_msg_2_id(int id) {
 		}
 	}
 
-	return 0;
+	return NULL;
 }
 
 /**
@@ -914,7 +915,7 @@ can_status_msg_3 *comm_can_get_status_msg_3_index(int index) {
 	if (index < CAN_STATUS_MSGS_TO_STORE) {
 		return &stat_msgs_3[index];
 	} else {
-		return 0;
+		return NULL;
 	}
 }
 
@@ -934,7 +935,7 @@ can_status_msg_3 *comm_can_get_status_msg_3_id(int id) {
 		}
 	}
 
-	return 0;
+	return NULL;
 }
 
 /**
@@ -950,7 +951,7 @@ can_status_msg_4 *comm_can_get_status_msg_4_index(int index) {
 	if (index < CAN_STATUS_MSGS_TO_STORE) {
 		return &stat_msgs_4[index];
 	} else {
-		return 0;
+		return NULL;
 	}
 }
 
@@ -970,7 +971,7 @@ can_status_msg_4 *comm_can_get_status_msg_4_id(int id) {
 		}
 	}
 
-	return 0;
+	return NULL;
 }
 
 /**
@@ -986,7 +987,7 @@ can_status_msg_5 *comm_can_get_status_msg_5_index(int index) {
 	if (index < CAN_STATUS_MSGS_TO_STORE) {
 		return &stat_msgs_5[index];
 	} else {
-		return 0;
+		return NULL;
 	}
 }
 
@@ -1006,7 +1007,7 @@ can_status_msg_5 *comm_can_get_status_msg_5_id(int id) {
 		}
 	}
 
-	return 0;
+	return NULL;
 }
 
 /**
@@ -1022,7 +1023,7 @@ can_status_msg_6 *comm_can_get_status_msg_6_index(int index) {
 	if (index < CAN_STATUS_MSGS_TO_STORE) {
 		return &stat_msgs_6[index];
 	} else {
-		return 0;
+		return NULL;
 	}
 }
 
@@ -1042,14 +1043,14 @@ can_status_msg_6 *comm_can_get_status_msg_6_id(int id) {
 		}
 	}
 
-	return 0;
+	return NULL;
 }
 
 io_board_adc_values *comm_can_get_io_board_adc_1_4_index(int index) {
 	if (index < CAN_STATUS_MSGS_TO_STORE && io_board_adc_1_4[index].id >= 0) {
 		return &io_board_adc_1_4[index];
 	} else {
-		return 0;
+		return NULL;
 	}
 }
 
@@ -1064,14 +1065,14 @@ io_board_adc_values *comm_can_get_io_board_adc_1_4_id(int id) {
 		}
 	}
 
-	return 0;
+	return NULL;
 }
 
 io_board_adc_values *comm_can_get_io_board_adc_5_8_index(int index) {
 	if (index < CAN_STATUS_MSGS_TO_STORE && io_board_adc_5_8[index].id >= 0) {
 		return &io_board_adc_5_8[index];
 	} else {
-		return 0;
+		return NULL;
 	}
 }
 
@@ -1086,14 +1087,14 @@ io_board_adc_values *comm_can_get_io_board_adc_5_8_id(int id) {
 		}
 	}
 
-	return 0;
+	return NULL;
 }
 
 io_board_digial_inputs *comm_can_get_io_board_digital_in_index(int index) {
 	if (index < CAN_STATUS_MSGS_TO_STORE) {
 		return &io_board_digital_in[index];
 	} else {
-		return 0;
+		return NULL;
 	}
 }
 
@@ -1108,7 +1109,7 @@ io_board_digial_inputs *comm_can_get_io_board_digital_in_id(int id) {
 		}
 	}
 
-	return 0;
+	return NULL;
 }
 
 void comm_can_io_board_set_output_digital(int id, int channel, bool on) {
@@ -1138,7 +1139,7 @@ psw_status *comm_can_get_psw_status_index(int index) {
 	if (index < CAN_STATUS_MSGS_TO_STORE) {
 		return &psw_stat[index];
 	} else {
-		return 0;
+		return NULL;
 	}
 }
 
@@ -1149,7 +1150,7 @@ psw_status *comm_can_get_psw_status_id(int id) {
 		}
 	}
 
-	return 0;
+	return NULL;
 }
 
 void comm_can_psw_switch(int id, bool is_on, bool plot) {
@@ -1216,7 +1217,8 @@ CANRxFrame *comm_can_get_rx_frame(int interface) {
 void comm_can_send_status1(uint8_t id, bool replace) {
 	int32_t send_index = 0;
 	uint8_t buffer[8];
-	buffer_append_int32(buffer, (int32_t)mc_interface_get_rpm(), &send_index);
+	float rpm = mc_interface_get_rpm();
+	buffer_append_int32(buffer, (int32_t)rpm, &send_index);
 	buffer_append_int16(buffer, (int16_t)(mc_interface_get_tot_current_filtered() * 1e1F), &send_index);
 	buffer_append_int16(buffer, (int16_t)(mc_interface_get_duty_cycle_now() * 1e3F), &send_index);
 	comm_can_transmit_eid_replace(id | ((uint32_t)CAN_PACKET_STATUS << 8),
@@ -1381,7 +1383,7 @@ static THD_FUNCTION(cancom_process_thread, arg) {
 		} else if (app_get_configuration()->can_mode == CAN_MODE_COMM_BRIDGE ||
 				app_get_configuration()->can_mode == CAN_MODE_UNUSED) {
 			CANRxFrame *rxmsg_tmp;
-			while ((rxmsg_tmp = comm_can_get_rx_frame(0)) != 0) {
+			while ((rxmsg_tmp = comm_can_get_rx_frame(0)) != NULL) {
 				CANRxFrame rxmsg = *rxmsg_tmp;
 
 				if (app_get_configuration()->can_mode == CAN_MODE_COMM_BRIDGE) {
@@ -1420,7 +1422,7 @@ static THD_FUNCTION(cancom_process_thread, arg) {
 		}
 
 		CANRxFrame *rxmsg_tmp;
-		while ((rxmsg_tmp = comm_can_get_rx_frame(1)) != 0) {
+		while ((rxmsg_tmp = comm_can_get_rx_frame(1)) != NULL) {
 			if (app_get_configuration()->can_mode == CAN_MODE_VESC_UAVCAN) {
 				// canard_process_frame can block, copy the frame before it is reused
 				CANRxFrame rxmsg = *rxmsg_tmp;
@@ -1588,7 +1590,7 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 	uint8_t commands_send;
 
 	uint8_t id = eid & 0xFF;
-	CAN_PACKET_ID cmd = eid >> 8;
+	uint32_t cmd = eid >> 8;
 
 	int id1 = app_get_configuration()->controller_id;
 
@@ -1762,7 +1764,7 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 					commands_send_packet_can_last(rx_buffer[buf_ind], rxbuf_len);
 					break;
 				case 2:
-					commands_process_packet(rx_buffer[buf_ind], rxbuf_len, 0);
+					commands_process_packet(rx_buffer[buf_ind], rxbuf_len, NULL);
 					break;
 				default:
 					break;
@@ -1804,7 +1806,7 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 				commands_send_packet_can_last(data8 + ind, len - ind);
 				break;
 			case 2:
-				commands_process_packet(data8 + ind, len - ind, 0);
+				commands_process_packet(data8 + ind, len - ind, NULL);
 				break;
 			default:
 				break;
@@ -2043,9 +2045,12 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 				ind = 0;
 				stat_tmp->id = id;
 				stat_tmp->rx_time = chVTGetSystemTimeX();
-				stat_tmp->rpm = (float)buffer_get_int32(data8, &ind);
-				stat_tmp->current = (float)buffer_get_int16(data8, &ind) / 10.0F;
-				stat_tmp->duty = (float)buffer_get_int16(data8, &ind) / 1000.0F;
+				int32_t rpm = buffer_get_int32(data8, &ind);
+				int16_t current = buffer_get_int16(data8, &ind);
+				int16_t duty = buffer_get_int16(data8, &ind);
+				stat_tmp->rpm = (float)rpm;
+				stat_tmp->current = (float)current / 10.0F;
+				stat_tmp->duty = (float)duty / 1000.0F;
 				break;
 			}
 		}
@@ -2058,8 +2063,10 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 				ind = 0;
 				stat_tmp_2->id = id;
 				stat_tmp_2->rx_time = chVTGetSystemTimeX();
-				stat_tmp_2->amp_hours = (float)buffer_get_int32(data8, &ind) / 1e4F;
-				stat_tmp_2->amp_hours_charged = (float)buffer_get_int32(data8, &ind) / 1e4F;
+				int32_t amp_hours = buffer_get_int32(data8, &ind);
+				int32_t amp_hours_charged = buffer_get_int32(data8, &ind);
+				stat_tmp_2->amp_hours = (float)amp_hours / 1e4F;
+				stat_tmp_2->amp_hours_charged = (float)amp_hours_charged / 1e4F;
 				break;
 			}
 		}
@@ -2072,8 +2079,10 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 				ind = 0;
 				stat_tmp_3->id = id;
 				stat_tmp_3->rx_time = chVTGetSystemTimeX();
-				stat_tmp_3->watt_hours = (float)buffer_get_int32(data8, &ind) / 1e4F;
-				stat_tmp_3->watt_hours_charged = (float)buffer_get_int32(data8, &ind) / 1e4F;
+				int32_t watt_hours = buffer_get_int32(data8, &ind);
+				int32_t watt_hours_charged = buffer_get_int32(data8, &ind);
+				stat_tmp_3->watt_hours = (float)watt_hours / 1e4F;
+				stat_tmp_3->watt_hours_charged = (float)watt_hours_charged / 1e4F;
 				break;
 			}
 		}
@@ -2086,10 +2095,14 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 				ind = 0;
 				stat_tmp_4->id = id;
 				stat_tmp_4->rx_time = chVTGetSystemTimeX();
-				stat_tmp_4->temp_fet = (float)buffer_get_int16(data8, &ind) / 10.0F;
-				stat_tmp_4->temp_motor = (float)buffer_get_int16(data8, &ind) / 10.0F;
-				stat_tmp_4->current_in = (float)buffer_get_int16(data8, &ind) / 10.0F;
-				stat_tmp_4->pid_pos_now = (float)buffer_get_int16(data8, &ind) / 50.0F;
+				int16_t temp_fet = buffer_get_int16(data8, &ind);
+				int16_t temp_motor = buffer_get_int16(data8, &ind);
+				int16_t current_in = buffer_get_int16(data8, &ind);
+				int16_t pid_pos_now = buffer_get_int16(data8, &ind);
+				stat_tmp_4->temp_fet = (float)temp_fet / 10.0F;
+				stat_tmp_4->temp_motor = (float)temp_motor / 10.0F;
+				stat_tmp_4->current_in = (float)current_in / 10.0F;
+				stat_tmp_4->pid_pos_now = (float)pid_pos_now / 50.0F;
 				break;
 			}
 		}
@@ -2103,7 +2116,8 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 				stat_tmp_5->id = id;
 				stat_tmp_5->rx_time = chVTGetSystemTimeX();
 				stat_tmp_5->tacho_value = buffer_get_int32(data8, &ind);
-				stat_tmp_5->v_in = (float)buffer_get_int16(data8, &ind) / 1e1F;
+				int16_t v_in = buffer_get_int16(data8, &ind);
+				stat_tmp_5->v_in = (float)v_in / 1e1F;
 				break;
 			}
 		}
