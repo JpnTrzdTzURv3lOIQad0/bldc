@@ -336,10 +336,10 @@ void smart_switch_keep_on(void) {
 
 //#ifdef HW_HAS_RGB_SWITCH
 //	LED_SWITCH_B_ON();
-//	ledpwm_set_intensity(SWITCH_LED_B, 1.0);
+//	ledpwm_set_intensity(SWITCH_LED_B, 1.0F);
 //#else
-//	ledpwm_set_intensity(SWITCH_LED, 1.0);
-//	ledpwm_set_switch_intensity(0.6);
+//	ledpwm_set_intensity(SWITCH_LED, 1.0F);
+//	ledpwm_set_switch_intensity(0.6F);
 //#endif
 }
 
@@ -365,14 +365,14 @@ static THD_FUNCTION(smart_switch_thread, arg) {
 	for (;;) {
 		switch (switch_state) {
 		case SWITCH_BOOTED:
-			ledpwm_set_intensity(LED_HW1, 1.0);
+			ledpwm_set_intensity(LED_HW1, 1.0F);
 			switch_state = SWITCH_TURN_ON_DELAY_ACTIVE;
 			break;
 		case SWITCH_TURN_ON_DELAY_ACTIVE:
 			chThdSleepMilliseconds(500);
 			switch_state = SWITCH_HELD_AFTER_TURN_ON;
 			smart_switch_keep_on();
-			ledpwm_set_intensity(LED_HW1, 1.0);
+			ledpwm_set_intensity(LED_HW1, 1.0F);
 			//Wait for other systems to boot up before proceeding
 			while (!main_init_done()) {
 				chThdSleepMilliseconds(200);
@@ -388,10 +388,10 @@ static THD_FUNCTION(smart_switch_thread, arg) {
 		case SWITCH_TURNED_ON:
 			if (smart_switch_is_pressed()) {
 				millis_switch_pressed++;
-				ledpwm_set_intensity(LED_HW1, 0.6);
+				ledpwm_set_intensity(LED_HW1, 0.6F);
 			} else {
 				millis_switch_pressed = 0;
-				ledpwm_set_intensity(LED_HW1, 1.0);
+				ledpwm_set_intensity(LED_HW1, 1.0F);
 			}
 
 			if (millis_switch_pressed > SMART_SWITCH_MSECS_PRESSED_OFF) {
@@ -399,7 +399,7 @@ static THD_FUNCTION(smart_switch_thread, arg) {
 			}
 			break;
 		case SWITCH_SHUTTING_DOWN:
-			ledpwm_set_intensity(LED_HW1, 0.0);
+			ledpwm_set_intensity(LED_HW1, 0.0F);
 			comm_can_shutdown(255);
 			smart_switch_shut_down();
 			chThdSleepMilliseconds(10000);

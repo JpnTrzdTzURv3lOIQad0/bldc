@@ -48,9 +48,9 @@ static THD_WORKING_AREA(switch_color_thread_wa, 256);
 static THD_FUNCTION(switch_color_thread, arg);
 static volatile switch_states switch_state = SWITCH_BOOTED;
 
-static volatile float switch_bright = 0.75;
+static volatile float switch_bright = 0.75F;
 static bool switch_color_thd_running = false;
-static volatile float bt_diff = 0.0;
+static volatile float bt_diff = 0.0F;
 static volatile bool shutdown_hold_en = true;
 static volatile bool shutdown_sample_dis = false;
 static mutex_t shutdown_mutex;
@@ -62,7 +62,7 @@ static volatile bool i2c_running = false;
 static THD_WORKING_AREA(sense_thread_wa, 256);
 static THD_FUNCTION(sense_thread, arg);
 static volatile bool sense_thd_running = false;
-static volatile float speed_time = 0.0;
+static volatile float speed_time = 0.0F;
 static volatile systime_t speed_update = 0;
 
 // I2C configuration
@@ -178,7 +178,7 @@ void hw_init_gpio(void) {
 	palSetPadMode(HW_HALL_ENC_GPIO1, HW_HALL_ENC_PIN1, PAL_MODE_INPUT_PULLUP);
 	palSetPadMode(HW_HALL_ENC_GPIO2, HW_HALL_ENC_PIN2, PAL_MODE_INPUT_PULLUP);
 	palSetPadMode(HW_HALL_ENC_GPIO3, HW_HALL_ENC_PIN3, PAL_MODE_INPUT_PULLUP);
-	
+
 	// Phase filters
 	palSetPadMode(GPIOC, 13, PAL_MODE_OUTPUT_OPENDRAIN | PAL_STM32_OSPEED_HIGHEST);
 	palSetPadMode(GPIOC, 14, PAL_MODE_OUTPUT_OPENDRAIN | PAL_STM32_OSPEED_HIGHEST);
@@ -280,22 +280,22 @@ static THD_FUNCTION(sense_thread, arg) {
 	chRegSetThreadName("hw-wheel");
 
 	float volts = ADC_VOLTS(ADC_IND_EXT3);
-	bool speed_last = volts < 1.5;
+	bool speed_last = volts < 1.5F;
 
 	for (;;) {
 		bool speed = false;
 
-		UTILS_LP_FAST(volts, ADC_VOLTS(ADC_IND_EXT3), 0.5);
+		UTILS_LP_FAST(volts, ADC_VOLTS(ADC_IND_EXT3), 0.5F);
 
 		if (speed_last) {
-			speed = volts < 1.3;
+			speed = volts < 1.3F;
 		} else {
-			speed = volts < 0.6;
+			speed = volts < 0.6F;
 		}
 
 		if (speed && speed != speed_last) {
 			float time = UTILS_AGE_S(speed_update);
-			if (time > 0.05) { // Max 900 RPM
+			if (time > 0.05F) { // Max 900 RPM
 				speed_time = time;
 				speed_update = chVTGetSystemTimeX();
 			}
@@ -319,7 +319,7 @@ static THD_FUNCTION(sense_thread, arg) {
 //
 //		if (speed && speed != speed_last) {
 //			float time = UTILS_AGE_S(speed_update);
-//			if (time > 0.05) { // Max 900 RPM
+//			if (time > 0.05F) { // Max 900 RPM
 //				speed_time = time;
 //				speed_update = chVTGetSystemTimeX();
 //			}
@@ -432,7 +432,7 @@ bool smart_switch_is_pressed(void) {
 		return false;
 	}
 
-	bt_diff = 0.0;
+	bt_diff = 0.0F;
 	int samples = 10;
 
 	for (int i = 0;i < samples;i++) {
@@ -455,7 +455,7 @@ bool smart_switch_is_pressed(void) {
 
 	chMtxUnlock(&shutdown_mutex);
 
-	return (bt_diff < 0.34);
+	return (bt_diff < 0.34F);
 }
 
 void hw_shutdown_set_hold(bool hold) {
@@ -476,21 +476,21 @@ void smart_switch_shut_down(void) {
 static THD_FUNCTION(switch_color_thread, arg) {
 	(void)arg;
 	chRegSetThreadName("switch_color");
-	float switch_red = 0.0;
-	float switch_green = 0.0;
-	float switch_blue = 0.0;
+	float switch_red = 0.0F;
+	float switch_green = 0.0F;
+	float switch_blue = 0.0F;
 
 	for(int i = 0; i < 400; i++) {
-		float angle = i*3.14/400.0;
+		float angle = i*3.14F/400.0F;
 		float s,c;
 		utils_fast_sincos_better(angle, &s, &c);
-		switch_blue = 0.75* c*c;
+		switch_blue = 0.75F* c*c;
 		ledpwm_set_intensity(LED_HW1,switch_bright*switch_blue);
-		utils_fast_sincos_better(angle + 3.14/3.0, &s, &c);
-		switch_green = 0.75* c*c;
+		utils_fast_sincos_better(angle + 3.14F/3.0F, &s, &c);
+		switch_green = 0.75F* c*c;
 		ledpwm_set_intensity(LED_HW2,switch_bright*switch_green);
-		utils_fast_sincos_better(angle + 6.28/3.0, &s, &c);
-		switch_red = 0.75* c*c;
+		utils_fast_sincos_better(angle + 6.28F/3.0F, &s, &c);
+		switch_red = 0.75F* c*c;
 		ledpwm_set_intensity(LED_HW3,switch_bright*switch_red);
 		chThdSleepMilliseconds(4);
 	}
@@ -500,22 +500,22 @@ static THD_FUNCTION(switch_color_thread, arg) {
 	float wh_left;
 	float left = mc_interface_get_battery_level(&wh_left);
 
-	if (left < 0.5) {
-		float intense = utils_map(left,0.0, 0.5, 0.0, 1.0);
+	if (left < 0.5F) {
+		float intense = utils_map(left,0.0F, 0.5F, 0.0F, 1.0F);
 		utils_truncate_number(&intense,0,1);
 		switch_blue = intense;
-		switch_red  = 1.0-intense;
+		switch_red  = 1.0F-intense;
 	} else {
-		float intense = utils_map(left , 0.5, 1.0, 0.0, 1.0);
+		float intense = utils_map(left , 0.5F, 1.0F, 0.0F, 1.0F);
 		utils_truncate_number(&intense,0,1);
 		switch_green = intense;
-		switch_blue  = 1.0-intense;
+		switch_blue  = 1.0F-intense;
 	}
 
 	for (int i = 0; i < 100; i++) {
-		float red_now = utils_map((float) i,0.0, 100.0, switch_red_old, switch_red);
-		float blue_now = utils_map((float) i,0.0, 100.0, switch_blue_old, switch_blue);
-		float green_now = utils_map((float) i,0.0, 100.0, switch_green_old, switch_green);
+		float red_now = utils_map((float) i,0.0F, 100.0F, switch_red_old, switch_red);
+		float blue_now = utils_map((float) i,0.0F, 100.0F, switch_blue_old, switch_blue);
+		float green_now = utils_map((float) i,0.0F, 100.0F, switch_green_old, switch_green);
 		ledpwm_set_intensity(LED_HW1, switch_bright*blue_now);
 		ledpwm_set_intensity(LED_HW2, switch_bright*green_now);
 		ledpwm_set_intensity(LED_HW3, switch_bright*red_now);
@@ -529,26 +529,26 @@ static THD_FUNCTION(switch_color_thread, arg) {
 			ledpwm_set_intensity(LED_HW2, 0);
 			ledpwm_set_intensity(LED_HW1, 0);
 			for (int i = 0;i < (int)fault;i++) {
-				ledpwm_set_intensity(LED_HW3, 1.0);
+				ledpwm_set_intensity(LED_HW3, 1.0F);
 				chThdSleepMilliseconds(250);
-				ledpwm_set_intensity(LED_HW3, 0.0);
+				ledpwm_set_intensity(LED_HW3, 0.0F);
 				chThdSleepMilliseconds(250);
 			}
 
 			chThdSleepMilliseconds(500);
 		} else {
 			left = mc_interface_get_battery_level(&wh_left);
-			if (left < 0.5){
-				float intense = utils_map(left,0.0, 0.5, 0.0, 1.0);
+			if (left < 0.5F){
+				float intense = utils_map(left,0.0F, 0.5F, 0.0F, 1.0F);
 				utils_truncate_number(&intense,0,1);
 				switch_blue = intense;
-				switch_red  = 1.0-intense;
+				switch_red  = 1.0F-intense;
 				switch_green = 0;
 			} else {
-				float intense = utils_map(left , 0.5, 1.0, 0.0, 1.0);
+				float intense = utils_map(left , 0.5F, 1.0F, 0.0F, 1.0F);
 				utils_truncate_number(&intense,0,1);
 				switch_green = intense;
-				switch_blue  = 1.0-intense;
+				switch_blue  = 1.0F-intense;
 				switch_red = 0;
 			}
 			ledpwm_set_intensity(LED_HW1, switch_bright*switch_blue);
@@ -592,9 +592,9 @@ static THD_FUNCTION(smart_switch_thread, arg) {
 
 		case SWITCH_TURNED_ON:
 			if (conf->shutdown_mode == SHUTDOWN_MODE_ALWAYS_OFF) {
-				switch_bright = 1.0;
+				switch_bright = 1.0F;
 
-				if (mc_interface_get_input_voltage_filtered() < 35.0) {
+				if (mc_interface_get_input_voltage_filtered() < 35.0F) {
 					hw_shutdown_set_hold(false);
 				} else {
 					hw_shutdown_set_hold(true);
@@ -602,19 +602,19 @@ static THD_FUNCTION(smart_switch_thread, arg) {
 						switch_pressed_ts = chVTGetSystemTimeX();
 					}
 
-					if (UTILS_AGE_S(switch_pressed_ts) > ((float)(SMART_SWITCH_MSECS_PRESSED_OFF) / 1000.0)) {
+					if (UTILS_AGE_S(switch_pressed_ts) > ((float)(SMART_SWITCH_MSECS_PRESSED_OFF) / 1000.0F)) {
 						switch_state = SWITCH_SHUTTING_DOWN;
 					}
 				}
 			} else {
 				if (smart_switch_is_pressed() && conf->shutdown_mode != SHUTDOWN_MODE_ALWAYS_ON) {
-					switch_bright = 0.5;
+					switch_bright = 0.5F;
 				} else {
-					switch_bright = 1.0;
+					switch_bright = 1.0F;
 					switch_pressed_ts = chVTGetSystemTimeX();
 				}
 
-				if (UTILS_AGE_S(switch_pressed_ts) > ((float)(SMART_SWITCH_MSECS_PRESSED_OFF) / 1000.0)) {
+				if (UTILS_AGE_S(switch_pressed_ts) > ((float)(SMART_SWITCH_MSECS_PRESSED_OFF) / 1000.0F)) {
 					switch_state = SWITCH_SHUTTING_DOWN;
 				}
 			}
@@ -625,7 +625,7 @@ static THD_FUNCTION(smart_switch_thread, arg) {
 			systime_t tStart = chVTGetSystemTimeX();
 			while (smart_switch_is_pressed()) {
 				chThdSleepMilliseconds(10);
-				if (UTILS_AGE_S(tStart) > 10.0) {
+				if (UTILS_AGE_S(tStart) > 10.0F) {
 					switch_pressed_ts = chVTGetSystemTimeX();
 					switch_state = SWITCH_TURNED_ON;
 					break;
@@ -642,7 +642,7 @@ static THD_FUNCTION(smart_switch_thread, arg) {
 			mc_interface_ignore_input_both(20000);
 			mc_interface_release_motor_override_both();
 
-			if (mc_interface_wait_for_motor_release_both(9.0)) {
+			if (mc_interface_wait_for_motor_release_both(9.0F)) {
 				hw_shutdown_set_hold(false);
 				chThdSleepMilliseconds(10000);
 			}

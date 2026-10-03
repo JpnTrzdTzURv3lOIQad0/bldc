@@ -24,9 +24,9 @@
 #define HW_HAS_3_SHUNTS
 
 #ifdef ADV200
-#define HW_DEAD_TIME_NSEC       600.0
+#define HW_DEAD_TIME_NSEC       600.0F
 #else
-#define HW_DEAD_TIME_NSEC       1200.0
+#define HW_DEAD_TIME_NSEC       1200.0F
 #endif
 
 // Macros
@@ -79,40 +79,40 @@
 // Component parameters (can be overridden)
 #ifndef V_REG
 #ifdef ADV200
-#define V_REG                   3.3
+#define V_REG                   3.3F
 #else
-#define V_REG                   3.288
+#define V_REG                   3.288F
 #endif
 #endif
 #ifndef VIN_R1
 #ifdef ADV200
-#define VIN_R1                  68000.0
+#define VIN_R1                  68000.0F
 #else
-#define VIN_R1                  110000.0
+#define VIN_R1                  110000.0F
 #endif
 #endif
 #ifndef VIN_R2
-#define VIN_R2                  2200.0
+#define VIN_R2                  2200.0F
 #endif
 #ifndef CURRENT_AMP_GAIN
-#define CURRENT_AMP_GAIN        20.0
+#define CURRENT_AMP_GAIN        20.0F
 #endif
 #ifndef CURRENT_SHUNT_RES
-#define CURRENT_SHUNT_RES       0.0002
+#define CURRENT_SHUNT_RES       0.0002F
 #endif
 
 // Input voltage
-#define GET_INPUT_VOLTAGE()     ((V_REG / 4095.0) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
+#define GET_INPUT_VOLTAGE()     ((V_REG / 4095.0F) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
 
 // NTC Termistors
-#define NTC_RES(adc_val)        ((4095.0 * 10000.0) / adc_val - 10000.0)
-#define NTC_TEMP(adc_ind)       (1.0 / ((logf(NTC_RES(ADC_Value[adc_ind]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15)
+#define NTC_RES(adc_val)        ((4095.0F * 10000.0F) / adc_val - 10000.0F)
+#define NTC_TEMP(adc_ind)       (1.0F / ((logf(NTC_RES(ADC_Value[adc_ind]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F)
 
-#define NTC_RES_MOTOR(adc_val)  (10000.0 / ((4095.0 / (float)adc_val) - 1.0)) // Motor temp sensor on low side
-#define NTC_TEMP_MOTOR(beta)    (1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0) / beta) + (1.0 / 298.15)) - 273.15)
+#define NTC_RES_MOTOR(adc_val)  (10000.0F / ((4095.0F / (float)adc_val) - 1.0F)) // Motor temp sensor on low side
+#define NTC_TEMP_MOTOR(beta)    (1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0F) / beta) + (1.0F / 298.15F)) - 273.15F)
 
 // Voltage on ADC channel
-#define ADC_VOLTS(ch)           ((float)ADC_Value[ch] / 4096.0 * V_REG)
+#define ADC_VOLTS(ch)           ((float)ADC_Value[ch] / 4096.0F * V_REG)
 
 // Double samples in beginning and end for positive current measurement.
 // Useful when the shunt sense traces have noise that causes offset.
@@ -265,19 +265,19 @@
 
 // Setting limits
 #ifdef ADV200
-#define HW_LIM_CURRENT          -180.0, 180.0
-#define HW_LIM_CURRENT_IN       -80.0, 80.0
-#define HW_LIM_CURRENT_ABS      0.0, 250.0
-#define HW_LIM_VIN              18.0, 95.0
+#define HW_LIM_CURRENT          -180.0F, 180.0F
+#define HW_LIM_CURRENT_IN       -80.0F, 80.0F
+#define HW_LIM_CURRENT_ABS      0.0F, 250.0F
+#define HW_LIM_VIN              18.0F, 95.0F
 #else
-#define HW_LIM_CURRENT          -200.0, 200.0
-#define HW_LIM_CURRENT_IN       -100.0, 100.0
-#define HW_LIM_CURRENT_ABS      0.0, 320.0
-#define HW_LIM_VIN              18.0, 95.0
+#define HW_LIM_CURRENT          -200.0F, 200.0F
+#define HW_LIM_CURRENT_IN       -100.0F, 100.0F
+#define HW_LIM_CURRENT_ABS      0.0F, 320.0F
+#define HW_LIM_VIN              18.0F, 95.0F
 #endif
-#define HW_LIM_ERPM             -200e3, 200e3
-#define HW_LIM_DUTY_MIN         0.0, 0.1
-#define HW_LIM_DUTY_MAX         0.0, 0.99
-#define HW_LIM_TEMP_FET         -40.0, 110.0
+#define HW_LIM_ERPM             -200e3F, 200e3F
+#define HW_LIM_DUTY_MIN         0.0F, 0.1F
+#define HW_LIM_DUTY_MAX         0.0F, 0.99F
+#define HW_LIM_TEMP_FET         -40.0F, 110.0F
 
 #endif /* HW_ADV_CORE_H_ */

@@ -160,20 +160,20 @@ static bool read_sample(imu_device_t *dev, float accel[3], float gyro[3], float 
 
 	memcpy(st->prev_raw, raw, sizeof(st->prev_raw));
 
-	accel[0] = (float)raw[0] * 16.0 / 32768.0;
-	accel[1] = (float)raw[1] * 16.0 / 32768.0;
-	accel[2] = (float)raw[2] * 16.0 / 32768.0;
+	accel[0] = (float)raw[0] * 16.0F / 32768.0F;
+	accel[1] = (float)raw[1] * 16.0F / 32768.0F;
+	accel[2] = (float)raw[2] * 16.0F / 32768.0F;
 
-	gyro[0] = (float)raw[3] * 2000.0 / 32768.0;
-	gyro[1] = (float)raw[4] * 2000.0 / 32768.0;
-	gyro[2] = (float)raw[5] * 2000.0 / 32768.0;
+	gyro[0] = (float)raw[3] * 2000.0F / 32768.0F;
+	gyro[1] = (float)raw[4] * 2000.0F / 32768.0F;
+	gyro[2] = (float)raw[5] * 2000.0F / 32768.0F;
 
 	if (st->use_magnetometer) {
 		// The magnetometer runs at ODR/MAG_DIV; the last reading is reused in between
 		// (so the delivered mag lags the accel/gyro, as in the original driver).
-		mag[0] = (float)st->mag_raw[0] * 1200.0 / 4096.0;
-		mag[1] = (float)st->mag_raw[1] * 1200.0 / 4096.0;
-		mag[2] = (float)st->mag_raw[2] * 1200.0 / 4096.0;
+		mag[0] = (float)st->mag_raw[0] * 1200.0F / 4096.0F;
+		mag[1] = (float)st->mag_raw[1] * 1200.0F / 4096.0F;
+		mag[2] = (float)st->mag_raw[2] * 1200.0F / 4096.0F;
 
 		if (++st->mag_cnt >= MAG_DIV) {
 			st->mag_cnt = 0;
@@ -182,9 +182,9 @@ static bool read_sample(imu_device_t *dev, float accel[3], float gyro[3], float 
 			}
 		}
 	} else {
-		mag[0] = 0.0;
-		mag[1] = 0.0;
-		mag[2] = 0.0;
+		mag[0] = 0.0F;
+		mag[1] = 0.0F;
+		mag[2] = 0.0F;
 	}
 
 	return true;

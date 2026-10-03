@@ -86,7 +86,7 @@ void enc_abi_deinit(ABI_config_t *cfg) {
 }
 
 float enc_abi_read_deg(ABI_config_t *cfg) {
-	return ((float)cfg->timer->CNT * 360.0) / (float)cfg->counts;
+	return ((float)cfg->timer->CNT * 360.0F) / (float)cfg->counts;
 }
 
 void enc_abi_pin_isr(ABI_config_t *cfg) {

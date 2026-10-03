@@ -297,13 +297,13 @@ void terminal_process_string(char *str) {
 			} else {
 				commands_printf("Invalid argument(s)");
 				if (!(current > 0.0F && current < mc_interface_get_configuration()->l_current_max)) {
-					commands_printf("Current must be between 0.0 and %.2f", (double)mc_interface_get_configuration()->l_current_max);
+					commands_printf("Current must be between 0.0F and %.2f", (double)mc_interface_get_configuration()->l_current_max);
 				}
 				if (!(min_rpm > 10.0F && min_rpm < 3000.0F)) {
 					commands_printf("ERPM must be between 10 and 3000");
 				}
 				if (!(low_duty > 0.02F && low_duty < 0.8F)) {
-					commands_printf("Duty must be between 0.02 and 0.8");
+					commands_printf("Duty must be between 0.02F and 0.8F");
 				}
 				commands_printf(" ");
 			}
@@ -344,7 +344,7 @@ void terminal_process_string(char *str) {
 					commands_printf("Encoder not enabled.\n");
 				}
 			} else {
-				commands_printf("Invalid argument(s). Current must be between 0.0 and %.2f\n", (double)mcconf->l_current_max);
+				commands_printf("Invalid argument(s). Current must be between 0.0F and %.2f\n", (double)mcconf->l_current_max);
 			}
 
 			mempools_free_mcconf(mcconf);
@@ -374,7 +374,7 @@ void terminal_process_string(char *str) {
 				}
 				mc_interface_set_configuration(mcconf_old);
 			} else {
-				commands_printf("Invalid argument(s). Current must be between 0.0 and %.2f\n", (double)mcconf->l_current_max);
+				commands_printf("Invalid argument(s). Current must be between 0.0F and %.2f\n", (double)mcconf->l_current_max);
 			}
 
 			mempools_free_mcconf(mcconf);
@@ -410,7 +410,7 @@ void terminal_process_string(char *str) {
 				mempools_free_mcconf(mcconf);
 				mempools_free_mcconf(mcconf_old);
 			} else {
-				commands_printf("Invalid argument. Duty must be between 0.0 and 0.9 \n");
+				commands_printf("Invalid argument. Duty must be between 0.0F and 0.9F \n");
 			}
 		} else {
 			commands_printf("This command requires one argument. [duty]\n");
@@ -434,16 +434,16 @@ void terminal_process_string(char *str) {
 			} else {
 				commands_printf("Invalid argument(s).");
 				if (!(current > 0.0F && current <= mc_interface_get_configuration()->l_current_max)) {
-					commands_printf("Current must be between 0.0 and %.2f", (double)mc_interface_get_configuration()->l_current_max);
+					commands_printf("Current must be between 0.0F and %.2f", (double)mc_interface_get_configuration()->l_current_max);
 				}
 				if (!(duty > 0.02F && duty <= 0.9F)) {
-					commands_printf("Duty must be between 0.02 and 0.9");
+					commands_printf("Duty must be between 0.02F and 0.9F");
 				}
 				if (!(min_erpm > 0.0F)) {
-					commands_printf("ERPM must be greater than 0.0");
+					commands_printf("ERPM must be greater than 0.0F");
 				}
 				if (!(res >= 0.0F)) {
-					commands_printf("Resistance must be greater than 0.0");
+					commands_printf("Resistance must be greater than 0.0F");
 				}
 				commands_printf(" ");
 			}
@@ -543,7 +543,7 @@ void terminal_process_string(char *str) {
 
 				}
 			} else {
-				commands_printf("Invalid argument. Duty must be between 0.0 and 0.9\n");
+				commands_printf("Invalid argument. Duty must be between 0.0F and 0.9F\n");
 			}
 		} else {
 			commands_printf("This command requires one argument. [duty]\n");
@@ -593,19 +593,19 @@ void terminal_process_string(char *str) {
 			} else {
 				commands_printf("Invalid argument(s).");
 				if (!(current > 0.0F && current <= mc_interface_get_configuration()->l_current_max)) {
-					commands_printf("Current must be between 0.0 and %.2f", (double)mc_interface_get_configuration()->l_current_max);
+					commands_printf("Current must be between 0.0F and %.2f", (double)mc_interface_get_configuration()->l_current_max);
 				}
 				if (!(duty > 0.02F && duty <= 0.9F)) {
-					commands_printf("Duty must be between 0.02 and 0.9");
+					commands_printf("Duty must be between 0.02F and 0.9F");
 				}
 				if (!(erpm_per_sec > 0.0F)) {
-					commands_printf("ERPM ramp rate must be greater than 0.0");
+					commands_printf("ERPM ramp rate must be greater than 0.0F");
 				}
 				if (!(res >= 0.0F)) {
-					commands_printf("Resistance must be greater than 0.0");
+					commands_printf("Resistance must be greater than 0.0F");
 				}
 				if (!(ind >= 0.0F)) {
-					commands_printf("Inductance must be greater than 0.0");
+					commands_printf("Inductance must be greater than 0.0F");
 				}
 				commands_printf(" ");
 			}
@@ -717,10 +717,10 @@ void terminal_process_string(char *str) {
 			} else {
 				commands_printf("Invalid argument(s).");
 				if (!(current > 0.0F && current <= mc_interface_get_configuration()->l_current_max)) {
-					commands_printf("Current must be between 0.0 and %.2f", (double)mc_interface_get_configuration()->l_current_max);
+					commands_printf("Current must be between 0.0F and %.2f", (double)mc_interface_get_configuration()->l_current_max);
 				}
 				if (!(erpm >= 0.0F)) {
-					commands_printf("ERPM must be greater than 0.0");
+					commands_printf("ERPM must be greater than 0.0F");
 				}
 				commands_printf(" ");
 			}
@@ -745,10 +745,10 @@ void terminal_process_string(char *str) {
 			} else {
 				commands_printf("Invalid argument(s).");
 				if (!(duty >= 0.0F && duty <= 0.9F)) {
-					commands_printf("Duty must be between 0.0 and 0.9");
+					commands_printf("Duty must be between 0.0F and 0.9F");
 				}
 				if (!(erpm >= 0.0F)) {
-					commands_printf("ERPM must be greater than 0.0");
+					commands_printf("ERPM must be greater than 0.0F");
 				}
 				commands_printf(" ");
 			}
@@ -796,7 +796,7 @@ void terminal_process_string(char *str) {
 					commands_printf("For more info type \"faults\" to view all logged faults\n");
 				}
 			} else {
-				commands_printf("Invalid argument(s). Current must be between 0.0 and %.2f\n", (double)mc_interface_get_configuration()->l_current_max);
+				commands_printf("Invalid argument(s). Current must be between 0.0F and %.2f\n", (double)mc_interface_get_configuration()->l_current_max);
 			}
 		} else {
 			commands_printf("This command requires one argument. [current]\n");
@@ -853,7 +853,7 @@ void terminal_process_string(char *str) {
 					commands_printf("Current must be less than %.2f", (double)mc_interface_get_configuration()->l_current_max);
 				}
 				if (!(angle >= 0.0F && angle <= 360.0F)) {
-					commands_printf("Angle must be between 0.0 and 360.0");
+					commands_printf("Angle must be between 0.0F and 360.0F");
 				}
 				commands_printf(" ");
 			}
@@ -1145,7 +1145,7 @@ void terminal_process_string(char *str) {
 					commands_printf("Done. Go to the Realtime Data > Experiment page to see the plot.\n");
 				}
 			} else {
-				commands_printf("Invalid argument(s). Current must be between 0.0 and %.2f\n", (double)mc_interface_get_configuration()->l_current_max);
+				commands_printf("Invalid argument(s). Current must be between 0.0F and %.2f\n", (double)mc_interface_get_configuration()->l_current_max);
 			}
 		} else {
 			commands_printf("This command requires one argument. [current]\n");
@@ -1229,7 +1229,7 @@ void terminal_process_string(char *str) {
 		commands_printf("param_detect [current] [min_rpm] [low_duty]");
 		commands_printf("  Spin up the motor in COMM_MODE_DELAY and compute its parameters.");
 		commands_printf("  This test should be performed without load on the motor.");
-		commands_printf("  Example: param_detect 5.0 600 0.06");
+		commands_printf("  Example: param_detect 5.0F 600 0.06F");
 
 		commands_printf("rpm_dep");
 		commands_printf("  Prints some rpm-dep values");
@@ -1245,7 +1245,7 @@ void terminal_process_string(char *str) {
 
 		commands_printf("measure_linkage [current] [duty] [min_erpm] [motor_res]");
 		commands_printf("  Run the motor in BLDC delay mode and measure the flux linkage");
-		commands_printf("  example measure_linkage 5 0.5 700 0.076");
+		commands_printf("  example measure_linkage 5 0.5F 700 0.076F");
 		commands_printf("  tip: measure the resistance with measure_res first");
 
 		commands_printf("measure_res_ind");
@@ -1256,7 +1256,7 @@ void terminal_process_string(char *str) {
 
 		commands_printf("measure_linkage_openloop [current] [duty] [erpm_per_sec] [motor_res] [motor_ind]");
 		commands_printf("  Run the motor in openloop FOC and measure the flux linkage");
-		commands_printf("  example measure_linkage_openloop 5 0.5 1000 0.076 0.000015");
+		commands_printf("  example measure_linkage_openloop 5 0.5F 1000 0.076F 0.000015F");
 		commands_printf("  tip: measure the resistance with measure_res first");
 
 		commands_printf("foc_state");

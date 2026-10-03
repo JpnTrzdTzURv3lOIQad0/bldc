@@ -218,8 +218,8 @@ void imu_reset_orientation(void) {
 	imu_ready = false;
 	init_time = chVTGetSystemTimeX();
 	ahrs_init_attitude_info(&m_att);
-	FusionAhrsInitialise(&m_fusionAhrs, 10.0, 1.0);
-	ahrs_update_all_parameters(&m_att, 1.0, 10.0, 0.0, 2.0);
+	FusionAhrsInitialise(&m_fusionAhrs, 10.0F, 1.0F);
+	ahrs_update_all_parameters(&m_att, 1.0F, 10.0F, 0.0F, 2.0F);
 }
 
 i2c_bb_state *imu_get_i2c(void) {
@@ -322,7 +322,7 @@ void imu_get_calibration(float yaw, float *imu_cal) {
 	// Override settings
 	m_settings.sample_rate_hz = 1000;
 	m_settings.mode = AHRS_MODE_MADGWICK;
-	ahrs_update_all_parameters(&m_att, 1.0, 10.0, 0.0, 2.0);
+	ahrs_update_all_parameters(&m_att, 1.0F, 10.0F, 0.0F, 2.0F);
 	m_settings.rot_roll = 0;
 	m_settings.rot_pitch = 0;
 	m_settings.rot_yaw = 0;
@@ -350,7 +350,7 @@ void imu_get_calibration(float yaw, float *imu_cal) {
 	m_settings.gyro_offsets[1] = original_gyro_offsets[1];
 	m_settings.gyro_offsets[2] = original_gyro_offsets[2];
 
-	// Reset AHRS and wait 1.5 seconds (for AHRS to settle now that gyro is calibrated)
+	// Reset AHRS and wait 1.5F seconds (for AHRS to settle now that gyro is calibrated)
 	ahrs_init_attitude_info(&m_att);
 	chThdSleepMilliseconds(1500);
 
@@ -369,7 +369,7 @@ void imu_get_calibration(float yaw, float *imu_cal) {
 	float rotation1[3] = {DEG2RAD_f(m_settings.rot_roll), DEG2RAD_f(m_settings.rot_pitch), DEG2RAD_f(m_settings.rot_yaw)};
 	utils_rotate_vector3(original_gyro_offsets, rotation1, m_settings.gyro_offsets, false);
 
-	// Reset AHRS and wait 1.5 seconds (for AHRS to settle now that pitch is calibrated)
+	// Reset AHRS and wait 1.5F seconds (for AHRS to settle now that pitch is calibrated)
 	ahrs_init_attitude_info(&m_att);
 	chThdSleepMilliseconds(1500);
 
@@ -477,21 +477,21 @@ static void imu_read_callback(float *accel, float *gyro, float *mag, float dt) {
 #endif
 
 #ifdef IMU_FLIP
-	accel[0] *= -1.0;
-	accel[2] *= -1.0;
-	gyro[0] *= -1.0;
-	gyro[2] *= -1.0;
-	mag[0] *= -1.0;
-	mag[2] *= -1.0;
+	accel[0] *= -1.0F;
+	accel[2] *= -1.0F;
+	gyro[0] *= -1.0F;
+	gyro[2] *= -1.0F;
+	mag[0] *= -1.0F;
+	mag[2] *= -1.0F;
 #endif
 
 #ifdef IMU_ROT_180
-	accel[0] *= -1.0;
-	accel[1] *= -1.0;
-	gyro[0] *= -1.0;
-	gyro[1] *= -1.0;
-	mag[0] *= -1.0;
-	mag[1] *= -1.0;
+	accel[0] *= -1.0F;
+	accel[1] *= -1.0F;
+	gyro[0] *= -1.0F;
+	gyro[1] *= -1.0F;
+	mag[0] *= -1.0F;
+	mag[1] *= -1.0F;
 #endif
 
 #ifdef IMU_ROT_90

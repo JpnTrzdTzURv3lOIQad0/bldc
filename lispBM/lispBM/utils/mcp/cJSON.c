@@ -79,9 +79,9 @@
 
 #ifndef NAN
 #ifdef _WIN32
-#define NAN sqrt(-1.0)
+#define NAN sqrt(-1.0F)
 #else
-#define NAN 0.0/0.0
+#define NAN 0.0F/0.0F
 #endif
 #endif
 
@@ -601,7 +601,7 @@ static cJSON_bool print_number(const cJSON * const item, printbuffer * const out
     size_t i = 0;
     unsigned char number_buffer[26] = {0}; /* temporary buffer to print the number into */
     unsigned char decimal_point = get_decimal_point();
-    double test = 0.0;
+    double test = 0.0F;
 
     if (output_buffer == NULL)
     {

@@ -70,16 +70,16 @@ INIT_FUN(lib_info *info) {
 	INIT_START
 
 	my_data *d = VESC_IF->malloc(sizeof(my_data));
-	d->msg_val = 0.0;
-	d->msg_cnt = 0.0;
+	d->msg_val = 0.0F;
+	d->msg_cnt = 0.0F;
 	d->thread = VESC_IF->spawn(thd, 2048, "LibThd", d);
-	
+
 	info->stop_fun = stop;
 	info->arg = d;
-	
+
 	// Register callback function that is used when app data is received
 	VESC_IF->set_app_data_handler(data_rx_cb);
-	
+
 	return true;
 }
 

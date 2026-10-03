@@ -139,7 +139,7 @@ static lbm_value ext_tiny3d_mesh(lbm_value *args, lbm_uint argn) {
     (buf + sizeof(tiny3d_mesh_header_t) + vert_count * sizeof(tiny3d_vec_t));
 
   // Populate the vertices and keep track of the  distance to the point
-  // furthest away from 0,0,0 local coord which is used as mesh bounding sphere radius. 
+  // furthest away from 0,0,0 local coord which is used as mesh bounding sphere radius.
   float max_r = 0.0f;
   lbm_uint vi = 0;
   lbm_value curr = args[0];
@@ -158,7 +158,7 @@ static lbm_value ext_tiny3d_mesh(lbm_value *args, lbm_uint argn) {
   }
 
   // Populate the triangles and compute the (1/|N|) where N is
-  // is the triangles normal length. 
+  // is the triangles normal length.
   lbm_uint ti = 0;
   curr = args[1];
   while (lbm_is_cons(curr)) {
@@ -196,7 +196,7 @@ static lbm_value ext_tiny3d_mesh(lbm_value *args, lbm_uint argn) {
     float len = sqrtf(nx*nx + ny*ny + nz*nz);
     float inv_len = 1.0f / len;
     if (inv_len > 30000.0f) inv_len = 30000.0f;
-    
+
     tris[ti].i0 = i0;
     tris[ti].i1 = i1;
     tris[ti].i2 = i2;
@@ -273,7 +273,7 @@ static lbm_value ext_tiny3d_instance(lbm_value *args, lbm_uint argn) {
 
   blob->magic = TINY3D_INSTANCE_MAGIC;
   blob->scale = (argn == 4)
-    ? (int32_t)llround((double)lbm_dec_as_float(args[3]) * 65536.0)
+    ? (int32_t)llround((double)lbm_dec_as_float(args[3]) * 65536.0F)
     : TINY3D_SCALE_ONE;
   if (!decode_vec3(args[1], &blob->pos) || !decode_orient(args[2], &blob->orient)) {
     lbm_free(blob);
@@ -335,7 +335,7 @@ static lbm_value ext_tiny3d_instance_set_scale(lbm_value *args, lbm_uint argn) {
   if (argn != 2 || !lbm_is_number(args[1])) return ENC_SYM_TERROR;
   tiny3d_instance_blob_t *blob = resolve_instance(args[0]);
   if (!blob) return ENC_SYM_TERROR;
-  blob->scale = (int32_t)llround((double)lbm_dec_as_float(args[1]) * 65536.0);
+  blob->scale = (int32_t)llround((double)lbm_dec_as_float(args[1]) * 65536.0F);
   return ENC_SYM_TRUE;
 }
 
@@ -343,7 +343,7 @@ static lbm_value ext_tiny3d_instance_scale(lbm_value *args, lbm_uint argn) {
   if (argn != 1) return ENC_SYM_TERROR;
   tiny3d_instance_blob_t *blob = resolve_instance(args[0]);
   if (!blob) return ENC_SYM_TERROR;
-  return lbm_enc_float((float)((double)blob->scale / 65536.0));
+  return lbm_enc_float((float)((double)blob->scale / 65536.0F));
 }
 
 static lbm_value ext_tiny3d_mesh_vertex_count(lbm_value *args, lbm_uint argn) {
@@ -466,10 +466,10 @@ static lbm_value ext_tiny3d_state_create(lbm_value *args, lbm_uint argn) {
   uint32_t max_tris = lbm_dec_as_u32(args[1]);
   if (max_tris == 0 || max_tris > 0xFFFF) return ENC_SYM_TERROR;
 
-  int32_t near        = (int32_t)llround((double)lbm_dec_as_float(args[2]) * 65536.0);
-  int32_t far          = (int32_t)llround((double)lbm_dec_as_float(args[3]) * 65536.0);
+  int32_t near        = (int32_t)llround((double)lbm_dec_as_float(args[2]) * 65536.0F);
+  int32_t far          = (int32_t)llround((double)lbm_dec_as_float(args[3]) * 65536.0F);
   float   fov_degrees  = lbm_dec_as_float(args[4]);
-  int32_t cull_margin  = (int32_t)llround((double)lbm_dec_as_float(args[5]) * 65536.0);
+  int32_t cull_margin  = (int32_t)llround((double)lbm_dec_as_float(args[5]) * 65536.0F);
   bool    wireframe    = !filled;
 
   lbm_uint size = sizeof(tiny3d_state_blob_t) + (lbm_uint)max_tris * sizeof(tiny3d_camera_tri_t);
@@ -481,7 +481,7 @@ static lbm_value ext_tiny3d_state_create(lbm_value *args, lbm_uint argn) {
   blob->img = img;
   blob->light_source_storage = light_source_vec;
 
-  int32_t ambient_q = (int32_t)llround((double)ambient_val * 65536.0);
+  int32_t ambient_q = (int32_t)llround((double)ambient_val * 65536.0F);
   bool ok = tiny3d_init(&blob->state, &blob->img,
                          blob->tri_buffer_data, max_tris * (uint32_t)sizeof(tiny3d_camera_tri_t),
                          near, far, fov_degrees, cull_margin, wireframe, cull_backfaces,
@@ -513,7 +513,7 @@ static lbm_value ext_tiny3d_set_ambiance(lbm_value *args, lbm_uint argn) {
   tiny3d_state_blob_t *blob = resolve_state(args[0]);
   if (!blob) return ENC_SYM_TERROR;
   if (!blob->state.light_source) return ENC_SYM_NIL;
-  int32_t ambient = (int32_t)llround((double)lbm_dec_as_float(args[1]) * 65536.0);
+  int32_t ambient = (int32_t)llround((double)lbm_dec_as_float(args[1]) * 65536.0F);
   if (ambient < 0) ambient = 0;
   if (ambient > TINY3D_SCALE_ONE) ambient = TINY3D_SCALE_ONE;
   blob->state.ambient = ambient;
@@ -524,7 +524,7 @@ static lbm_value ext_tiny3d_set_ambiance(lbm_value *args, lbm_uint argn) {
 // Render
 
 static uint16_t degrees_to_phase(double deg) {
-  int64_t raw = llround(deg / 360.0 * 65536.0);
+  int64_t raw = llround(deg / 360.0F * 65536.0F);
   int64_t wrapped = raw % 65536;
   if (wrapped < 0) wrapped += 65536;
   return (uint16_t)wrapped;
@@ -532,9 +532,9 @@ static uint16_t degrees_to_phase(double deg) {
 
 static bool decode_vec3(lbm_value v, tiny3d_vec_t *out) {
   if (lbm_list_length(v) != 3) return false;
-  out->x = (int32_t)llround((double)lbm_dec_as_float(lbm_car(v)) * 65536.0);
-  out->y = (int32_t)llround((double)lbm_dec_as_float(lbm_cadr(v)) * 65536.0);
-  out->z = (int32_t)llround((double)lbm_dec_as_float(lbm_car(lbm_cddr(v))) * 65536.0);
+  out->x = (int32_t)llround((double)lbm_dec_as_float(lbm_car(v)) * 65536.0F);
+  out->y = (int32_t)llround((double)lbm_dec_as_float(lbm_cadr(v)) * 65536.0F);
+  out->z = (int32_t)llround((double)lbm_dec_as_float(lbm_car(lbm_cddr(v))) * 65536.0F);
   return true;
 }
 
@@ -547,7 +547,7 @@ static bool decode_orient(lbm_value v, tiny3d_orient_t *out) {
 }
 
 // A light direction is stored as a unit vector - the caller may pass any
-// non-zero vector, e.g. '(light-source 1.0 1.0 0.0), and it gets
+// non-zero vector, e.g. '(light-source 1.0F 1.0F 0.0F), and it gets
 // normalized here (float, one-time setup, not the per-frame hot path)
 // so the lighting dot product downstream is a proper cosine term
 // regardless of what magnitude was typed in. A zero/degenerate vector
@@ -567,16 +567,16 @@ static bool decode_light_direction(lbm_value v, tiny3d_vec_t *out) {
 }
 
 static lbm_value encode_vec3(tiny3d_vec_t v) {
-  lbm_value x = lbm_enc_float((float)((double)v.x / 65536.0));
-  lbm_value y = lbm_enc_float((float)((double)v.y / 65536.0));
-  lbm_value z = lbm_enc_float((float)((double)v.z / 65536.0));
+  lbm_value x = lbm_enc_float((float)((double)v.x / 65536.0F));
+  lbm_value y = lbm_enc_float((float)((double)v.y / 65536.0F));
+  lbm_value z = lbm_enc_float((float)((double)v.z / 65536.0F));
   return lbm_cons(x, lbm_cons(y, lbm_cons(z, ENC_SYM_NIL)));
 }
 
 static lbm_value encode_orient(tiny3d_orient_t o) {
-  lbm_value x = lbm_enc_float((float)((double)o.ang_x / 65536.0 * 360.0));
-  lbm_value y = lbm_enc_float((float)((double)o.ang_y / 65536.0 * 360.0));
-  lbm_value z = lbm_enc_float((float)((double)o.ang_z / 65536.0 * 360.0));
+  lbm_value x = lbm_enc_float((float)((double)o.ang_x / 65536.0F * 360.0F));
+  lbm_value y = lbm_enc_float((float)((double)o.ang_y / 65536.0F * 360.0F));
+  lbm_value z = lbm_enc_float((float)((double)o.ang_z / 65536.0F * 360.0F));
   return lbm_cons(x, lbm_cons(y, lbm_cons(z, ENC_SYM_NIL)));
 }
 

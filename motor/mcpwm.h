@@ -85,11 +85,11 @@ extern volatile int mcpwm_vzero;
 /*
  * Fixed parameters
  */
-#define MCPWM_RPM_TIMER_FREQ			1000000.0	// Frequency of the RPM measurement timer
+#define MCPWM_RPM_TIMER_FREQ			1000000.0F	// Frequency of the RPM measurement timer
 #define MCPWM_CMD_STOP_TIME				0		// Ignore commands for this duration in msec after a stop has been sent
 #define MCPWM_DETECT_STOP_TIME			500		// Ignore commands for this duration in msec after a detect command
 
 // Speed PID parameters
-#define MCPWM_PID_TIME_K				0.001	// Pid controller sample time in seconds
+#define MCPWM_PID_TIME_K				0.001F	// Pid controller sample time in seconds
 
 #endif /* MC_PWM_H_ */

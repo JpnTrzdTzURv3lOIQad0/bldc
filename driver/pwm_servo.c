@@ -45,7 +45,7 @@ uint32_t pwm_servo_init(uint32_t freq_hz, float duty) {
 	HW_ICU_TIMER->PSC = (uint16_t)((168000000 / 2) / TIM_CLOCK) - 1;
 	HW_ICU_TIMER->EGR = TIM_PSCReloadMode_Immediate;
 
-	utils_truncate_number(&duty, 0.0, 1.0);
+	utils_truncate_number(&duty, 0.0F, 1.0F);
 	uint32_t output = (uint32_t)((float)HW_ICU_TIMER->ARR * duty);
 
 	if (HW_ICU_CHANNEL == ICU_CHANNEL_1) {
@@ -60,7 +60,7 @@ uint32_t pwm_servo_init(uint32_t freq_hz, float duty) {
 
 	HW_ICU_TIMER->CR1 |= TIM_CR1_ARPE;
 
-	pwm_servo_set_servo_out(0.5);
+	pwm_servo_set_servo_out(0.5F);
 
 	HW_ICU_TIMER->CR1 |= TIM_CR1_CEN;
 
@@ -70,7 +70,7 @@ uint32_t pwm_servo_init(uint32_t freq_hz, float duty) {
 }
 
 void pwm_servo_init_servo(void) {
-	pwm_servo_init(SERVO_OUT_RATE_HZ, 0.0);
+	pwm_servo_init(SERVO_OUT_RATE_HZ, 0.0F);
 }
 
 void pwm_servo_stop(void) {
@@ -84,10 +84,10 @@ void pwm_servo_stop(void) {
 
 float pwm_servo_set_duty(float duty) {
 	if (!m_is_running) {
-		return -1.0;
+		return -1.0F;
 	}
 
-	utils_truncate_number(&duty, 0.0, 1.0);
+	utils_truncate_number(&duty, 0.0F, 1.0F);
 	uint32_t output = (uint32_t)((float)HW_ICU_TIMER->ARR * duty);
 
 	if (HW_ICU_CHANNEL == ICU_CHANNEL_1) {
@@ -105,11 +105,11 @@ void pwm_servo_set_servo_out(float output) {
 		return;
 	}
 
-	utils_truncate_number(&output, 0.0, 1.0);
+	utils_truncate_number(&output, 0.0F, 1.0F);
 
 	float us = (float)SERVO_OUT_PULSE_MIN_US + output *
 			(float)(SERVO_OUT_PULSE_MAX_US - SERVO_OUT_PULSE_MIN_US);
-	us *= (float)TIM_CLOCK / 1000000.0;
+	us *= (float)TIM_CLOCK / 1000000.0F;
 
 	if (HW_ICU_CHANNEL == ICU_CHANNEL_1) {
 		HW_ICU_TIMER->CCR1 = (uint32_t)us;

@@ -507,7 +507,7 @@ void comm_can_send_buffer(uint8_t controller_id, uint8_t *data, unsigned int len
 void comm_can_set_duty(uint8_t controller_id, float duty) {
 	int32_t send_index = 0;
 	uint8_t buffer[4];
-	buffer_append_int32(buffer, (int32_t)(duty * 100000.0), &send_index);
+	buffer_append_int32(buffer, (int32_t)(duty * 100000.0F), &send_index);
 	comm_can_transmit_eid_replace(controller_id |
 			((uint32_t)CAN_PACKET_SET_DUTY << 8), buffer, send_index, true, 0);
 }
@@ -515,7 +515,7 @@ void comm_can_set_duty(uint8_t controller_id, float duty) {
 void comm_can_set_current(uint8_t controller_id, float current) {
 	int32_t send_index = 0;
 	uint8_t buffer[4];
-	buffer_append_int32(buffer, (int32_t)(current * 1000.0), &send_index);
+	buffer_append_int32(buffer, (int32_t)(current * 1000.0F), &send_index);
 	comm_can_transmit_eid_replace(controller_id |
 			((uint32_t)CAN_PACKET_SET_CURRENT << 8), buffer, send_index, true, 0);
 }
@@ -523,8 +523,8 @@ void comm_can_set_current(uint8_t controller_id, float current) {
 void comm_can_set_current_off_delay(uint8_t controller_id, float current, float off_delay) {
 	int32_t send_index = 0;
 	uint8_t buffer[6];
-	buffer_append_int32(buffer, (int32_t)(current * 1000.0), &send_index);
-	buffer_append_float16(buffer, off_delay, 1e3, &send_index);
+	buffer_append_int32(buffer, (int32_t)(current * 1000.0F), &send_index);
+	buffer_append_float16(buffer, off_delay, 1e3F, &send_index);
 	comm_can_transmit_eid_replace(controller_id |
 			((uint32_t)CAN_PACKET_SET_CURRENT << 8), buffer, send_index, true, 0);
 }
@@ -532,7 +532,7 @@ void comm_can_set_current_off_delay(uint8_t controller_id, float current, float 
 void comm_can_set_current_brake(uint8_t controller_id, float current) {
 	int32_t send_index = 0;
 	uint8_t buffer[4];
-	buffer_append_int32(buffer, (int32_t)(current * 1000.0), &send_index);
+	buffer_append_int32(buffer, (int32_t)(current * 1000.0F), &send_index);
 	comm_can_transmit_eid_replace(controller_id |
 			((uint32_t)CAN_PACKET_SET_CURRENT_BRAKE << 8), buffer, send_index, true, 0);
 }
@@ -548,7 +548,7 @@ void comm_can_set_rpm(uint8_t controller_id, float rpm) {
 void comm_can_set_pos(uint8_t controller_id, float pos) {
 	int32_t send_index = 0;
 	uint8_t buffer[4];
-	buffer_append_int32(buffer, (int32_t)(pos * 1000000.0), &send_index);
+	buffer_append_int32(buffer, (int32_t)(pos * 1000000.0F), &send_index);
 	comm_can_transmit_eid_replace(controller_id |
 			((uint32_t)CAN_PACKET_SET_POS << 8), buffer, send_index, true, 0);
 }
@@ -560,12 +560,12 @@ void comm_can_set_pos(uint8_t controller_id, float pos) {
  * The ID of the VESC to set the current on.
  *
  * @param current_rel
- * The relative current value, range [-1.0 1.0]
+ * The relative current value, range [-1.0F 1.0F]
  */
 void comm_can_set_current_rel(uint8_t controller_id, float current_rel) {
 	int32_t send_index = 0;
 	uint8_t buffer[4];
-	buffer_append_float32(buffer, current_rel, 1e5, &send_index);
+	buffer_append_float32(buffer, current_rel, 1e5F, &send_index);
 	comm_can_transmit_eid_replace(controller_id |
 			((uint32_t)CAN_PACKET_SET_CURRENT_REL << 8), buffer, send_index, true, 0);
 }
@@ -576,8 +576,8 @@ void comm_can_set_current_rel(uint8_t controller_id, float current_rel) {
 void comm_can_set_current_rel_off_delay(uint8_t controller_id, float current_rel, float off_delay) {
 	int32_t send_index = 0;
 	uint8_t buffer[6];
-	buffer_append_float32(buffer, current_rel, 1e5, &send_index);
-	buffer_append_float16(buffer, off_delay, 1e3, &send_index);
+	buffer_append_float32(buffer, current_rel, 1e5F, &send_index);
+	buffer_append_float16(buffer, off_delay, 1e3F, &send_index);
 	comm_can_transmit_eid_replace(controller_id |
 			((uint32_t)CAN_PACKET_SET_CURRENT_REL << 8), buffer, send_index, true, 0);
 }
@@ -589,12 +589,12 @@ void comm_can_set_current_rel_off_delay(uint8_t controller_id, float current_rel
  * The ID of the VESC to set the current on.
  *
  * @param current_rel
- * The relative current value, range [0.0 1.0]
+ * The relative current value, range [0.0F 1.0F]
  */
 void comm_can_set_current_brake_rel(uint8_t controller_id, float current_rel) {
 	int32_t send_index = 0;
 	uint8_t buffer[4];
-	buffer_append_float32(buffer, current_rel, 1e5, &send_index);
+	buffer_append_float32(buffer, current_rel, 1e5F, &send_index);
 	comm_can_transmit_eid_replace(controller_id |
 			((uint32_t)CAN_PACKET_SET_CURRENT_BRAKE_REL << 8), buffer, send_index, true, 0);
 }
@@ -611,7 +611,7 @@ void comm_can_set_current_brake_rel(uint8_t controller_id, float current_rel) {
 void comm_can_set_handbrake(uint8_t controller_id, float current) {
 	int32_t send_index = 0;
 	uint8_t buffer[4];
-	buffer_append_float32(buffer, current, 1e3, &send_index);
+	buffer_append_float32(buffer, current, 1e3F, &send_index);
 	comm_can_transmit_eid_replace(controller_id |
 			((uint32_t)CAN_PACKET_SET_CURRENT_HANDBRAKE << 8), buffer, send_index, true, 0);
 }
@@ -623,12 +623,12 @@ void comm_can_set_handbrake(uint8_t controller_id, float current) {
  * The ID of the VESC to set the handbrake current on.
  *
  * @param current_rel
- * The relative handbrake current value, range [0.0 1.0]
+ * The relative handbrake current value, range [0.0F 1.0F]
  */
 void comm_can_set_handbrake_rel(uint8_t controller_id, float current_rel) {
 	int32_t send_index = 0;
 	uint8_t buffer[4];
-	buffer_append_float32(buffer, current_rel, 1e5, &send_index);
+	buffer_append_float32(buffer, current_rel, 1e5F, &send_index);
 	comm_can_transmit_eid_replace(controller_id |
 			((uint32_t)CAN_PACKET_SET_CURRENT_HANDBRAKE_REL << 8), buffer, send_index, true, 0);
 }
@@ -701,7 +701,7 @@ void comm_can_detect_apply_all_foc(uint8_t controller_id, bool activate_status_m
 	uint8_t buffer[6];
 	buffer[send_index++] = app_get_configuration()->controller_id;
 	buffer[send_index++] = activate_status_msgs;
-	buffer_append_float32(buffer, max_power_loss, 1e3, &send_index);
+	buffer_append_float32(buffer, max_power_loss, 1e3F, &send_index);
 	comm_can_transmit_eid_replace(controller_id |
 			((uint32_t)CAN_PACKET_DETECT_APPLY_ALL_FOC << 8), buffer, send_index, true, 0);
 }
@@ -725,8 +725,8 @@ void comm_can_conf_current_limits(uint8_t controller_id,
 		bool store, float min, float max) {
 	int32_t send_index = 0;
 	uint8_t buffer[8];
-	buffer_append_float32(buffer, min, 1e3, &send_index);
-	buffer_append_float32(buffer, max, 1e3, &send_index);
+	buffer_append_float32(buffer, min, 1e3F, &send_index);
+	buffer_append_float32(buffer, max, 1e3F, &send_index);
 	comm_can_transmit_eid_replace(controller_id |
 			((uint32_t)(store ? CAN_PACKET_CONF_STORE_CURRENT_LIMITS :
 					CAN_PACKET_CONF_CURRENT_LIMITS) << 8), buffer, send_index, true, 0);
@@ -751,8 +751,8 @@ void comm_can_conf_current_limits_in(uint8_t controller_id,
 		bool store, float min, float max) {
 	int32_t send_index = 0;
 	uint8_t buffer[8];
-	buffer_append_float32(buffer, min, 1e3, &send_index);
-	buffer_append_float32(buffer, max, 1e3, &send_index);
+	buffer_append_float32(buffer, min, 1e3F, &send_index);
+	buffer_append_float32(buffer, max, 1e3F, &send_index);
 	comm_can_transmit_eid_replace(controller_id |
 			((uint32_t)(store ? CAN_PACKET_CONF_STORE_CURRENT_LIMITS_IN :
 					CAN_PACKET_CONF_CURRENT_LIMITS_IN) << 8), buffer, send_index, true, 0);
@@ -777,8 +777,8 @@ void comm_can_conf_foc_erpms(uint8_t controller_id,
 		bool store, float foc_openloop_rpm, float foc_sl_erpm) {
 	int32_t send_index = 0;
 	uint8_t buffer[8];
-	buffer_append_float32(buffer, foc_openloop_rpm, 1e3, &send_index);
-	buffer_append_float32(buffer, foc_sl_erpm, 1e3, &send_index);
+	buffer_append_float32(buffer, foc_openloop_rpm, 1e3F, &send_index);
+	buffer_append_float32(buffer, foc_sl_erpm, 1e3F, &send_index);
 	comm_can_transmit_eid_replace(controller_id |
 			((uint32_t)(store ? CAN_PACKET_CONF_STORE_FOC_ERPMS :
 					CAN_PACKET_CONF_FOC_ERPMS) << 8), buffer, send_index, true, 0);
@@ -804,8 +804,8 @@ void comm_can_conf_battery_cut(uint8_t controller_id,
 		bool store, float start, float end) {
 	int32_t send_index = 0;
 	uint8_t buffer[8];
-	buffer_append_float32(buffer, start, 1e3, &send_index);
-	buffer_append_float32(buffer, end, 1e3, &send_index);
+	buffer_append_float32(buffer, start, 1e3F, &send_index);
+	buffer_append_float32(buffer, end, 1e3F, &send_index);
 	comm_can_transmit_eid_replace(controller_id |
 			((uint32_t)(store ? CAN_PACKET_CONF_STORE_BATTERY_CUT :
 					CAN_PACKET_CONF_BATTERY_CUT) << 8), buffer, send_index, true, 0);
@@ -1128,7 +1128,7 @@ void comm_can_io_board_set_output_pwm(int id, int channel, float duty) {
 	uint8_t buffer[8];
 
 	buffer[send_index++] = channel;
-	buffer_append_float16(buffer, duty, 1e3, &send_index);
+	buffer_append_float16(buffer, duty, 1e3F, &send_index);
 
 	comm_can_transmit_eid_replace(id | ((uint32_t)CAN_PACKET_IO_BOARD_SET_OUTPUT_PWM << 8),
 			buffer, send_index, true, 0);
@@ -1167,7 +1167,7 @@ void comm_can_update_pid_pos_offset(int id, float angle_now, bool store) {
 	int32_t send_index = 0;
 	uint8_t buffer[8];
 
-	buffer_append_float32(buffer, angle_now, 1e4, &send_index);
+	buffer_append_float32(buffer, angle_now, 1e4F, &send_index);
 	buffer[send_index++] = store;
 
 	comm_can_transmit_eid_replace(id | ((uint32_t)CAN_PACKET_UPDATE_PID_POS_OFFSET << 8),
@@ -1217,8 +1217,8 @@ void comm_can_send_status1(uint8_t id, bool replace) {
 	int32_t send_index = 0;
 	uint8_t buffer[8];
 	buffer_append_int32(buffer, (int32_t)mc_interface_get_rpm(), &send_index);
-	buffer_append_int16(buffer, (int16_t)(mc_interface_get_tot_current_filtered() * 1e1), &send_index);
-	buffer_append_int16(buffer, (int16_t)(mc_interface_get_duty_cycle_now() * 1e3), &send_index);
+	buffer_append_int16(buffer, (int16_t)(mc_interface_get_tot_current_filtered() * 1e1F), &send_index);
+	buffer_append_int16(buffer, (int16_t)(mc_interface_get_duty_cycle_now() * 1e3F), &send_index);
 	comm_can_transmit_eid_replace(id | ((uint32_t)CAN_PACKET_STATUS << 8),
 			buffer, send_index, replace, 0);
 }
@@ -1226,8 +1226,8 @@ void comm_can_send_status1(uint8_t id, bool replace) {
 void comm_can_send_status2(uint8_t id, bool replace) {
 	int32_t send_index = 0;
 	uint8_t buffer[8];
-	buffer_append_int32(buffer, (int32_t)(mc_interface_get_amp_hours(false) * 1e4), &send_index);
-	buffer_append_int32(buffer, (int32_t)(mc_interface_get_amp_hours_charged(false) * 1e4), &send_index);
+	buffer_append_int32(buffer, (int32_t)(mc_interface_get_amp_hours(false) * 1e4F), &send_index);
+	buffer_append_int32(buffer, (int32_t)(mc_interface_get_amp_hours_charged(false) * 1e4F), &send_index);
 	comm_can_transmit_eid_replace(id | ((uint32_t)CAN_PACKET_STATUS_2 << 8),
 			buffer, send_index, replace, 0);
 }
@@ -1235,8 +1235,8 @@ void comm_can_send_status2(uint8_t id, bool replace) {
 void comm_can_send_status3(uint8_t id, bool replace) {
 	int32_t send_index = 0;
 	uint8_t buffer[8];
-	buffer_append_int32(buffer, (int32_t)(mc_interface_get_watt_hours(false) * 1e4), &send_index);
-	buffer_append_int32(buffer, (int32_t)(mc_interface_get_watt_hours_charged(false) * 1e4), &send_index);
+	buffer_append_int32(buffer, (int32_t)(mc_interface_get_watt_hours(false) * 1e4F), &send_index);
+	buffer_append_int32(buffer, (int32_t)(mc_interface_get_watt_hours_charged(false) * 1e4F), &send_index);
 	comm_can_transmit_eid_replace(id | ((uint32_t)CAN_PACKET_STATUS_3 << 8),
 			buffer, send_index, replace, 0);
 }
@@ -1244,10 +1244,10 @@ void comm_can_send_status3(uint8_t id, bool replace) {
 void comm_can_send_status4(uint8_t id, bool replace) {
 	int32_t send_index = 0;
 	uint8_t buffer[8];
-	buffer_append_int16(buffer, (int16_t)(mc_interface_temp_fet_filtered() * 1e1), &send_index);
-	buffer_append_int16(buffer, (int16_t)(mc_interface_temp_motor_filtered() * 1e1), &send_index);
-	buffer_append_int16(buffer, (int16_t)(mc_interface_get_tot_current_in_filtered() * 1e1), &send_index);
-	buffer_append_int16(buffer, (int16_t)(mc_interface_get_pid_pos_now() * 50.0), &send_index);
+	buffer_append_int16(buffer, (int16_t)(mc_interface_temp_fet_filtered() * 1e1F), &send_index);
+	buffer_append_int16(buffer, (int16_t)(mc_interface_temp_motor_filtered() * 1e1F), &send_index);
+	buffer_append_int16(buffer, (int16_t)(mc_interface_get_tot_current_in_filtered() * 1e1F), &send_index);
+	buffer_append_int16(buffer, (int16_t)(mc_interface_get_pid_pos_now() * 50.0F), &send_index);
 	comm_can_transmit_eid_replace(id | ((uint32_t)CAN_PACKET_STATUS_4 << 8),
 			buffer, send_index, replace, 0);
 }
@@ -1256,7 +1256,7 @@ void comm_can_send_status5(uint8_t id, bool replace) {
 	int32_t send_index = 0;
 	uint8_t buffer[8];
 	buffer_append_int32(buffer, mc_interface_get_tachometer_value(false), &send_index);
-	buffer_append_int16(buffer, (int16_t)(mc_interface_get_input_voltage_filtered() * 1e1), &send_index);
+	buffer_append_int16(buffer, (int16_t)(mc_interface_get_input_voltage_filtered() * 1e1F), &send_index);
 	buffer_append_int16(buffer, 0, &send_index); // Reserved for now
 	comm_can_transmit_eid_replace(id | ((uint32_t)CAN_PACKET_STATUS_5 << 8),
 			buffer, send_index, replace, 0);
@@ -1265,10 +1265,10 @@ void comm_can_send_status5(uint8_t id, bool replace) {
 void comm_can_send_status6(uint8_t id, bool replace) {
 	int32_t send_index = 0;
 	uint8_t buffer[8];
-	buffer_append_float16(buffer, ADC_VOLTS(ADC_IND_EXT), 1e3, &send_index);
-	buffer_append_float16(buffer, ADC_VOLTS(ADC_IND_EXT2), 1e3, &send_index);
-	buffer_append_float16(buffer, ADC_VOLTS(ADC_IND_EXT3), 1e3, &send_index);
-	buffer_append_float16(buffer, servodec_get_servo(0), 1e3, &send_index);
+	buffer_append_float16(buffer, ADC_VOLTS(ADC_IND_EXT), 1e3F, &send_index);
+	buffer_append_float16(buffer, ADC_VOLTS(ADC_IND_EXT2), 1e3F, &send_index);
+	buffer_append_float16(buffer, ADC_VOLTS(ADC_IND_EXT3), 1e3F, &send_index);
+	buffer_append_float16(buffer, servodec_get_servo(0), 1e3F, &send_index);
 	comm_can_transmit_eid_replace(id | ((uint32_t)CAN_PACKET_STATUS_6 << 8),
 			buffer, send_index, replace, 0);
 }
@@ -1290,7 +1290,7 @@ static THD_FUNCTION(cancom_read_thread, arg) {
 	while(!chThdShouldTerminateX()) {
 		// Feed watchdog
 		timeout_feed_WDT(THREAD_CANBUS);
-        
+
 		if (chEvtWaitAnyTimeout(ALL_EVENTS, MS2ST(10)) == 0) {
 			continue;
 		}
@@ -1606,36 +1606,36 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 		switch (cmd) {
 		case CAN_PACKET_SET_DUTY:
 			ind = 0;
-			mc_interface_set_duty(buffer_get_float32(data8, 1e5, &ind));
+			mc_interface_set_duty(buffer_get_float32(data8, 1e5F, &ind));
 			timeout_reset();
 			break;
 
 		case CAN_PACKET_SET_CURRENT:
 			ind = 0;
 			if (len >= 6) {
-				mc_interface_set_current_off_delay(buffer_get_float16(data8, 1e3, &ind));
+				mc_interface_set_current_off_delay(buffer_get_float16(data8, 1e3F, &ind));
 			}
 
-			mc_interface_set_current(buffer_get_float32(data8, 1e3, &ind));
+			mc_interface_set_current(buffer_get_float32(data8, 1e3F, &ind));
 
 			timeout_reset();
 			break;
 
 		case CAN_PACKET_SET_CURRENT_BRAKE:
 			ind = 0;
-			mc_interface_set_brake_current(buffer_get_float32(data8, 1e3, &ind));
+			mc_interface_set_brake_current(buffer_get_float32(data8, 1e3F, &ind));
 			timeout_reset();
 			break;
 
 		case CAN_PACKET_SET_RPM:
 			ind = 0;
-			mc_interface_set_pid_speed(buffer_get_float32(data8, 1e0, &ind));
+			mc_interface_set_pid_speed(buffer_get_float32(data8, 1e0F, &ind));
 			timeout_reset();
 			break;
 
 		case CAN_PACKET_SET_POS:
 			ind = 0;
-			mc_interface_set_pid_pos(buffer_get_float32(data8, 1e6, &ind));
+			mc_interface_set_pid_pos(buffer_get_float32(data8, 1e6F, &ind));
 			timeout_reset();
 			break;
 
@@ -1809,10 +1809,10 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 
 		case CAN_PACKET_SET_CURRENT_REL:
 			ind = 0;
-			mc_interface_set_current_rel(buffer_get_float32(data8, 1e5, &ind));
+			mc_interface_set_current_rel(buffer_get_float32(data8, 1e5F, &ind));
 
 			if (len >= 6) {
-				mc_interface_set_current_off_delay(buffer_get_float16(data8, 1e3, &ind));
+				mc_interface_set_current_off_delay(buffer_get_float16(data8, 1e3F, &ind));
 			}
 
 			timeout_reset();
@@ -1820,19 +1820,19 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 
 		case CAN_PACKET_SET_CURRENT_BRAKE_REL:
 			ind = 0;
-			mc_interface_set_brake_current_rel(buffer_get_float32(data8, 1e5, &ind));
+			mc_interface_set_brake_current_rel(buffer_get_float32(data8, 1e5F, &ind));
 			timeout_reset();
 			break;
 
 		case CAN_PACKET_SET_CURRENT_HANDBRAKE:
 			ind = 0;
-			mc_interface_set_handbrake(buffer_get_float32(data8, 1e3, &ind));
+			mc_interface_set_handbrake(buffer_get_float32(data8, 1e3F, &ind));
 			timeout_reset();
 			break;
 
 		case CAN_PACKET_SET_CURRENT_HANDBRAKE_REL:
 			ind = 0;
-			mc_interface_set_handbrake_rel(buffer_get_float32(data8, 1e5, &ind));
+			mc_interface_set_handbrake_rel(buffer_get_float32(data8, 1e5F, &ind));
 			timeout_reset();
 			break;
 
@@ -1862,7 +1862,7 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 
 			ind = 1;
 			bool activate_status = data8[ind++];
-			float max_power_loss = buffer_get_float32(data8, 1e3, &ind);
+			float max_power_loss = buffer_get_float32(data8, 1e3F, &ind);
 			int res = conf_general_detect_apply_all_foc(max_power_loss, true, false);
 			if (res >= 0 && activate_status) {
 				app_configuration *appconf = mempools_alloc_appconf();
@@ -1895,8 +1895,8 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 		case CAN_PACKET_CONF_CURRENT_LIMITS:
 		case CAN_PACKET_CONF_STORE_CURRENT_LIMITS: {
 			ind = 0;
-			float min = buffer_get_float32(data8, 1e3, &ind);
-			float max = buffer_get_float32(data8, 1e3, &ind);
+			float min = buffer_get_float32(data8, 1e3F, &ind);
+			float max = buffer_get_float32(data8, 1e3F, &ind);
 
 			mc_configuration *mcconf = mempools_alloc_mcconf();
 			*mcconf = *mc_interface_get_configuration();
@@ -1919,8 +1919,8 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 		case CAN_PACKET_CONF_CURRENT_LIMITS_IN:
 		case CAN_PACKET_CONF_STORE_CURRENT_LIMITS_IN: {
 			ind = 0;
-			float min = buffer_get_float32(data8, 1e3, &ind);
-			float max = buffer_get_float32(data8, 1e3, &ind);
+			float min = buffer_get_float32(data8, 1e3F, &ind);
+			float max = buffer_get_float32(data8, 1e3F, &ind);
 
 			mc_configuration *mcconf = mempools_alloc_mcconf();
 			*mcconf = *mc_interface_get_configuration();
@@ -1943,8 +1943,8 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 		case CAN_PACKET_CONF_FOC_ERPMS:
 		case CAN_PACKET_CONF_STORE_FOC_ERPMS: {
 			ind = 0;
-			float foc_openloop_rpm = buffer_get_float32(data8, 1e3, &ind);
-			float foc_sl_erpm = buffer_get_float32(data8, 1e3, &ind);
+			float foc_openloop_rpm = buffer_get_float32(data8, 1e3F, &ind);
+			float foc_sl_erpm = buffer_get_float32(data8, 1e3F, &ind);
 
 			mc_configuration *mcconf = mempools_alloc_mcconf();
 			*mcconf = *mc_interface_get_configuration();
@@ -1974,8 +1974,8 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 		case CAN_PACKET_CONF_BATTERY_CUT:
 		case CAN_PACKET_CONF_STORE_BATTERY_CUT: {
 			ind = 0;
-			float start = buffer_get_float32(data8, 1e3, &ind);
-			float end = buffer_get_float32(data8, 1e3, &ind);
+			float start = buffer_get_float32(data8, 1e3F, &ind);
+			float end = buffer_get_float32(data8, 1e3F, &ind);
 
 			mc_configuration *mcconf = mempools_alloc_mcconf();
 			*mcconf = *mc_interface_get_configuration();
@@ -2011,7 +2011,7 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 
 		case CAN_PACKET_UPDATE_PID_POS_OFFSET: {
 			ind = 0;
-			float angle_now = buffer_get_float32(data8, 1e4, &ind);
+			float angle_now = buffer_get_float32(data8, 1e4F, &ind);
 			bool store = data8[ind++];
 			mc_interface_update_pid_pos_offset(angle_now, store);
 		} break;
@@ -2019,7 +2019,7 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 		case CAN_PACKET_POLL_ROTOR_POS: {
 			uint8_t buffer[4];
 			int32_t index = 0;
-			buffer_append_int32(buffer, (int32_t)(encoder_read_deg() * 100000.0), &index);
+			buffer_append_int32(buffer, (int32_t)(encoder_read_deg() * 100000.0F), &index);
 			comm_can_transmit_eid_replace(app_get_configuration()->controller_id |
 					((uint32_t)CAN_PACKET_POLL_ROTOR_POS << 8), (uint8_t*)buffer, 4, true, 0);
 		} break;
@@ -2040,8 +2040,8 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 				stat_tmp->id = id;
 				stat_tmp->rx_time = chVTGetSystemTimeX();
 				stat_tmp->rpm = (float)buffer_get_int32(data8, &ind);
-				stat_tmp->current = (float)buffer_get_int16(data8, &ind) / 10.0;
-				stat_tmp->duty = (float)buffer_get_int16(data8, &ind) / 1000.0;
+				stat_tmp->current = (float)buffer_get_int16(data8, &ind) / 10.0F;
+				stat_tmp->duty = (float)buffer_get_int16(data8, &ind) / 1000.0F;
 				break;
 			}
 		}
@@ -2054,8 +2054,8 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 				ind = 0;
 				stat_tmp_2->id = id;
 				stat_tmp_2->rx_time = chVTGetSystemTimeX();
-				stat_tmp_2->amp_hours = (float)buffer_get_int32(data8, &ind) / 1e4;
-				stat_tmp_2->amp_hours_charged = (float)buffer_get_int32(data8, &ind) / 1e4;
+				stat_tmp_2->amp_hours = (float)buffer_get_int32(data8, &ind) / 1e4F;
+				stat_tmp_2->amp_hours_charged = (float)buffer_get_int32(data8, &ind) / 1e4F;
 				break;
 			}
 		}
@@ -2068,8 +2068,8 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 				ind = 0;
 				stat_tmp_3->id = id;
 				stat_tmp_3->rx_time = chVTGetSystemTimeX();
-				stat_tmp_3->watt_hours = (float)buffer_get_int32(data8, &ind) / 1e4;
-				stat_tmp_3->watt_hours_charged = (float)buffer_get_int32(data8, &ind) / 1e4;
+				stat_tmp_3->watt_hours = (float)buffer_get_int32(data8, &ind) / 1e4F;
+				stat_tmp_3->watt_hours_charged = (float)buffer_get_int32(data8, &ind) / 1e4F;
 				break;
 			}
 		}
@@ -2082,10 +2082,10 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 				ind = 0;
 				stat_tmp_4->id = id;
 				stat_tmp_4->rx_time = chVTGetSystemTimeX();
-				stat_tmp_4->temp_fet = (float)buffer_get_int16(data8, &ind) / 10.0;
-				stat_tmp_4->temp_motor = (float)buffer_get_int16(data8, &ind) / 10.0;
-				stat_tmp_4->current_in = (float)buffer_get_int16(data8, &ind) / 10.0;
-				stat_tmp_4->pid_pos_now = (float)buffer_get_int16(data8, &ind) / 50.0;
+				stat_tmp_4->temp_fet = (float)buffer_get_int16(data8, &ind) / 10.0F;
+				stat_tmp_4->temp_motor = (float)buffer_get_int16(data8, &ind) / 10.0F;
+				stat_tmp_4->current_in = (float)buffer_get_int16(data8, &ind) / 10.0F;
+				stat_tmp_4->pid_pos_now = (float)buffer_get_int16(data8, &ind) / 50.0F;
 				break;
 			}
 		}
@@ -2099,7 +2099,7 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 				stat_tmp_5->id = id;
 				stat_tmp_5->rx_time = chVTGetSystemTimeX();
 				stat_tmp_5->tacho_value = buffer_get_int32(data8, &ind);
-				stat_tmp_5->v_in = (float)buffer_get_int16(data8, &ind) / 1e1;
+				stat_tmp_5->v_in = (float)buffer_get_int16(data8, &ind) / 1e1F;
 				break;
 			}
 		}
@@ -2112,10 +2112,10 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 				ind = 0;
 				stat_tmp_6->id = id;
 				stat_tmp_6->rx_time = chVTGetSystemTimeX();
-				stat_tmp_6->adc_1 = buffer_get_float16(data8, 1e3, &ind);
-				stat_tmp_6->adc_2 = buffer_get_float16(data8, 1e3, &ind);
-				stat_tmp_6->adc_3 = buffer_get_float16(data8, 1e3, &ind);
-				stat_tmp_6->ppm = buffer_get_float16(data8, 1e3, &ind);
+				stat_tmp_6->adc_1 = buffer_get_float16(data8, 1e3F, &ind);
+				stat_tmp_6->adc_2 = buffer_get_float16(data8, 1e3F, &ind);
+				stat_tmp_6->adc_3 = buffer_get_float16(data8, 1e3F, &ind);
+				stat_tmp_6->ppm = buffer_get_float16(data8, 1e3F, &ind);
 				break;
 			}
 		}
@@ -2131,7 +2131,7 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 				ind = 0;
 				int j = 0;
 				while (ind < len) {
-					msg->adc_voltages[j++] = buffer_get_float16(data8, 1e2, &ind);
+					msg->adc_voltages[j++] = buffer_get_float16(data8, 1e2F, &ind);
 				}
 				break;
 			}
@@ -2148,7 +2148,7 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 				ind = 0;
 				int j = 0;
 				while (ind < len) {
-					msg->adc_voltages[j++] = buffer_get_float16(data8, 1e2, &ind);
+					msg->adc_voltages[j++] = buffer_get_float16(data8, 1e2F, &ind);
 				}
 				break;
 			}
@@ -2181,9 +2181,9 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 				msg->id = id;
 				msg->rx_time = chVTGetSystemTimeX();
 
-				msg->v_in = buffer_get_float16(data8, 10.0, &ind);
-				msg->v_out = buffer_get_float16(data8, 10.0, &ind);
-				msg->temp = buffer_get_float16(data8, 10.0, &ind);
+				msg->v_in = buffer_get_float16(data8, 10.0F, &ind);
+				msg->v_out = buffer_get_float16(data8, 10.0F, &ind);
+				msg->temp = buffer_get_float16(data8, 10.0F, &ind);
 				msg->is_out_on = (data8[ind] >> 0) & 1;
 				msg->is_pch_on = (data8[ind] >> 1) & 1;
 				msg->is_dsc_on = (data8[ind] >> 2) & 1;
@@ -2233,8 +2233,8 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 		volatile gnss_data *d = mc_interface_gnss();
 		ind = 0;
 		d->height = buffer_get_float32_auto(data8, &ind);
-		d->speed = buffer_get_float16(data8, 1.0e2, &ind);
-		d->hdop = buffer_get_float16(data8, 1.0e2, &ind);
+		d->speed = buffer_get_float16(data8, 1.0e2F, &ind);
+		d->hdop = buffer_get_float16(data8, 1.0e2F, &ind);
 		d->last_update = chVTGetSystemTimeX();
 	} break;
 

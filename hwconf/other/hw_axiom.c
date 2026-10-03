@@ -64,9 +64,9 @@
 
 // Variables
 static volatile bool i2c_running = false;
-static volatile float current_sensor_gain = 0.0;
-static volatile float input_current_sensor_gain = 0.0;
-static volatile float input_current_sensor_offset = 1.65;
+static volatile float current_sensor_gain = 0.0F;
+static volatile float input_current_sensor_gain = 0.0F;
+static volatile float input_current_sensor_offset = 1.65F;
 static volatile uint16_t input_current_sensor_offset_samples = 0;
 static volatile uint32_t input_current_sensor_offset_sum = 0;
 static volatile bool current_input_sensor_offset_start_measurement = false;
@@ -143,7 +143,7 @@ void hw_init_gpio(void) {
 	palClearPad(AXIOM_FPGA_RESET_PORT, AXIOM_FPGA_RESET_PIN);
 	chThdSleep(1);
 	palSetPad(AXIOM_FPGA_RESET_PORT, AXIOM_FPGA_RESET_PIN);
-    
+
 	//output a 12MHz clock on MCO2
 	hw_axiom_init_FPGA_CLK();
 
@@ -607,17 +607,17 @@ static void terminal_cmd_store_current_sensor_gain(int argc, const char **argv) 
 			commands_printf("Axiom current sensor sensor gain set as %.8f", (double)current_sensor_gain);
 		}
 		else {
-			current_sensor_gain = 0.0;
+			current_sensor_gain = 0.0F;
 			commands_printf("Error storing EEPROM data.");
 		}
 	}
 	else {
 		commands_printf("1 argument required. Here are some examples:");
-		commands_printf("ISB-425-A:  axiom_store_current_sensor_gain 0.003761");
-		commands_printf("HASS 100-S: axiom_store_current_sensor_gain 0.004994");
-		commands_printf("HASS 400-S: axiom_store_current_sensor_gain 0.001249");
-		commands_printf("HASS 600-S: axiom_store_current_sensor_gain 0.0008324");
-		commands_printf("HTFS 800-P: axiom_store_current_sensor_gain 0.001249");
+		commands_printf("ISB-425-A:  axiom_store_current_sensor_gain 0.003761F");
+		commands_printf("HASS 100-S: axiom_store_current_sensor_gain 0.004994F");
+		commands_printf("HASS 400-S: axiom_store_current_sensor_gain 0.001249F");
+		commands_printf("HASS 600-S: axiom_store_current_sensor_gain 0.0008324F");
+		commands_printf("HTFS 800-P: axiom_store_current_sensor_gain 0.001249F");
 		commands_printf(" ");
 	}
 	commands_printf(" ");
@@ -634,7 +634,7 @@ static void terminal_cmd_store_input_current_sensor_gain(int argc, const char **
 		sscanf(argv[1], "%f", &(current_gain.as_float));
 
 		//limit max an min argument
-		if( current_gain.as_float > 0.0 && current_gain.as_float < 1.0  ){
+		if( current_gain.as_float > 0.0F && current_gain.as_float < 1.0F  ){
 			// Store data in eeprom
 			conf_general_store_eeprom_var_hw(&current_gain, EEPROM_ADDR_INPUT_CURRENT_GAIN);
 
@@ -645,19 +645,19 @@ static void terminal_cmd_store_input_current_sensor_gain(int argc, const char **
 				commands_printf("Axiom input current sensor sensor gain set as %.8f", (double)input_current_sensor_gain);
 			}
 			else {
-				input_current_sensor_gain = 0.0;
+				input_current_sensor_gain = 0.0F;
 				commands_printf("Error storing EEPROM data.");
 			}
 
 		}
 		else{
-			commands_printf("argument should be > 0.00 and < 1.0");
+			commands_printf("argument should be > 0.00F and < 1.0F");
 		}
 
 	}
 	else {
 		commands_printf("1 argument required, for example:");
-		commands_printf("4mV per A:  axiom_store_input_current_sensor_gain 0.004");
+		commands_printf("4mV per A:  axiom_store_input_current_sensor_gain 0.004F");
 		commands_printf(" ");
 	}
 	commands_printf(" ");
@@ -695,7 +695,7 @@ float hw_axiom_read_input_current_sensor_gain(void){
 
 	conf_general_read_eeprom_var_hw(&current_gain, EEPROM_ADDR_INPUT_CURRENT_GAIN);
 
-	if( (current_gain.as_float <= 0.0) || (current_gain.as_float >= 1.0) )
+	if( (current_gain.as_float <= 0.0F) || (current_gain.as_float >= 1.0F) )
 		current_gain.as_float = DEFAULT_INPUT_CURRENT_AMP_GAIN;
 	return current_gain.as_float;
 }
@@ -709,7 +709,7 @@ float hw_axiom_get_highest_IGBT_temp() {
 	float t1 = NTC_TEMP_MOS1();
 	float t2 = NTC_TEMP_MOS2();
 	float t3 = NTC_TEMP_MOS3();
-	float res = 0.0;
+	float res = 0.0F;
 
 	if (t1 > t2 && t1 > t3) {
 		res = t1;
@@ -723,9 +723,9 @@ float hw_axiom_get_highest_IGBT_temp() {
 }
 
 float hw_axiom_read_input_current(void) {
-	float ret_value = 0.0;
-	if(input_current_sensor_gain > 0.0001){
-		ret_value = ( (V_REG / 4095.0) * (float)ADC_Value[ADC_IND_EXT2] - input_current_sensor_offset ) / input_current_sensor_gain;
+	float ret_value = 0.0F;
+	if(input_current_sensor_gain > 0.0001F){
+		ret_value = ( (V_REG / 4095.0F) * (float)ADC_Value[ADC_IND_EXT2] - input_current_sensor_offset ) / input_current_sensor_gain;
 	}
 	return ret_value;
 }
@@ -736,8 +736,8 @@ void hw_axiom_get_input_current_offset(void){
 
 		if( input_current_sensor_offset_samples == 100 ){
 			current_input_sensor_offset_start_measurement = false;
-			input_current_sensor_offset = ((float)input_current_sensor_offset_sum) / 100.0;
-			input_current_sensor_offset *= (V_REG / 4095.0);
+			input_current_sensor_offset = ((float)input_current_sensor_offset_sum) / 100.0F;
+			input_current_sensor_offset *= (V_REG / 4095.0F);
 		}
 		else{
 			input_current_sensor_offset_sum += 	ADC_Value[ADC_IND_EXT2];
@@ -754,17 +754,17 @@ void hw_axiom_start_input_current_sensor_offset_measurement(void){
 	input_current_sensor_offset_sum = 0;
 }
 
-float highest_mos_temp = -100.0;
+float highest_mos_temp = -100.0F;
 float hw_axiom_temp_sensor_filter(uint8_t temp_sensor){
-	static float temp1 = 0.0;
-	static float temp2 = 0.0;
-	static float temp3 = 0.0;
+	static float temp1 = 0.0F;
+	static float temp2 = 0.0F;
+	static float temp3 = 0.0F;
 	switch (temp_sensor)
 	{
 	case 1:
 		UTILS_LP_FAST(temp1,
-			(1.0 / ((logf(NTC_RES_IGBT(ADC_Value[ADC_IND_TEMP_IGBT_1]) / 5000.0) / 3433.0) + (1.0 / 298.15)) - 273.15),
-			 0.01);
+			(1.0F / ((logf(NTC_RES_IGBT(ADC_Value[ADC_IND_TEMP_IGBT_1]) / 5000.0F) / 3433.0F) + (1.0F / 298.15F)) - 273.15F),
+			 0.01F);
 
 		if(temp1 > highest_mos_temp){
 			highest_mos_temp = temp1;
@@ -774,8 +774,8 @@ float hw_axiom_temp_sensor_filter(uint8_t temp_sensor){
 		break;
 	case 2:
 		UTILS_LP_FAST(temp2,
-			(1.0 / ((logf(NTC_RES_IGBT(ADC_Value[ADC_IND_TEMP_IGBT_2]) / 5000.0) / 3433.0) + (1.0 / 298.15)) - 273.15),
-			 0.01);
+			(1.0F / ((logf(NTC_RES_IGBT(ADC_Value[ADC_IND_TEMP_IGBT_2]) / 5000.0F) / 3433.0F) + (1.0F / 298.15F)) - 273.15F),
+			 0.01F);
 
 		if(temp2 > highest_mos_temp){
 			highest_mos_temp = temp2;
@@ -785,8 +785,8 @@ float hw_axiom_temp_sensor_filter(uint8_t temp_sensor){
 		break;
 	case 3:
 		UTILS_LP_FAST(temp3,
-			(1.0 / ((logf(NTC_RES_IGBT(ADC_Value[ADC_IND_TEMP_IGBT_3]) / 5000.0) / 3433.0) + (1.0 / 298.15)) - 273.15),
-			 0.01);
+			(1.0F / ((logf(NTC_RES_IGBT(ADC_Value[ADC_IND_TEMP_IGBT_3]) / 5000.0F) / 3433.0F) + (1.0F / 298.15F)) - 273.15F),
+			 0.01F);
 
 		if(temp3 > highest_mos_temp){
 			highest_mos_temp = temp3;
@@ -796,16 +796,16 @@ float hw_axiom_temp_sensor_filter(uint8_t temp_sensor){
 		break;
 
 	default:
-		return 0.0;
+		return 0.0F;
 		break;
 	}
 }
 
 float hw_axiom_NTC_res_motor_filter(uint16_t adc_val){
-	static float adc_val_filtered = 0.0;
+	static float adc_val_filtered = 0.0F;
 
-	UTILS_LP_FAST(adc_val_filtered, adc_val, 0.01);
-	return ((4095.0 * 8870.0 * 2) / adc_val_filtered - 18870.0);
+	UTILS_LP_FAST(adc_val_filtered, adc_val, 0.01F);
+	return ((4095.0F * 8870.0F * 2) / adc_val_filtered - 18870.0F);
 }
 
 void terminal_cmd_axiom_print_temp_status(int argc, const char **argv){
@@ -819,7 +819,7 @@ void terminal_cmd_axiom_clear_temp_status(int argc, const char **argv){
 	(void)argc;
 	(void)argv;
 	commands_printf("Mosfet temp cleared");
-	highest_mos_temp = -100.0;
+	highest_mos_temp = -100.0F;
 
 }
 

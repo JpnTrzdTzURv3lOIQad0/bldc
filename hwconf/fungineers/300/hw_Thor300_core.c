@@ -30,9 +30,9 @@
 // Variables
 static volatile bool i2c_running = false;
 static mutex_t shutdown_mutex;
-static float bt_diff = 0.0;
-static float bt_lastval = 0.0;
-static float bt_unpressed = 0.0;
+static float bt_diff = 0.0F;
+static float bt_lastval = 0.0F;
+static float bt_unpressed = 0.0F;
 static bool will_poweroff = false;
 static bool force_poweroff = false;
 static unsigned int bt_hold_counter = 0;
@@ -73,7 +73,7 @@ static void terminal_button_test(int argc, const char **argv);
 void hw_init_gpio(void) {
 
 	chMtxObjectInit(&shutdown_mutex);
-	
+
 	// GPIO clock enable
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
@@ -280,7 +280,7 @@ void hw_try_restore_i2c(void) {
 	}
 }
 
-#define RISING_EDGE_THRESHOLD 0.09
+#define RISING_EDGE_THRESHOLD 0.09F
 #define TIME_500MS 50
 #define TIME_3S 300
 #define ERPM_THRESHOLD 100
@@ -315,12 +315,12 @@ bool hw_sample_shutdown_button(void) {
     }
     bt_diff = (newval - bt_lastval);
 
-    bool is_steady = fabsf(bt_diff) < 0.02;  // filter out noise above 20mV
+    bool is_steady = fabsf(bt_diff) < 0.02F;  // filter out noise above 20mV
     bool is_rising_edge = (bt_diff > RISING_EDGE_THRESHOLD);
 
     bt_lastval = newval;
 
-    if (bt_unpressed == 0.0) {
+    if (bt_unpressed == 0.0F) {
         // initializing bt_unpressed
         if (is_steady) {
             bt_unpressed = newval;
@@ -354,13 +354,13 @@ bool hw_sample_shutdown_button(void) {
         else {
             if (is_steady && (newval < bt_unpressed + RISING_EDGE_THRESHOLD / 2)) {
                 // pickup drifts due to temperature
-                bt_unpressed = bt_unpressed * 0.9 + newval * 0.1;
+                bt_unpressed = bt_unpressed * 0.9F + newval * 0.1F;
             }
         }
     }
     else {
         // we've had a rising edge and are now checking for a steady hold
-        if (newval > bt_unpressed + RISING_EDGE_THRESHOLD * 1.5) {
+        if (newval > bt_unpressed + RISING_EDGE_THRESHOLD * 1.5F) {
             bt_hold_counter++;
 
             if (bt_hold_counter > TIME_500MS) {
@@ -397,15 +397,15 @@ bool hw_sample_shutdown_button(void) {
 
 
 float hw_Thor_get_temp(void) {
-	float t1 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-	float t3 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_3]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-	float res = 0.0;
+	float t1 = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+	float t3 = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_3]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+	float res = 0.0F;
 
 	if (t1 >= t3) {
 		res = t1;
 	} else {
 		res = t3;
-	} 
+	}
 	return res;
 }
 

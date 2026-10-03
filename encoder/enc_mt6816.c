@@ -53,8 +53,8 @@ bool enc_mt6816_init(MT6816_config_t *cfg) {
 
 	spiStart(cfg->spi_dev, &(cfg->hw_spi_cfg));
 
-	cfg->state.spi_error_rate = 0.0;
-	cfg->state.encoder_no_magnet_error_rate = 0.0;
+	cfg->state.spi_error_rate = 0.0F;
+	cfg->state.encoder_no_magnet_error_rate = 0.0F;
 
 	return true;
 }
@@ -71,14 +71,14 @@ void enc_mt6816_deinit(MT6816_config_t *cfg) {
 
 	spiStop(cfg->spi_dev);
 
-	cfg->state.last_enc_angle = 0.0;
-	cfg->state.spi_error_rate = 0.0;
+	cfg->state.last_enc_angle = 0.0F;
+	cfg->state.spi_error_rate = 0.0F;
 }
 
 void enc_mt6816_routine(MT6816_config_t *cfg) {
 	float timestep = timer_seconds_elapsed_since(cfg->state.last_update_time);
-	if (timestep > 1.0) {
-		timestep = 1.0;
+	if (timestep > 1.0F) {
+		timestep = 1.0F;
 	}
 	cfg->state.last_update_time = timer_time_now();
 
@@ -111,15 +111,15 @@ void enc_mt6816_routine(MT6816_config_t *cfg) {
 	if (spi_bb_check_parity(pos)) {
 		if (pos & MT6816_NO_MAGNET_ERROR_MASK) {
 			++cfg->state.encoder_no_magnet_error_cnt;
-			UTILS_LP_FAST(cfg->state.encoder_no_magnet_error_rate, 1.0, timestep);
+			UTILS_LP_FAST(cfg->state.encoder_no_magnet_error_rate, 1.0F, timestep);
 		} else {
 			pos = pos >> 2;
-			cfg->state.last_enc_angle = ((float) pos * 360.0) / 16384.0;
-			UTILS_LP_FAST(cfg->state.spi_error_rate, 0.0, timestep);
-			UTILS_LP_FAST(cfg->state.encoder_no_magnet_error_rate, 0.0, timestep);
+			cfg->state.last_enc_angle = ((float) pos * 360.0F) / 16384.0F;
+			UTILS_LP_FAST(cfg->state.spi_error_rate, 0.0F, timestep);
+			UTILS_LP_FAST(cfg->state.encoder_no_magnet_error_rate, 0.0F, timestep);
 		}
 	} else {
 		++cfg->state.spi_error_cnt;
-		UTILS_LP_FAST(cfg->state.spi_error_rate, 1.0, timestep);
+		UTILS_LP_FAST(cfg->state.spi_error_rate, 1.0F, timestep);
 	}
 }

@@ -18,6 +18,7 @@
     */
 
 #include  "digital_filter.h"
+#include  "utils_math.h"
 #include  <math.h>
 #include  <stdint.h>
 
@@ -50,14 +51,14 @@ void filter_fft(int dir, int m, float *real, float *imag) {
 	}
 
 	// Compute the FFT
-	c1 = -1.0;
-	c2 = 0.0;
+	c1 = -1.0F;
+	c2 = 0.0F;
 	l2 = 1;
 	for (l=0;l<m;l++) {
 		l1 = l2;
 		l2 <<= 1;
-		u1 = 1.0;
-		u2 = 0.0;
+		u1 = 1.0F;
+		u2 = 0.0F;
 		for (j=0;j < l1;j++) {
 			for (i=j;i < n;i += l2) {
 				i1 = i + l1;
@@ -72,11 +73,11 @@ void filter_fft(int dir, int m, float *real, float *imag) {
 			u2 = u1 * c2 + u2 * c1;
 			u1 = z;
 		}
-		c2 = sqrtf((1.0 - c1) / 2.0);
+		c2 = sqrtf((1.0F - c1) / 2.0F);
 		if (dir) {
 			c2 = -c2;
 		}
-		c1 = sqrtf((1.0 + c1) / 2.0);
+		c1 = sqrtf((1.0F + c1) / 2.0F);
 	}
 
 	// Scaling for reverse transform
@@ -106,7 +107,7 @@ void filter_dft(int dir, int len, float *real, float *imag) {
 	for (i=0;i < len;i++) {
 		x2[i] = 0;
 		y2[i] = 0;
-		arg = -(float)dir * 2.0 * M_PI * (float)i / (float)len;
+			arg = -(float)dir * 2.0F * UTILS_PI_F * (float)i / (float)len;
 		for (k=0;k<len;k++) {
 			cosarg = cosf(k * arg);
 			sinarg = sinf(k * arg);
@@ -142,13 +143,13 @@ void filter_fftshift(float *data, int len) {
 void filter_hamming(float *data, int len) {
 	if (len % 2 == 0) {
 		for (int i = 0;i < (len / 2);i++) {
-			float val = 0.54 - 0.46 * cosf((2.0 * M_PI * (float)i)/(float)(len - 1));
+				float val = 0.54F - 0.46F * cosf((2.0F * UTILS_PI_F * (float)i) / (float)(len - 1));
 			data[i] *= val;
 			data[len - i - 1] *= val;
 		}
 	} else {
 		for (int i = 0;i < len;i++) {
-			data[i] *= 0.54 - 0.46 * cosf((2.0 * M_PI * (float)i)/(float)(len - 1));
+			data[i] *= 0.54F - 0.46F * cosf((2.0F * UTILS_PI_F * (float)i) / (float)(len - 1));
 		}
 	}
 }
@@ -243,17 +244,17 @@ float biquad_process(Biquad *biquad, float in) {
     return out;
 }
 void biquad_config(Biquad *biquad, BiquadType type, float Fc) {
-	float K = tanf(M_PI * Fc);	// -0.0159;
-	float Q = 0.707; // maximum sharpness (0.5 = maximum smoothness)
-	float norm = 1 / (1 + K / Q + K * K);
+	float K = tanf(UTILS_PI_F * Fc);	// -0.0159;
+	float Q = 0.707F; // maximum sharpness (0.5 = maximum smoothness)
+	float norm = 1.0F / (1.0F + K / Q + K * K);
 	if (type == BQ_LOWPASS) {
 		biquad->a0 = K * K * norm;
-		biquad->a1 = 2 * biquad->a0;
+		biquad->a1 = 2.0F * biquad->a0;
 		biquad->a2 = biquad->a0;
 	}
 	else if (type == BQ_HIGHPASS) {
-		biquad->a0 = 1 * norm;
-		biquad->a1 = -2 * biquad->a0;
+		biquad->a0 = 1.0F * norm;
+		biquad->a1 = -2.0F * biquad->a0;
 		biquad->a2 = biquad->a0;
 	}
 	biquad->b1 = 2 * (K * K - 1) * norm;

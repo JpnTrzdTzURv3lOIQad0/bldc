@@ -33,7 +33,7 @@
 #include <math.h>
 
 // Settings
-#define PEDAL_INPUT_TIMEOUT				0.2
+#define PEDAL_INPUT_TIMEOUT				0.2F
 #define MAX_MS_WITHOUT_CADENCE_OR_TORQUE	5000
 #define MAX_MS_WITHOUT_CADENCE			1000
 #define MIN_MS_WITHOUT_POWER			500
@@ -46,17 +46,17 @@ __attribute__((section(".ram4"))) static THD_WORKING_AREA(pas_thread_wa, 512);
 
 // Private variables
 static volatile pas_config config;
-static volatile float sub_scaling = 1.0;
-static volatile float output_current_rel = 0.0;
-static volatile float ms_without_power = 0.0;
-static volatile float max_pulse_period = 0.0;
-static volatile float min_pedal_period = 0.0;
-static volatile float direction_conf = 0.0;
+static volatile float sub_scaling = 1.0F;
+static volatile float output_current_rel = 0.0F;
+static volatile float ms_without_power = 0.0F;
+static volatile float max_pulse_period = 0.0F;
+static volatile float min_pedal_period = 0.0F;
+static volatile float direction_conf = 0.0F;
 static volatile float pedal_rpm = 0;
 static volatile bool primary_output = false;
 static volatile bool stop_now = true;
 static volatile bool is_running = false;
-static volatile float torque_ratio = 0.0;
+static volatile float torque_ratio = 0.0F;
 
 /**
  * Configure and initialize PAS application
@@ -66,16 +66,16 @@ static volatile float torque_ratio = 0.0;
  */
 void app_pas_configure(pas_config *conf) {
 	config = *conf;
-	ms_without_power = 0.0;
-	output_current_rel = 0.0;
+	ms_without_power = 0.0F;
+	output_current_rel = 0.0F;
 
 	// a period longer than this should immediately reduce power to zero
-	max_pulse_period = 1.0 / ((config.pedal_rpm_start / 60.0) * config.magnets) * 1.2;
+	max_pulse_period = 1.0F / ((config.pedal_rpm_start / 60.0F) * config.magnets) * 1.2F;
 
 	// if pedal spins at x3 the end rpm, assume its beyond limits
-	min_pedal_period = 1.0 / ((config.pedal_rpm_end * 3.0 / 60.0));
+	min_pedal_period = 1.0F / ((config.pedal_rpm_end * 3.0F / 60.0F));
 
-	(config.invert_pedal_direction) ? (direction_conf = -1.0) : (direction_conf = 1.0);
+	(config.invert_pedal_direction) ? (direction_conf = -1.0F) : (direction_conf = 1.0F);
 }
 
 /**
@@ -103,10 +103,10 @@ void app_pas_stop(void) {
 	}
 
 	if (primary_output == true) {
-		mc_interface_set_current_rel(0.0);
+		mc_interface_set_current_rel(0.0F);
 	}
 	else {
-		output_current_rel = 0.0;
+		output_current_rel = 0.0F;
 	}
 }
 
@@ -143,7 +143,7 @@ void pas_event_handler(void) {
 	// Require several quadrature events in the right direction to prevent vibrations from
 	// engging PAS
 	int8_t direction = (direction_conf * direction_qem);
-	
+
 	switch(direction) {
 		case 1: correct_direction_counter++; break;
 		case -1:correct_direction_counter = 0; break;
@@ -156,22 +156,22 @@ void pas_event_handler(void) {
 		float period = (timestamp - old_timestamp) * (float)config.magnets;
 		old_timestamp = timestamp;
 
-		UTILS_LP_FAST(period_filtered, period, 1.0);
+		UTILS_LP_FAST(period_filtered, period, 1.0F);
 
 		if(period_filtered < min_pedal_period) { //can't be that short, abort
 			return;
 		}
-		pedal_rpm = 60.0 / period_filtered;
+		pedal_rpm = 60.0F / period_filtered;
 		pedal_rpm *= (direction_conf * (float)direction_qem);
-		inactivity_time = 0.0;
+		inactivity_time = 0.0F;
 		correct_direction_counter = 0;
 	}
 	else {
-		inactivity_time += 1.0 / (float)config.update_rate_hz;
+		inactivity_time += 1.0F / (float)config.update_rate_hz;
 
 		//if no pedal activity, set RPM as zero
 		if(inactivity_time > max_pulse_period) {
-			pedal_rpm = 0.0;
+			pedal_rpm = 0.0F;
 		}
 	}
 #endif
@@ -218,21 +218,21 @@ static THD_FUNCTION(pas_thread, arg) {
 
 		switch (config.ctrl_type) {
 			case PAS_CTRL_TYPE_NONE:
-				output = 0.0;
+				output = 0.0F;
 				break;
 			case PAS_CTRL_TYPE_CADENCE:
 				// Map pedal rpm to assist level
 
 				// NOTE: If the limits are the same a numerical instability is approached, so in that case
 				// just use on/off control (which is what setting the limits to the same value essentially means).
-				if (config.pedal_rpm_end > (config.pedal_rpm_start + 1.0)) {
-					output = utils_map(pedal_rpm, config.pedal_rpm_start, config.pedal_rpm_end, 0.0, config.current_scaling * sub_scaling);
-					utils_truncate_number(&output, 0.0, config.current_scaling * sub_scaling);
+				if (config.pedal_rpm_end > (config.pedal_rpm_start + 1.0F)) {
+					output = utils_map(pedal_rpm, config.pedal_rpm_start, config.pedal_rpm_end, 0.0F, config.current_scaling * sub_scaling);
+					utils_truncate_number(&output, 0.0F, config.current_scaling * sub_scaling);
 				} else {
 					if (pedal_rpm > config.pedal_rpm_end) {
 						output = config.current_scaling * sub_scaling;
 					} else {
-						output = 0.0;
+						output = 0.0F;
 					}
 				}
 				break;
@@ -242,32 +242,32 @@ static THD_FUNCTION(pas_thread, arg) {
 			{
 				torque_ratio = hw_get_PAS_torque();
 				output = torque_ratio * config.current_scaling * sub_scaling;
-				utils_truncate_number(&output, 0.0, config.current_scaling * sub_scaling);
+				utils_truncate_number(&output, 0.0F, config.current_scaling * sub_scaling);
 			}
 			/* fall through */
 			case PAS_CTRL_TYPE_TORQUE_WITH_CADENCE_TIMEOUT:
 			{
 				// disable assistance if torque has been sensed for >5sec without any pedal movement. Prevents
 				// motor overtemps when the rider is just resting on the pedals
-				static float ms_without_cadence_or_torque = 0.0;
-				if(output == 0.0 || pedal_rpm > 0) {
-					ms_without_cadence_or_torque = 0.0;
+				static float ms_without_cadence_or_torque = 0.0F;
+				if(output == 0.0F || pedal_rpm > 0) {
+					ms_without_cadence_or_torque = 0.0F;
 				} else {
-					ms_without_cadence_or_torque += (1000.0 * (float)sleep_time) / (float)CH_CFG_ST_FREQUENCY;
+					ms_without_cadence_or_torque += (1000.0F * (float)sleep_time) / (float)CH_CFG_ST_FREQUENCY;
 					if(ms_without_cadence_or_torque > MAX_MS_WITHOUT_CADENCE_OR_TORQUE) {
-						output = 0.0;
+						output = 0.0F;
 					}
 				}
 				// if cranks are not moving, there should not be any output. This covers the case of a torque sensor
 				// stuck with a non-zero signal.
-				static float ms_without_cadence = 0.0;
-				if(pedal_rpm < 0.01) {
-					ms_without_cadence += (1000.0 * (float)sleep_time) / (float)CH_CFG_ST_FREQUENCY;
+				static float ms_without_cadence = 0.0F;
+				if(pedal_rpm < 0.01F) {
+					ms_without_cadence += (1000.0F * (float)sleep_time) / (float)CH_CFG_ST_FREQUENCY;
 					if(ms_without_cadence > MAX_MS_WITHOUT_CADENCE) {
-						output = 0.0;
+						output = 0.0F;
 					}
 				} else {
-					ms_without_cadence = 0.0;
+					ms_without_cadence = 0.0F;
 				}
 			}
 #endif
@@ -277,20 +277,20 @@ static THD_FUNCTION(pas_thread, arg) {
 
 		// Apply ramping
 		static systime_t last_time = 0;
-		static float output_ramp = 0.0;
+		static float output_ramp = 0.0F;
 		float ramp_time = fabsf(output) > fabsf(output_ramp) ? config.ramp_time_pos : config.ramp_time_neg;
 
-		if (ramp_time > 0.01) {
-			const float ramp_step = (float)ST2MS(chVTTimeElapsedSinceX(last_time)) / (ramp_time * 1000.0);
+		if (ramp_time > 0.01F) {
+			const float ramp_step = (float)ST2MS(chVTTimeElapsedSinceX(last_time)) / (ramp_time * 1000.0F);
 			utils_step_towards(&output_ramp, output, ramp_step);
-			utils_truncate_number(&output_ramp, 0.0, config.current_scaling * sub_scaling);
+			utils_truncate_number(&output_ramp, 0.0F, config.current_scaling * sub_scaling);
 
 			last_time = chVTGetSystemTimeX();
 			output = output_ramp;
 		}
 
-		if (output < 0.001) {
-			ms_without_power += (1000.0 * (float)sleep_time) / (float)CH_CFG_ST_FREQUENCY;
+		if (output < 0.001F) {
+			ms_without_power += (1000.0F * (float)sleep_time) / (float)CH_CFG_ST_FREQUENCY;
 		}
 
 		// Safe start is enabled if the output has not been zero for long enough
@@ -300,7 +300,7 @@ static THD_FUNCTION(pas_thread, arg) {
 				ms_without_power = 0;
 			}
 			pulses_without_power_before = ms_without_power;
-			output_current_rel = 0.0;
+			output_current_rel = 0.0F;
 			continue;
 		}
 

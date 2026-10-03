@@ -244,7 +244,7 @@ BISSC_config_t encoder_cfg_bissc = {
 		/*MISO*/HW_SPI_PORT_MISO, HW_SPI_PIN_MISO,
 		22,   // enc_res
 		{0}, // crc
-		{0.0, 0, 0.0, 0, 0.0, 0, 0, {0}}
+		{0.0F, 0, 0.0F, 0, 0.0F, 0, 0, {0}}
 #else
 		0,
 		{0},
@@ -255,7 +255,7 @@ BISSC_config_t encoder_cfg_bissc = {
 		0, 0,
 		22,   // enc_res
 		{0}, // crc
-		{0.0, 0, 0.0, 0, 0.0, 0, 0, {0}}
+		{0.0F, 0, 0.0F, 0, 0.0F, 0, 0, {0}}
 #endif
 };
 

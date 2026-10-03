@@ -36,7 +36,7 @@
 
 // Settings
 #define OUTPUT_ITERATION_TIME_MS		5
-#define MAX_CAN_AGE						0.1
+#define MAX_CAN_AGE						0.1F
 #define RPM_FILTER_SAMPLES				8
 #define LOCAL_TIMEOUT					2000
 
@@ -79,11 +79,11 @@ void app_nunchuk_stop(void) {
 }
 
 float app_nunchuk_get_decoded_x(void) {
-	return ((float)chuck_d.js_x - 128.0) / 128.0;
+	return ((float)chuck_d.js_x - 128.0F) / 128.0F;
 }
 
 float app_nunchuk_get_decoded_y(void) {
-	return ((float)chuck_d.js_y - 128.0) / 128.0;
+	return ((float)chuck_d.js_y - 128.0F) / 128.0F;
 }
 
 bool app_nunchuk_get_bt_c(void) {
@@ -225,7 +225,7 @@ static THD_FUNCTION(output_thread, arg) {
 
 		float rpm_now = mc_interface_get_rpm();
 
-		const float dt = (float)OUTPUT_ITERATION_TIME_MS / 1000.0;
+		const float dt = (float)OUTPUT_ITERATION_TIME_MS / 1000.0F;
 
 		if (timeout_has_timeout() || chuck_error != 0 || config.ctrl_type == CHUK_CTRL_TYPE_NONE) {
 			was_pid = false;
@@ -249,8 +249,8 @@ static THD_FUNCTION(output_thread, arg) {
 		static bool was_z = false;
 		const float current_now = mc_interface_get_tot_current_directional_filtered();
 		const float duty_now = mc_interface_get_duty_cycle_now();
-		static float prev_current = 0.0;
-		const float max_current_diff = mcconf->l_current_max * mcconf->l_current_max_scale * 0.2;
+		static float prev_current = 0.0F;
+		const float max_current_diff = mcconf->l_current_max * mcconf->l_current_max_scale * 0.2F;
 
 		if (chuck_d.bt_c && chuck_d.bt_z) {
 			was_pid = false;
@@ -277,16 +277,16 @@ static THD_FUNCTION(output_thread, arg) {
 		was_z = chuck_d.bt_z;
 
 		float out_val = app_nunchuk_get_decoded_y();
-		utils_deadband(&out_val, config.hyst, 1.0);
+		utils_deadband(&out_val, config.hyst, 1.0F);
 		out_val = utils_throttle_curve(out_val, config.throttle_exp, config.throttle_exp_brake, config.throttle_exp_mode);
 
 		if (chuck_d.bt_c) {
-			static float pid_rpm = 0.0;
+			static float pid_rpm = 0.0F;
 
 			if (!was_pid) {
 				pid_rpm = rpm_now;
 
-				if ((is_reverse && pid_rpm > 0.0) || (!is_reverse && pid_rpm < 0.0)) {
+				if ((is_reverse && pid_rpm > 0.0F) || (!is_reverse && pid_rpm < 0.0F)) {
 					// Abort if the speed is too high in the opposite direction
 					continue;
 				}
@@ -294,21 +294,21 @@ static THD_FUNCTION(output_thread, arg) {
 				was_pid = true;
 			} else {
 				if (is_reverse) {
-					if (pid_rpm > 0.0) {
-						pid_rpm = 0.0;
+					if (pid_rpm > 0.0F) {
+						pid_rpm = 0.0F;
 					}
 
-					pid_rpm -= (out_val * config.stick_erpm_per_s_in_cc) * ((float)OUTPUT_ITERATION_TIME_MS / 1000.0);
+					pid_rpm -= (out_val * config.stick_erpm_per_s_in_cc) * ((float)OUTPUT_ITERATION_TIME_MS / 1000.0F);
 
 					if (pid_rpm < (rpm_now - config.stick_erpm_per_s_in_cc)) {
 						pid_rpm = rpm_now - config.stick_erpm_per_s_in_cc;
 					}
 				} else {
-					if (pid_rpm < 0.0) {
-						pid_rpm = 0.0;
+					if (pid_rpm < 0.0F) {
+						pid_rpm = 0.0F;
 					}
 
-					pid_rpm += (out_val * config.stick_erpm_per_s_in_cc) * ((float)OUTPUT_ITERATION_TIME_MS / 1000.0);
+					pid_rpm += (out_val * config.stick_erpm_per_s_in_cc) * ((float)OUTPUT_ITERATION_TIME_MS / 1000.0F);
 
 					if (pid_rpm > (rpm_now + config.stick_erpm_per_s_in_cc)) {
 						pid_rpm = rpm_now + config.stick_erpm_per_s_in_cc;
@@ -329,7 +329,7 @@ static THD_FUNCTION(output_thread, arg) {
 						if (fabsf(pid_rpm) > mcconf->s_pid_min_erpm) {
 							comm_can_set_current(msg->id, current);
 						} else {
-							comm_can_set_duty(msg->id, 0.0);
+							comm_can_set_duty(msg->id, 0.0F);
 						}
 					}
 				}
@@ -349,19 +349,19 @@ static THD_FUNCTION(output_thread, arg) {
 		static bool coast_brake_prev = false;
 		float coast_brake_current = fabsf(config.coast_brake_level * mcconf->lo_current_min);
 
-		if (fabsf(out_val) < 0.01 && config.coast_brake_level > 0.005 &&
+		if (fabsf(out_val) < 0.01F && config.coast_brake_level > 0.005F &&
 				(fabsf(prev_current) < coast_brake_current || coast_brake_prev)) {
 			current = -coast_brake_current;
 			coast_brake = true;
 		} else {
 			if (config.ctrl_type == CHUK_CTRL_TYPE_CURRENT_BIDIRECTIONAL) {
-				if ((out_val > 0.0 && duty_now > 0.0) || (out_val < 0.0 && duty_now < 0.0)) {
+				if ((out_val > 0.0F && duty_now > 0.0F) || (out_val < 0.0F && duty_now < 0.0F)) {
 					current = out_val * mcconf->lo_current_max;
 				} else {
 					current = out_val * fabsf(mcconf->lo_current_min);
 				}
 			} else {
-				if (out_val >= 0.0 && ((is_reverse ? -1.0 : 1.0) * duty_now) > 0.0) {
+				if (out_val >= 0.0F && ((is_reverse ? -1.0F : 1.0F) * duty_now) > 0.0F) {
 					current = out_val * mcconf->lo_current_max;
 				} else {
 					current = out_val * fabsf(mcconf->lo_current_min);
@@ -396,7 +396,7 @@ static THD_FUNCTION(output_thread, arg) {
 
 					// Make the current directional
 					float msg_current = msg->current;
-					if (msg->duty < 0.0) {
+					if (msg->duty < 0.0F) {
 						msg_current = -msg_current;
 					}
 
@@ -414,14 +414,14 @@ static THD_FUNCTION(output_thread, arg) {
 		if (config.use_smart_rev && config.ctrl_type != CHUK_CTRL_TYPE_CURRENT_BIDIRECTIONAL) {
 			bool duty_control = false;
 			static bool was_duty_control = false;
-			static float duty_rev = 0.0;
+			static float duty_rev = 0.0F;
 
-			if (out_val < -0.92 && duty_highest_abs < (mcconf->l_min_duty * 1.5) &&
-					fabsf(current_highest) < (mcconf->l_current_max * mcconf->l_current_max_scale * 0.7)) {
+			if (out_val < -0.92F && duty_highest_abs < (mcconf->l_min_duty * 1.5F) &&
+					fabsf(current_highest) < (mcconf->l_current_max * mcconf->l_current_max_scale * 0.7F)) {
 				duty_control = true;
 			}
 
-			if (duty_control || (was_duty_control && out_val < -0.1)) {
+			if (duty_control || (was_duty_control && out_val < -0.1F)) {
 				was_duty_control = true;
 
 				float goal = config.smart_rev_max_duty * -out_val;
@@ -461,8 +461,8 @@ static THD_FUNCTION(output_thread, arg) {
 			ramp_time = config.coast_brake_ramp_time;
 		}
 
-		if (ramp_time > 0.01) {
-			float ramp_step = ((float)OUTPUT_ITERATION_TIME_MS * current_range) / (ramp_time * 1000.0);
+		if (ramp_time > 0.01F) {
+			float ramp_step = ((float)OUTPUT_ITERATION_TIME_MS * current_range) / (ramp_time * 1000.0F);
 			float current_goal = prev_current;
 			utils_step_towards(&current_goal, current, ramp_step);
 			current = current_goal;
@@ -470,7 +470,7 @@ static THD_FUNCTION(output_thread, arg) {
 
 		prev_current = current;
 
-		if (current < 0.0 &&
+		if (current < 0.0F &&
 				(config.ctrl_type != CHUK_CTRL_TYPE_CURRENT_BIDIRECTIONAL || coast_brake)) {
 			mc_interface_set_brake_current(current);
 
@@ -494,15 +494,15 @@ static THD_FUNCTION(output_thread, arg) {
 					can_status_msg *msg = comm_can_get_status_msg_index(i);
 
 					if (msg->id >= 0 && UTILS_AGE_S(msg->rx_time) < MAX_CAN_AGE) {
-						bool is_braking = (current > 0.0 && msg->duty < 0.0) || (current < 0.0 && msg->duty > 0.0);
+						bool is_braking = (current > 0.0F && msg->duty < 0.0F) || (current < 0.0F && msg->duty > 0.0F);
 
-						if (config.tc && config.tc_max_diff > 1.0 && !is_braking) {
+						if (config.tc && config.tc_max_diff > 1.0F && !is_braking) {
 							float rpm_tmp = fabsf(msg->rpm);
 
 							float diff = rpm_tmp - rpm_lowest;
-							current_out = utils_map(diff, 0.0, config.tc_max_diff, current, 0.0);
+							current_out = utils_map(diff, 0.0F, config.tc_max_diff, current, 0.0F);
 							if (fabsf(current_out) < mcconf->cc_min_current) {
-								current_out = 0.0;
+								current_out = 0.0F;
 							}
 						}
 
@@ -510,13 +510,13 @@ static THD_FUNCTION(output_thread, arg) {
 					}
 				}
 
-				bool is_braking = (current > 0.0 && duty_now < 0.0) || (current < 0.0 && duty_now > 0.0);
+				bool is_braking = (current > 0.0F && duty_now < 0.0F) || (current < 0.0F && duty_now > 0.0F);
 
-				if (config.tc && config.tc_max_diff > 1.0 && !is_braking) {
+				if (config.tc && config.tc_max_diff > 1.0F && !is_braking) {
 					float diff = rpm_local - rpm_lowest;
-					current_out = utils_map(diff, 0.0, config.tc_max_diff, current, 0.0);
+					current_out = utils_map(diff, 0.0F, config.tc_max_diff, current, 0.0F);
 					if (fabsf(current_out) < mcconf->cc_min_current) {
-						current_out = 0.0;
+						current_out = 0.0F;
 					}
 				}
 			}

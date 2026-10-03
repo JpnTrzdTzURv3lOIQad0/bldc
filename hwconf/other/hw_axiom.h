@@ -107,44 +107,44 @@
 // ADC macros and settings
 
 #ifdef HW_PALTA_REV_B
-#define HVDC_TRANSFER_FUNCTION			112.15			//[V/V]
-#define PHASE_VOLTAGE_TRANSFER_FUNCTION	112.15			//[V/V]
+#define HVDC_TRANSFER_FUNCTION			112.15F			//[V/V]
+#define PHASE_VOLTAGE_TRANSFER_FUNCTION	112.15F			//[V/V]
 #else
-#define HVDC_TRANSFER_FUNCTION			196.0			//[V/V]
-#define PHASE_VOLTAGE_TRANSFER_FUNCTION	367.7			//[V/V]
+#define HVDC_TRANSFER_FUNCTION			196.0F			//[V/V]
+#define PHASE_VOLTAGE_TRANSFER_FUNCTION	367.7F			//[V/V]
 #endif
-#define DEFAULT_CURRENT_AMP_GAIN		0.001035	//Transfer Function [V/A]
-//#define DEFAULT_CURRENT_AMP_GAIN		0.003761	//Transfer Function [V/A] for ISB-425-A
-//#define DEFAULT_CURRENT_AMP_GAIN		0.001249	//Transfer Function [V/A] for HTFS 800-P
-//#define DEFAULT_CURRENT_AMP_GAIN		0.004994	//Transfer Function [V/A] for HASS 100-S
-//#define DEFAULT_CURRENT_AMP_GAIN		0.001249	//Transfer Function [V/A] for HASS 400-S
-//#define DEFAULT_CURRENT_AMP_GAIN		0.0008324	//Transfer Function [V/A] for HASS 600-S
+#define DEFAULT_CURRENT_AMP_GAIN		0.001035F	//Transfer Function [V/A]
+//#define DEFAULT_CURRENT_AMP_GAIN		0.003761F	//Transfer Function [V/A] for ISB-425-A
+//#define DEFAULT_CURRENT_AMP_GAIN		0.001249F	//Transfer Function [V/A] for HTFS 800-P
+//#define DEFAULT_CURRENT_AMP_GAIN		0.004994F	//Transfer Function [V/A] for HASS 100-S
+//#define DEFAULT_CURRENT_AMP_GAIN		0.001249F	//Transfer Function [V/A] for HASS 400-S
+//#define DEFAULT_CURRENT_AMP_GAIN		0.0008324F	//Transfer Function [V/A] for HASS 600-S
 
-#define DEFAULT_INPUT_CURRENT_AMP_GAIN		0.00104069	//Transfer Function [V/A] 
+#define DEFAULT_INPUT_CURRENT_AMP_GAIN		0.00104069F	//Transfer Function [V/A]
 
 // Component parameters (can be overridden)
 #ifndef V_REG
-#define V_REG							3.3
+#define V_REG							3.3F
 #endif
 #ifndef VIN_R1
-#define VIN_R1							(PHASE_VOLTAGE_TRANSFER_FUNCTION - 1.0)
+#define VIN_R1							(PHASE_VOLTAGE_TRANSFER_FUNCTION - 1.0F)
 #endif
 #ifndef VIN_R2
-#define VIN_R2							1.0
+#define VIN_R2							1.0F
 #endif
 #ifndef CURRENT_AMP_GAIN
 #define CURRENT_AMP_GAIN				hw_axiom_get_current_sensor_gain()
 #endif
 #ifndef CURRENT_SHUNT_RES
-#define CURRENT_SHUNT_RES				1.0 // Unity gain so we use a single transfer function defined as CURRENT_AMP_GAIN
+#define CURRENT_SHUNT_RES				1.0F // Unity gain so we use a single transfer function defined as CURRENT_AMP_GAIN
 #endif
 
-#define HW_MAX_CURRENT_OFFSET				620		// More than this offset (0.5 Vdc) trips the offset fault (likely a sensor disconnected)
-#define MCCONF_MAX_CURRENT_UNBALANCE		130.0	// [Amp] More than this unbalance trips the fault (likely a sensor disconnected)
-#define MCCONF_MAX_CURRENT_UNBALANCE_RATE	0.3		// Fault if more than 30% of the time the motor is unbalanced
+#define HW_MAX_CURRENT_OFFSET				620		// More than this offset (0.5F Vdc) trips the offset fault (likely a sensor disconnected)
+#define MCCONF_MAX_CURRENT_UNBALANCE		130.0F	// [Amp] More than this unbalance trips the fault (likely a sensor disconnected)
+#define MCCONF_MAX_CURRENT_UNBALANCE_RATE	0.3F		// Fault if more than 30% of the time the motor is unbalanced
 
 // Input voltage
-#define GET_INPUT_VOLTAGE()				((V_REG / 4095.0) * (float)ADC_Value[ADC_IND_VIN_SENS] * (HVDC_TRANSFER_FUNCTION))
+#define GET_INPUT_VOLTAGE()				((V_REG / 4095.0F) * (float)ADC_Value[ADC_IND_VIN_SENS] * (HVDC_TRANSFER_FUNCTION))
 
 //Input current
 #define GET_INPUT_CURRENT()				hw_axiom_read_input_current()
@@ -152,17 +152,17 @@
 #define MEASURE_INPUT_CURRENT_OFFSET()	hw_axiom_start_input_current_sensor_offset_measurement()
 
 // NTC Termistors
-#define NTC_RES(adc_val)				((4095.0 * 10000.0) / adc_val - 10000.0)
-#define NTC_RES_IGBT(adc_val)			((4095.0 * 8870.0 * 2) / adc_val - 18870.0)
+#define NTC_RES(adc_val)				((4095.0F * 10000.0F) / adc_val - 10000.0F)
+#define NTC_RES_IGBT(adc_val)			((4095.0F * 8870.0F * 2) / adc_val - 18870.0F)
 #define NTC_TEMP(adc_ind)				hw_axiom_get_highest_IGBT_temp()
-//#define NTC_TEMP(adc_ind)				(1.0 / ((logf(NTC_RES(ADC_Value[adc_ind]) / 10000.0) / 3434.0) + (1.0 / 298.15)) - 273.15)
+//#define NTC_TEMP(adc_ind)				(1.0F / ((logf(NTC_RES(ADC_Value[adc_ind]) / 10000.0F) / 3434.0F) + (1.0F / 298.15F)) - 273.15F)
 
 #define NTC_RES_MOTOR(adc_val)			hw_axiom_NTC_res_motor_filter(adc_val)
 
 // If DAC enabled, only IGBT_TEMP_3 is available
 #ifdef HW_AXIOM_USE_DAC
-#define NTC_TEMP_MOS1()			(25.0)
-#define NTC_TEMP_MOS2()			(25.0)
+#define NTC_TEMP_MOS1()			(25.0F)
+#define NTC_TEMP_MOS2()			(25.0F)
 #define NTC_TEMP_MOS3()			hw_axiom_temp_sensor_filter(3)
 #else
 // Individual IGBT Temperature sensing
@@ -172,25 +172,25 @@
 #endif
 
 #ifdef HW_AXIOM_USE_MOTOR_TEMP
-#define NTC_TEMP_MOTOR(beta)			(1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0) / beta) + (1.0 / 298.15)) - 273.15)
+#define NTC_TEMP_MOTOR(beta)			(1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0F) / beta) + (1.0F / 298.15F)) - 273.15F)
 #else
-#define NTC_TEMP_MOTOR(beta)			25.0
+#define NTC_TEMP_MOTOR(beta)			25.0F
 #endif
 // Voltage on ADC channel
-#define ADC_VOLTS(ch)					((float)ADC_Value[ch] / 4096.0 * V_REG)
+#define ADC_VOLTS(ch)					((float)ADC_Value[ch] / 4096.0F * V_REG)
 
 // Sin/Cos Encoder signals
 #define ENCODER_SIN_VOLTS				ADC_VOLTS(ADC_IND_EXT)
 #define ENCODER_COS_VOLTS				ADC_VOLTS(ADC_IND_EXT2)
 
 #ifdef HW_PALTA_REV_B
-#define GET_GATE_DRIVER_SUPPLY_VOLTAGE()	15.0
+#define GET_GATE_DRIVER_SUPPLY_VOLTAGE()	15.0F
 #else
 // Gate driver power supply output voltage
-#define GET_GATE_DRIVER_SUPPLY_VOLTAGE()	((float)ADC_VOLTS(ADC_IND_VOUT_GATE_DRV) * 11.0)
+#define GET_GATE_DRIVER_SUPPLY_VOLTAGE()	((float)ADC_VOLTS(ADC_IND_VOUT_GATE_DRV) * 11.0F)
 #endif
 
-#define ANGLE_TO_DAC_VALUE(angle)		( angle * 512.0 + 0x800 )//angle between -pi to pi
+#define ANGLE_TO_DAC_VALUE(angle)		( angle * 512.0F + 0x800 )//angle between -pi to pi
 
 // Double samples in beginning and end for positive current measurement.
 // Useful when the shunt sense traces have noise that causes offset.
@@ -292,9 +292,9 @@
 #define READ_HALL3()			palReadPad(HW_HALL_ENC_GPIO3, HW_HALL_ENC_PIN3)
 
 // Override dead time. See the stm32f4 reference manual for calculating this value.
-#define HW_DEAD_TIME_NSEC					1400.0
-#define HW_GATE_DRIVER_SUPPLY_MAX_VOLTAGE	16.0
-#define HW_GATE_DRIVER_SUPPLY_MIN_VOLTAGE	14.0
+#define HW_DEAD_TIME_NSEC					1400.0F
+#define HW_GATE_DRIVER_SUPPLY_MAX_VOLTAGE	16.0F
+#define HW_GATE_DRIVER_SUPPLY_MIN_VOLTAGE	14.0F
 
 // Default setting overrides
 #ifndef MCCONF_DEFAULT_MOTOR_TYPE
@@ -312,15 +312,15 @@
 #define FOC_CONTROL_LOOP_FREQ_DIVIDER	1
 
 // Setting limits
-#define HW_LIM_CURRENT					-600.0, 600.0
-#define HW_LIM_CURRENT_IN				-500.0, 500.0
-#define HW_LIM_CURRENT_ABS				0.0, 800.0
-#define HW_LIM_VIN						0.0, 525.0
-#define HW_LIM_ERPM						-100e3, 100e3
-#define HW_LIM_DUTY_MIN					0.0, 0.1
-#define HW_LIM_DUTY_MAX					0.0, 1.0
-#define HW_LIM_TEMP_FET					-40.0, 110.0
-#define HW_LIM_FOC_CTRL_LOOP_FREQ		5000.0, 24000.0	//at around 38kHz the RTOS starts crashing (26us FOC ISR)
+#define HW_LIM_CURRENT					-600.0F, 600.0F
+#define HW_LIM_CURRENT_IN				-500.0F, 500.0F
+#define HW_LIM_CURRENT_ABS				0.0F, 800.0F
+#define HW_LIM_VIN						0.0F, 525.0F
+#define HW_LIM_ERPM						-100e3F, 100e3F
+#define HW_LIM_DUTY_MIN					0.0F, 0.1F
+#define HW_LIM_DUTY_MAX					0.0F, 1.0F
+#define HW_LIM_TEMP_FET					-40.0F, 110.0F
+#define HW_LIM_FOC_CTRL_LOOP_FREQ		5000.0F, 24000.0F	//at around 38kHz the RTOS starts crashing (26us FOC ISR)
 
 // HW-specific functions
 char hw_axiom_configure_FPGA(void);

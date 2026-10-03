@@ -62,8 +62,8 @@ void enc_ts5700n8501_deinit(TS5700N8501_config_t *cfg) {
 	palSetPadMode(cfg->RX_gpio, cfg->RX_pin, PAL_MODE_INPUT_PULLUP);
 	palSetPadMode(cfg->EXT_gpio, cfg->EXT_pin, PAL_MODE_INPUT_ANALOG);
 
-	cfg->state.last_enc_angle = 0.0;
-	cfg->state.spi_error_rate = 0.0;
+	cfg->state.last_enc_angle = 0.0F;
+	cfg->state.spi_error_rate = 0.0F;
 }
 
 #pragma GCC push_options
@@ -187,8 +187,8 @@ static THD_FUNCTION(ts5700n8501_thread, arg) {
 			uint32_t pos = (uint32_t) reply[2] + ((uint32_t) reply[3] << 8)
 					+ ((uint32_t) reply[4] << 16);
 			cfg->state.spi_val = pos;
-			cfg->state.last_enc_angle = (float) pos / 131072.0 * 360.0;
-			UTILS_LP_FAST(cfg->state.spi_error_rate, 0.0, 1.0 / LOOP_RATE);
+			cfg->state.last_enc_angle = (float) pos / 131072.0F * 360.0F;
+			UTILS_LP_FAST(cfg->state.spi_error_rate, 0.0F, 1.0F / LOOP_RATE);
 
 			cfg->state.raw_status[0] = reply[1]; // SF
 			cfg->state.raw_status[1] = reply[2]; // ABS0
@@ -200,7 +200,7 @@ static THD_FUNCTION(ts5700n8501_thread, arg) {
 			cfg->state.raw_status[7] = reply[9]; // ALMC
 		} else {
 			++cfg->state.spi_error_cnt;
-			UTILS_LP_FAST(cfg->state.spi_error_rate, 1.0, 1.0 / LOOP_RATE);
+			UTILS_LP_FAST(cfg->state.spi_error_rate, 1.0F, 1.0F / LOOP_RATE);
 		}
 	}
 }

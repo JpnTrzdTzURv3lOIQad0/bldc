@@ -44,7 +44,7 @@ static THD_WORKING_AREA(switch_color_thread_wa, 256);
 static THD_FUNCTION(switch_color_thread, arg);
 static volatile switch_states switch_state = SWITCH_BOOTED;
 
-static volatile float switch_bright = 0.75;
+static volatile float switch_bright = 0.75F;
 static bool switch_color_thd_running = false;
 static volatile bool i2c_running = false;
 
@@ -278,13 +278,13 @@ void smart_switch_shut_down(void) {
 
 	switch_state = SWITCH_SHUTTING_DOWN;
 
-	if (mc_interface_wait_for_motor_release_both(9.0)) {
+	if (mc_interface_wait_for_motor_release_both(9.0F)) {
 		palClearPad(SWITCH_OUT_GPIO, SWITCH_OUT_PIN);
 	}
 }
 
 bool smart_switch_is_pressed(void) {
-	if (ADC_VOLTS(ADC_IND_SW_DET) > 0.9) {
+	if (ADC_VOLTS(ADC_IND_SW_DET) > 0.9F) {
 		return true;
 	} else {
 		return false;
@@ -294,21 +294,21 @@ bool smart_switch_is_pressed(void) {
 static THD_FUNCTION(switch_color_thread, arg) {
 	(void)arg;
 	chRegSetThreadName("switch_color");
-	float switch_red = 0.0;
-	float switch_green = 0.0;
-	float switch_blue = 0.0;
+	float switch_red = 0.0F;
+	float switch_green = 0.0F;
+	float switch_blue = 0.0F;
 
 	for(int i = 0; i < 400; i++) {
-		float angle = i*3.14/400.0;
+		float angle = i*3.14F/400.0F;
 		float s,c;
 		utils_fast_sincos_better(angle, &s, &c);
-		switch_blue = 0.75* c*c;
+		switch_blue = 0.75F* c*c;
 		ledpwm_set_intensity(LED_HW1,switch_bright*switch_blue);
-		utils_fast_sincos_better(angle + 3.14/3.0, &s, &c);
-		switch_green = 0.75* c*c;
+		utils_fast_sincos_better(angle + 3.14F/3.0F, &s, &c);
+		switch_green = 0.75F* c*c;
 		ledpwm_set_intensity(LED_HW2,switch_bright*switch_green);
-		utils_fast_sincos_better(angle + 6.28/3.0, &s, &c);
-		switch_red = 0.75* c*c;
+		utils_fast_sincos_better(angle + 6.28F/3.0F, &s, &c);
+		switch_red = 0.75F* c*c;
 		ledpwm_set_intensity(LED_HW3,switch_bright*switch_red);
 		chThdSleepMilliseconds(4);
 	}
@@ -318,22 +318,22 @@ static THD_FUNCTION(switch_color_thread, arg) {
 	float wh_left;
 	float left = mc_interface_get_battery_level(&wh_left);
 
-	if (left < 0.5) {
-		float intense = utils_map(left,0.0, 0.5, 0.0, 1.0);
+	if (left < 0.5F) {
+		float intense = utils_map(left,0.0F, 0.5F, 0.0F, 1.0F);
 		utils_truncate_number(&intense,0,1);
 		switch_blue = intense;
-		switch_red  = 1.0-intense;
+		switch_red  = 1.0F-intense;
 	} else {
-		float intense = utils_map(left , 0.5, 1.0, 0.0, 1.0);
+		float intense = utils_map(left , 0.5F, 1.0F, 0.0F, 1.0F);
 		utils_truncate_number(&intense,0,1);
 		switch_green = intense;
-		switch_blue  = 1.0-intense;
+		switch_blue  = 1.0F-intense;
 	}
 
 	for (int i = 0; i < 100; i++) {
-		float red_now = utils_map((float) i,0.0, 100.0, switch_red_old, switch_red);
-		float blue_now = utils_map((float) i,0.0, 100.0, switch_blue_old, switch_blue);
-		float green_now = utils_map((float) i,0.0, 100.0, switch_green_old, switch_green);
+		float red_now = utils_map((float) i,0.0F, 100.0F, switch_red_old, switch_red);
+		float blue_now = utils_map((float) i,0.0F, 100.0F, switch_blue_old, switch_blue);
+		float green_now = utils_map((float) i,0.0F, 100.0F, switch_green_old, switch_green);
 		ledpwm_set_intensity(LED_HW1, switch_bright*blue_now);
 		ledpwm_set_intensity(LED_HW2, switch_bright*green_now);
 		ledpwm_set_intensity(LED_HW3, switch_bright*red_now);
@@ -347,26 +347,26 @@ static THD_FUNCTION(switch_color_thread, arg) {
 			ledpwm_set_intensity(LED_HW2, 0);
 			ledpwm_set_intensity(LED_HW1, 0);
 			for (int i = 0;i < (int)fault;i++) {
-				ledpwm_set_intensity(LED_HW3, 1.0);
+				ledpwm_set_intensity(LED_HW3, 1.0F);
 				chThdSleepMilliseconds(250);
-				ledpwm_set_intensity(LED_HW3, 0.0);
+				ledpwm_set_intensity(LED_HW3, 0.0F);
 				chThdSleepMilliseconds(250);
 			}
 
 			chThdSleepMilliseconds(500);
 		} else {
 			left = mc_interface_get_battery_level(&wh_left);
-			if(left < 0.5){
-				float intense = utils_map(left,0.0, 0.5, 0.0, 1.0);
+			if(left < 0.5F){
+				float intense = utils_map(left,0.0F, 0.5F, 0.0F, 1.0F);
 				utils_truncate_number(&intense,0,1);
 				switch_blue = intense;
-				switch_red  = 1.0-intense;
+				switch_red  = 1.0F-intense;
 				switch_green = 0;
 			}else{
-				float intense = utils_map(left , 0.5, 1.0, 0.0, 1.0);
+				float intense = utils_map(left , 0.5F, 1.0F, 0.0F, 1.0F);
 				utils_truncate_number(&intense,0,1);
 				switch_green = intense;
-				switch_blue  = 1.0-intense;
+				switch_blue  = 1.0F-intense;
 				switch_red = 0;
 			}
 			ledpwm_set_intensity(LED_HW1, switch_bright*switch_blue);
@@ -431,23 +431,23 @@ static THD_FUNCTION(smart_switch_thread, arg) {
 
 		case SWITCH_TURNED_ON:
 			if (conf->shutdown_mode == SHUTDOWN_MODE_ALWAYS_OFF) {
-				switch_bright = 1.0;
+				switch_bright = 1.0F;
 				if (smart_switch_is_pressed()) {
 					switch_pressed_ts = chVTGetSystemTimeX();
 				}
 
-				if (UTILS_AGE_S(switch_pressed_ts) > ((float)(SMART_SWITCH_MSECS_PRESSED_OFF) / 1000.0)) {
+				if (UTILS_AGE_S(switch_pressed_ts) > ((float)(SMART_SWITCH_MSECS_PRESSED_OFF) / 1000.0F)) {
 					switch_state = SWITCH_SHUTTING_DOWN;
 				}
 			} else {
 				if (smart_switch_is_pressed() && conf->shutdown_mode != SHUTDOWN_MODE_ALWAYS_ON) {
-					switch_bright = 0.5;
+					switch_bright = 0.5F;
 				} else {
-					switch_bright = 1.0;
+					switch_bright = 1.0F;
 					switch_pressed_ts = chVTGetSystemTimeX();
 				}
 
-				if (UTILS_AGE_S(switch_pressed_ts) > ((float)(SMART_SWITCH_MSECS_PRESSED_OFF) / 1000.0)) {
+				if (UTILS_AGE_S(switch_pressed_ts) > ((float)(SMART_SWITCH_MSECS_PRESSED_OFF) / 1000.0F)) {
 					switch_state = SWITCH_SHUTTING_DOWN;
 				}
 			}
@@ -458,7 +458,7 @@ static THD_FUNCTION(smart_switch_thread, arg) {
 			systime_t tStart = chVTGetSystemTimeX();
 			while (smart_switch_is_pressed()) {
 				chThdSleepMilliseconds(10);
-				if (UTILS_AGE_S(tStart) > 10.0) {
+				if (UTILS_AGE_S(tStart) > 10.0F) {
 					switch_pressed_ts = chVTGetSystemTimeX();
 					switch_state = SWITCH_TURNED_ON;
 					break;
@@ -507,9 +507,9 @@ void smart_switch_pin_init(void) {
 }
 
 float hw_classicp_get_temp(void) {
-	float t1 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-	float t2 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_2]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-	float res = 0.0;
+	float t1 = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+	float t2 = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_2]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+	float res = 0.0F;
 
 	if (t1 > t2) {
 		res = t1;

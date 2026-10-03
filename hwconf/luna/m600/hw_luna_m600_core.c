@@ -66,7 +66,7 @@ typedef struct __attribute__((packed)) {
 static volatile m600_backup_t *m600_backup = (m600_backup_t*)g_backup.hw_config;
 
 void hw_init_gpio(void) {
-	
+
 	//we can use __TIMESTAMP__ if we redefine it in the makefile gcc ... -Wno-builtin-macro-redefined -D__TIMESTAMP__=$(date +'"%Y-%m-%dT%H:%M:%S"') ...
 	// https://stackoverflow.com/questions/17498556/c-preprocessor-timestamp-in-iso-86012004/
 
@@ -105,7 +105,7 @@ void hw_init_gpio(void) {
 	// Current filter
 	palSetPadMode(GPIOC, 13, PAL_MODE_OUTPUT_PUSHPULL |	PAL_STM32_OSPEED_HIGHEST);
 	CURRENT_FILTER_OFF();
-	
+
 #ifdef M600_Rev5
 	// Phase voltage filter. Disabled by default
 	palSetPadMode(HW_PHASE_A_FILTER_GPIO, HW_PHASE_A_FILTER_PIN, PAL_MODE_OUTPUT_OPENDRAIN | PAL_STM32_OSPEED_HIGHEST);
@@ -142,7 +142,7 @@ void hw_init_gpio(void) {
 	palSetPadMode(GPIOC, 3, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(GPIOC, 4, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(GPIOC, 5, PAL_MODE_INPUT_ANALOG);
-	
+
 	terminal_register_command_callback(
 			"fix_throttle",
 			"Usage: fix_throttle [1 or 0]",
@@ -157,7 +157,7 @@ void hw_init_gpio(void) {
 
 	terminal_register_command_callback(
 			"torque_sensor",
-			"Print the current torque sensor output as a % from 0.0 to 1.0",
+			"Print the current torque sensor output as a % from 0.0F to 1.0F",
 			0,
 			terminal_cmd_m600_get_torque_sensor_info);
 
@@ -305,7 +305,7 @@ void hw_try_restore_i2c(void) {
 }
 
 volatile float wheel_rpm_filtered = 0;
-volatile float trip_odometer = 1.0; //avoids huge consumption numbers in the gauges
+volatile float trip_odometer = 1.0F; //avoids huge consumption numbers in the gauges
 
 void hw_update_speed_sensor(void) {
 	static float wheel_rpm = 0;
@@ -319,21 +319,21 @@ void hw_update_speed_sensor(void) {
 	if(sensor_state == 0 && sensor_state_old == 1 ) {
 		float revolution_duration = current_time - last_sensor_event_time;
 
-		if (revolution_duration > 0.11) {	//ignore periods <110ms, which is about 68km/h
+		if (revolution_duration > 0.11F) {	//ignore periods <110ms, which is about 68km/h
 			last_sensor_event_time = current_time;
-			wheel_rpm = 60.0 / revolution_duration;
-			UTILS_LP_FAST(wheel_rpm_filtered, (float)wheel_rpm, 0.5);
+			wheel_rpm = 60.0F / revolution_duration;
+			UTILS_LP_FAST(wheel_rpm_filtered, (float)wheel_rpm, 0.5F);
 
 			// For some reason a race condition on startup crashes the OS if this is executed too soon.
 			// So don't track odometer for the first 4 seconds
-			if(current_time > 4.0) {
+			if(current_time > 4.0F) {
 				trip_odometer += mc_interface_get_configuration()->si_wheel_diameter * M_PI;
 			}
 		}
 	} else {
 		// After 3 seconds without sensor signal, set RPM as zero
-		if ( (current_time - last_sensor_event_time) > 3.0) {
-			wheel_rpm_filtered = 0.0;
+		if ( (current_time - last_sensor_event_time) > 3.0F) {
+			wheel_rpm_filtered = 0.0F;
 		}
 	}
 	sensor_state_old = sensor_state;
@@ -342,7 +342,7 @@ void hw_update_speed_sensor(void) {
 /* Get speed in m/s */
 float hw_get_speed(void) {
 	const volatile mc_configuration *conf = mc_interface_get_configuration();
-	float speed = wheel_rpm_filtered * conf->si_wheel_diameter * M_PI / 60.0;
+	float speed = wheel_rpm_filtered * conf->si_wheel_diameter * M_PI / 60.0F;
 	return speed;
 }
 
@@ -356,23 +356,23 @@ float hw_get_distance_abs(void) {
 }
 
 float hw_get_mosfet_temp_filtered(void) {
-	static float mosfet_temp_filtered = 25.0;
-	float mosfet_temp = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0) / 3455.0) + (1.0 / 298.15)) - 273.15);
+	static float mosfet_temp_filtered = 25.0F;
+	float mosfet_temp = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0F) / 3455.0F) + (1.0F / 298.15F)) - 273.15F);
 
-	UTILS_LP_FAST(mosfet_temp_filtered, (float)mosfet_temp, 0.1);
+	UTILS_LP_FAST(mosfet_temp_filtered, (float)mosfet_temp, 0.1F);
 	return mosfet_temp_filtered;
 }
 
 bool hw_luna_m600_shutdown_button_down(void) {
-	static float button_filtered = 0.0;
-	UTILS_LP_FAST(button_filtered, GET_ON_OFF_BUTTON_VOLTAGE(), 0.01);
-	return (button_filtered < 1.35);
+	static float button_filtered = 0.0F;
+	UTILS_LP_FAST(button_filtered, GET_ON_OFF_BUTTON_VOLTAGE(), 0.01F);
+	return (button_filtered < 1.35F);
 }
 
 bool hw_luna_m600_minus_button_down(void) {
-	static float button_filtered = 0.0;
-	UTILS_LP_FAST(button_filtered, GET_ON_OFF_BUTTON_VOLTAGE(), 0.05);
-	return (button_filtered >= 1.35 && button_filtered < 2.0);
+	static float button_filtered = 0.0F;
+	UTILS_LP_FAST(button_filtered, GET_ON_OFF_BUTTON_VOLTAGE(), 0.05F);
+	return (button_filtered >= 1.35F && button_filtered < 2.0F);
 }
 
 static void terminal_cmd_set_m600_use_fixed_throttle_level(int argc, const char **argv) {
@@ -450,29 +450,29 @@ static void terminal_cmd_m600_get_torque_sensor_info(int argc, const char **argv
 	commands_printf("Torque sensor lower range: %d", get_torque_sensor_lower_range());
 	commands_printf("Torque sensor upper range: %d", get_torque_sensor_upper_range());
 	commands_printf("Torque sensor deadband: %.2f (assistance starts at %d)",	(double)get_torque_sensor_deadband(),
-																				(int32_t)((1.0 + get_torque_sensor_deadband()) * (float)get_torque_sensor_lower_range()));
+																				(int32_t)((1.0F + get_torque_sensor_deadband()) * (float)get_torque_sensor_lower_range()));
 	return;
 }
 
 float hw_get_encoder_error(void) {
-	static float angle_diff_filtered = 0.0;
-	float angle_diff = 0.0;
-	
+	static float angle_diff_filtered = 0.0F;
+	float angle_diff = 0.0F;
+
 	// some batches have only 2 current sensors, so better rely only in
 	// the phase voltage tracker which runs with no modulation and is
 	// accurate at mid-high rpm
-	if(mc_interface_get_state() != MC_STATE_OFF && mc_interface_get_duty_cycle_now() > 0.4) {
+	if(mc_interface_get_state() != MC_STATE_OFF && mc_interface_get_duty_cycle_now() > 0.4F) {
 		angle_diff = utils_angle_difference(mcpwm_foc_get_phase_encoder(), mcpwm_foc_get_phase_observer());
 	}
 
-	UTILS_LP_FAST(angle_diff_filtered, angle_diff, 0.005);
+	UTILS_LP_FAST(angle_diff_filtered, angle_diff, 0.005F);
 	return angle_diff_filtered;
 }
 
 void hw_recover_encoder_offset(void) {
-	if (mc_interface_get_configuration()->foc_encoder_offset > 360.0 ) {
+	if (mc_interface_get_configuration()->foc_encoder_offset > 360.0F ) {
 		//invalid encoder offset found in flash, probably its the first boot after a fw update
-		if (m600_backup->encoder_offset_calibration_done && m600_backup->encoder_offset <= 360.0) {
+		if (m600_backup->encoder_offset_calibration_done && m600_backup->encoder_offset <= 360.0F) {
 			//invalid offset found in flash, but there is a valid offset backed up. Use it.
 			mc_configuration *mcconf = mempools_alloc_mcconf();
 			*mcconf = *mc_interface_get_configuration();
@@ -489,7 +489,7 @@ void hw_recover_encoder_offset(void) {
 		// encoder offset is valid, lets check that the backed up value is the same
 		float mc_conf_encoder_offset = mc_interface_get_configuration()->foc_encoder_offset;
 
-		if(mc_conf_encoder_offset <= 360.0) {
+		if(mc_conf_encoder_offset <= 360.0F) {
 			//user could have written a new offset angle. Update the backup.
 			if(m600_backup->encoder_offset_calibration_done == false || mc_conf_encoder_offset != m600_backup->encoder_offset) {
 				m600_backup->encoder_offset = mc_conf_encoder_offset;
@@ -509,16 +509,16 @@ static void terminal_cmd_m600_correct_encoder_offset(int argc, const char **argv
 	mc_configuration *mcconf_old = mempools_alloc_mcconf();
 	*mcconf_old = *mcconf;
 
-	float current = 15.0;
+	float current = 15.0F;
 
 	mcconf->motor_type = MOTOR_TYPE_FOC;
-	mcconf->foc_f_zv = 10000.0;
-	mcconf->foc_current_kp = 0.01;
-	mcconf->foc_current_ki = 10.0;
+	mcconf->foc_f_zv = 10000.0F;
+	mcconf->foc_current_kp = 0.01F;
+	mcconf->foc_current_ki = 10.0F;
 	mc_interface_set_configuration(mcconf);
 
-	float offset = 0.0;
-	float ratio = 0.0;
+	float offset = 0.0F;
+	float ratio = 0.0F;
 	bool inverted = false;
 	mcpwm_foc_encoder_detect(current, false, &offset, &ratio, &inverted);
 
@@ -550,7 +550,7 @@ static void hw_override_pairing_done(void) {
 float hw_get_ADC_value(uint8_t channel){
 	float adc_volts;
 
-	adc_volts = ((float)ADC_Value[channel] / 4096.0 * V_REG);
+	adc_volts = ((float)ADC_Value[channel] / 4096.0F * V_REG);
 	if(channel == ADC_IND_EXT){
 		float min_voltage = app_get_configuration()->app_adc_conf.voltage_min;
 		float max_voltage = app_get_configuration()->app_adc_conf.voltage_max;

@@ -165,36 +165,36 @@
 
 // Component parameters (can be overridden)
 #ifndef V_REG
-#define V_REG 					3.3
+#define V_REG 					3.3F
 #endif
 #ifndef VIN_R1
-#define VIN_R1					39000.0
+#define VIN_R1					39000.0F
 #endif
 #ifndef VIN_R2
-#define VIN_R2					2200.0
+#define VIN_R2					2200.0F
 #endif
 
 #define INVERTED_SHUNT_POLARITY
 #ifndef CURRENT_AMP_GAIN
-#define CURRENT_AMP_GAIN		10.0
+#define CURRENT_AMP_GAIN		10.0F
 #endif
 #ifndef CURRENT_SHUNT_RES
-#define CURRENT_SHUNT_RES		0.001
+#define CURRENT_SHUNT_RES		0.001F
 #endif
 
 // Input voltage
-#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
+#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0F) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
 
 // Voltage on ADC channel
-#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4095.0 * V_REG)
+#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4095.0F * V_REG)
 
 // NTC Termistors
-#define NTC_RES(adc_val)		(10000.0 / ((4095.0 / (float)adc_val) - 1.0)) // Motor temp sensor on low side // High side ->((4095.0 * 10000.0) / adc_val - 10000.0)
-#define NTC_TEMP(adc_ind)		(1.0 / ((logf(NTC_RES(ADC_Value[adc_ind]) / 10000.0) / 3434.0) + (1.0 / 298.15)) - 273.15)
+#define NTC_RES(adc_val)		(10000.0F / ((4095.0F / (float)adc_val) - 1.0F)) // Motor temp sensor on low side // High side ->((4095.0F * 10000.0F) / adc_val - 10000.0F)
+#define NTC_TEMP(adc_ind)		(1.0F / ((logf(NTC_RES(ADC_Value[adc_ind]) / 10000.0F) / 3434.0F) + (1.0F / 298.15F)) - 273.15F)
 
-#define NTC_RES_MOTOR(adc_val)	(10000.0 / ((4095.0 / (float)adc_val) - 1.0)) // Motor temp sensor on low side
-#define NTC_TEMP_MOTOR(beta)	(1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0) / beta) + (1.0 / 298.15)) - 273.15)
-#define NTC_TEMP_MOTOR_2(beta)	(1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR_2]) / 10000.0) / beta) + (1.0 / 298.15)) - 273.15)
+#define NTC_RES_MOTOR(adc_val)	(10000.0F / ((4095.0F / (float)adc_val) - 1.0F)) // Motor temp sensor on low side
+#define NTC_TEMP_MOTOR(beta)	(1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0F) / beta) + (1.0F / 298.15F)) - 273.15F)
+#define NTC_TEMP_MOTOR_2(beta)	(1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR_2]) / 10000.0F) / beta) + (1.0F / 298.15F)) - 273.15F)
 
 // UART Peripheral
 #define HW_UART_DEV				SD3
@@ -323,9 +323,9 @@
 
 // Setting limits
 #ifdef HW_HAS_DUAL_PARALLEL
-#define HW_LIM_CURRENT				-300.0, 300.0
-#define HW_LIM_CURRENT_ABS			800.0, 804.0
-#define HW_LIM_CURRENT_IN		-200.0, 200.0
+#define HW_LIM_CURRENT				-300.0F, 300.0F
+#define HW_LIM_CURRENT_ABS			800.0F, 804.0F
+#define HW_LIM_CURRENT_IN		-200.0F, 200.0F
 #ifndef MCCONF_L_MAX_ABS_CURRENT
 #define MCCONF_L_MAX_ABS_CURRENT	400.0F	// The maximum absolute current above which a fault is generated
 #define MCCONF_FOC_OFFSETS_CURRENT_0	4096.0F // Current 0 offset
@@ -333,19 +333,19 @@
 #define MCCONF_FOC_OFFSETS_CURRENT_2	4096.0F // Current 2 offset
 #endif
 #else
-#define HW_LIM_CURRENT				-150.0, 150.0
-#define HW_LIM_CURRENT_ABS		400.0, 402.0
-#define HW_LIM_CURRENT_IN		-100.0, 100.0
+#define HW_LIM_CURRENT				-150.0F, 150.0F
+#define HW_LIM_CURRENT_ABS		400.0F, 402.0F
+#define HW_LIM_CURRENT_IN		-100.0F, 100.0F
 #ifndef MCCONF_L_MAX_ABS_CURRENT
 #define MCCONF_L_MAX_ABS_CURRENT	200.0F	// The maximum absolute current above which a fault is generated
 #endif
 #endif
 
-#define HW_LIM_VIN				6.0, 59.0
-#define HW_LIM_ERPM				-200e3, 200e3
-#define HW_LIM_DUTY_MIN			0.0, 0.1
-#define HW_LIM_DUTY_MAX			0.0, 0.95
-#define HW_LIM_TEMP_FET			-40.0, 120.0
+#define HW_LIM_VIN				6.0F, 59.0F
+#define HW_LIM_ERPM				-200e3F, 200e3F
+#define HW_LIM_DUTY_MIN			0.0F, 0.1F
+#define HW_LIM_DUTY_MAX			0.0F, 0.95F
+#define HW_LIM_TEMP_FET			-40.0F, 120.0F
 
 // Functions
 void smart_switch_thread_start(void);

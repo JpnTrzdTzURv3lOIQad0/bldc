@@ -4629,11 +4629,11 @@ static void cont_read_start_bytearray(eval_context_t *ctx) {
     gc();
 #endif
     lbm_uint num_free = lbm_memory_longest_free();
-    lbm_uint initial_size = (lbm_uint)((float)num_free * 0.9);
+    lbm_uint initial_size = (lbm_uint)((float)num_free * 0.9F);
     if (initial_size == 0) {
       gc();
       num_free = lbm_memory_longest_free();
-      initial_size = (lbm_uint)((float)num_free * 0.9);
+      initial_size = (lbm_uint)((float)num_free * 0.9F);
       if (initial_size == 0) {
         lbm_channel_reader_close(str);
         ERROR_CTX(ENC_SYM_MERROR);
@@ -4738,11 +4738,11 @@ static void cont_read_start_array(eval_context_t *ctx) {
 #ifdef LBM_ALWAYS_GC
     gc();
 #endif
-    lbm_uint num = ((lbm_uint)((float)lbm_memory_longest_free() * 0.9) / sizeof(lbm_uint)) ;
+    lbm_uint num = ((lbm_uint)((float)lbm_memory_longest_free() * 0.9F) / sizeof(lbm_uint)) ;
     lbm_uint initial_size = (lbm_uint)num;
     if (initial_size == 0) {
       gc();
-      num = ((lbm_uint)((float)lbm_memory_longest_free() * 0.9) / sizeof(lbm_uint)) ;
+      num = ((lbm_uint)((float)lbm_memory_longest_free() * 0.9F) / sizeof(lbm_uint)) ;
       initial_size = (lbm_uint)num;
       if (initial_size == 0) {
         lbm_channel_reader_close(str);
@@ -5572,7 +5572,7 @@ static void cont_recv_to(eval_context_t *ctx) {
   if (lbm_is_number(ctx->r)) {
     lbm_value *sptr = get_stack_ptr(ctx, 1); // patterns at sptr[0]
     float timeout_time = lbm_dec_as_float(ctx->r);
-    if (timeout_time < 0.0) timeout_time = 0.0; // clamp.
+    if (timeout_time < 0.0F) timeout_time = 0.0F; // clamp.
     if (ctx->num_mail > 0) {
       lbm_value e;
       lbm_value new_env = ctx->curr_env;
@@ -6013,7 +6013,7 @@ bool lbm_eval_step(int n) {
     if (ctx_running) {
       enqueue_ctx_nm(&queue, ctx_running);
       ctx_running = NULL;
-    }  
+    }
   } else {
     if (gc_requested) gc();
     process_events();
@@ -6022,7 +6022,7 @@ bool lbm_eval_step(int n) {
     ctx_running = dequeue_ctx_nm(&queue);
     lbm_mutex_unlock(&qmutex);
   }
-  return busy;  
+  return busy;
 }
 
 bool lbm_eval_init(void) {

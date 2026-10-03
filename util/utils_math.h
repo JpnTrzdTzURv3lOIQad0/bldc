@@ -65,7 +65,7 @@ void utils_rotate_vector3(float *input, float *rotation, float *output, bool rev
 #define NORM2_f(x,y)		(sqrtf(SQ(x) + SQ(y)))
 
 // nan and infinity check for floats
-#define UTILS_IS_INF(x)		((x) == (1.0 / 0.0) || (x) == (-1.0 / 0.0))
+#define UTILS_IS_INF(x)		((x) == (1.0F / 0.0F) || (x) == (-1.0F / 0.0F))
 #define UTILS_IS_NAN(x)		((x) != (x))
 #define UTILS_NAN_ZERO(x)	(x = UTILS_IS_NAN(x) ? 0.0F : x)
 
@@ -108,17 +108,17 @@ void utils_rotate_vector3(float *input, float *rotation, float *output, bool rev
  * It is not entirely the same as it behaves like an IIR filter rather than a FIR filter, but takes
  * much less memory and is much faster to run.
  */
-#define UTILS_LP_MOVING_AVG_APPROX(value, sample, N)	UTILS_LP_FAST(value, sample, 2.0 / ((N) + 1.0))
+#define UTILS_LP_MOVING_AVG_APPROX(value, sample, N)	UTILS_LP_FAST(value, sample, 2.0F / ((N) + 1.0F))
 
 // Constants
-#define ONE_BY_SQRT3			(0.57735026919)
-#define TWO_BY_SQRT3			(2.0f * 0.57735026919)
-#define SQRT3_BY_2				(0.86602540378)
-#define COS_30_DEG				(0.86602540378)
-#define SIN_30_DEG				(0.5)
-#define COS_MINUS_30_DEG		(0.86602540378)
-#define SIN_MINUS_30_DEG		(-0.5)
-#define ONE_BY_SQRT2			(0.7071067811865475)
+#define ONE_BY_SQRT3			(0.57735026919F)
+#define TWO_BY_SQRT3			(2.0F * 0.57735026919F)
+#define SQRT3_BY_2				(0.86602540378F)
+#define COS_30_DEG				(0.86602540378F)
+#define SIN_30_DEG				(0.5F)
+#define COS_MINUS_30_DEG		(0.86602540378F)
+#define SIN_MINUS_30_DEG		(-0.5F)
+#define ONE_BY_SQRT2			(0.7071067811865475F)
 
 // Tables
 extern const float utils_tab_sin_32_1[];

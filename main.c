@@ -127,9 +127,9 @@ static THD_FUNCTION(led_thread, arg) {
 		mc_state state2 = mc_interface_get_state();
 		mc_interface_select_motor_thread(1);
 		if ((state1 == MC_STATE_RUNNING) || (state2 == MC_STATE_RUNNING)) {
-			ledpwm_set_intensity(LED_GREEN, 1.0);
+			ledpwm_set_intensity(LED_GREEN, 1.0F);
 		} else {
-			ledpwm_set_intensity(LED_GREEN, 0.2);
+			ledpwm_set_intensity(LED_GREEN, 0.2F);
 		}
 
 		mc_fault_code fault = mc_interface_get_fault();
@@ -138,24 +138,24 @@ static THD_FUNCTION(led_thread, arg) {
 		mc_interface_select_motor_thread(1);
 		if (fault != FAULT_CODE_NONE || fault2 != FAULT_CODE_NONE) {
 			for (int i = 0;i < (int)fault;i++) {
-				ledpwm_set_intensity(LED_RED, 1.0);
+				ledpwm_set_intensity(LED_RED, 1.0F);
 				chThdSleepMilliseconds(250);
-				ledpwm_set_intensity(LED_RED, 0.0);
+				ledpwm_set_intensity(LED_RED, 0.0F);
 				chThdSleepMilliseconds(250);
 			}
 
 			chThdSleepMilliseconds(500);
 
 			for (int i = 0;i < (int)fault2;i++) {
-				ledpwm_set_intensity(LED_RED, 1.0);
+				ledpwm_set_intensity(LED_RED, 1.0F);
 				chThdSleepMilliseconds(250);
-				ledpwm_set_intensity(LED_RED, 0.0);
+				ledpwm_set_intensity(LED_RED, 0.0F);
 				chThdSleepMilliseconds(250);
 			}
 
 			chThdSleepMilliseconds(500);
 		} else {
-			ledpwm_set_intensity(LED_RED, 0.0);
+			ledpwm_set_intensity(LED_RED, 0.0F);
 		}
 
 		chThdSleepMilliseconds(10);

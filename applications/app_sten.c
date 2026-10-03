@@ -32,13 +32,13 @@
 #include <math.h>
 
 // Settings
-#define HYST		0.10
+#define HYST		0.10F
 // 29000rpm = 20kmh
-#define RPM_MAX_1	41000.0	// Start decreasing output here
-#define RPM_MAX_2	44000.0	// Completely stop output here
+#define RPM_MAX_1	41000.0F	// Start decreasing output here
+#define RPM_MAX_2	44000.0F	// Completely stop output here
 
 // Private variables
-static volatile float out_received = 0.0;
+static volatile float out_received = 0.0F;
 static volatile bool stop_now = true;
 static volatile bool is_running = false;
 
@@ -89,7 +89,7 @@ static void rxchar(UARTDriver *uartp, uint16_t c) {
 	c2 = c1;
 	c1 = c;
 
-	out_received = ((float)med / 128) - 1.0;
+	out_received = ((float)med / 128) - 1.0F;
 	timeout_reset();
 }
 
@@ -168,14 +168,14 @@ static THD_FUNCTION(uart_thread, arg) {
 }
 
 static void set_output(float output) {
-	utils_deadband(&output, HYST, 1.0);
+	utils_deadband(&output, HYST, 1.0F);
 
 	const float rpm = mc_interface_get_rpm();
 
-	if (output > 0.0 && rpm > -mc_interface_get_configuration()->l_max_erpm_fbrake) {
+	if (output > 0.0F && rpm > -mc_interface_get_configuration()->l_max_erpm_fbrake) {
 		float current;
 
-		if (output > 0.0) {
+		if (output > 0.0F) {
 			current = output * mc_interface_get_configuration()->l_current_max;
 		} else {
 			current = output * fabsf(mc_interface_get_configuration()->l_current_min);
@@ -189,8 +189,8 @@ static void set_output(float output) {
 		}
 
 		// Some low-pass filtering
-		static float current_p1 = 0.0;
-		static float current_p2 = 0.0;
+		static float current_p1 = 0.0F;
+		static float current_p2 = 0.0F;
 		current = (current + current_p1 + current_p2) / 3;
 		current_p2 = current_p1;
 		current_p1 = current;

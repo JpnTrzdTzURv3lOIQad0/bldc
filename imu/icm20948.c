@@ -75,18 +75,18 @@ static bool read_sample(imu_device_t *dev, float accel[3], float gyro[3], float 
 		return false;
 	}
 
-	accel[0] = (float)((int16_t)((int16_t)rxb[0] << 8 | (int16_t)rxb[1])) * 16.0 / 32768.0;
-	accel[1] = (float)((int16_t)((int16_t)rxb[2] << 8 | (int16_t)rxb[3])) * 16.0 / 32768.0;
-	accel[2] = (float)((int16_t)((int16_t)rxb[4] << 8 | (int16_t)rxb[5])) * 16.0 / 32768.0;
+	accel[0] = (float)((int16_t)((int16_t)rxb[0] << 8 | (int16_t)rxb[1])) * 16.0F / 32768.0F;
+	accel[1] = (float)((int16_t)((int16_t)rxb[2] << 8 | (int16_t)rxb[3])) * 16.0F / 32768.0F;
+	accel[2] = (float)((int16_t)((int16_t)rxb[4] << 8 | (int16_t)rxb[5])) * 16.0F / 32768.0F;
 
-	gyro[0] = (float)((int16_t)((int16_t)rxb[6] << 8 | (int16_t)rxb[7])) * 2000.0 / 32768.0;
-	gyro[1] = (float)((int16_t)((int16_t)rxb[8] << 8 | (int16_t)rxb[9])) * 2000.0 / 32768.0;
-	gyro[2] = (float)((int16_t)((int16_t)rxb[10] << 8 | (int16_t)rxb[11])) * 2000.0 / 32768.0;
+	gyro[0] = (float)((int16_t)((int16_t)rxb[6] << 8 | (int16_t)rxb[7])) * 2000.0F / 32768.0F;
+	gyro[1] = (float)((int16_t)((int16_t)rxb[8] << 8 | (int16_t)rxb[9])) * 2000.0F / 32768.0F;
+	gyro[2] = (float)((int16_t)((int16_t)rxb[10] << 8 | (int16_t)rxb[11])) * 2000.0F / 32768.0F;
 
 	// TODO: Read magnetometer as well
-	mag[0] = 0.0;
-	mag[1] = 0.0;
-	mag[2] = 0.0;
+	mag[0] = 0.0F;
+	mag[1] = 0.0F;
+	mag[2] = 0.0F;
 
 	return true;
 }

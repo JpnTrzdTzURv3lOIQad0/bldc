@@ -33,7 +33,7 @@ void ledpwm_init(void) {
 
 	// Generate gamma correction table
 	for (int i = 0;i < (LEDPWM_CNT_TOP + 1);i++) {
-		gamma_table[i] = (int)roundf(powf((float)i / (float)LEDPWM_CNT_TOP, 1.0 / 0.45) * (float)LEDPWM_CNT_TOP);
+		gamma_table[i] = (int)roundf(powf((float)i / (float)LEDPWM_CNT_TOP, 1.0F / 0.45F) * (float)LEDPWM_CNT_TOP);
 	}
 }
 
@@ -41,7 +41,7 @@ void ledpwm_init(void) {
  * Set the intensity for one led. The intensity value is mapped to a PWM value
  * according to human luminance perception.
  *
- * Intensity range is 0.0 to 1.0
+ * Intensity range is 0.0F to 1.0F
  */
 void ledpwm_set_intensity(unsigned int led, float intensity) {
 	if (led >= LEDPWM_LED_NUM) {
@@ -52,19 +52,19 @@ void ledpwm_set_intensity(unsigned int led, float intensity) {
 		return;
 	}
 
-	if (intensity < 0.0) {
-		intensity = 0.0;
+	if (intensity < 0.0F) {
+		intensity = 0.0F;
 	}
 
-	if (intensity > 1.0) {
-		intensity = 1.0;
+	if (intensity > 1.0F) {
+		intensity = 1.0F;
 	}
 
 	led_values[led] = gamma_table[(int)(intensity * LEDPWM_CNT_TOP)];
 }
 
 /*
- * Override LED intensity. Values less than -0.1 will disable the override and
+ * Override LED intensity. Values less than -0.1F will disable the override and
  * enable the default behavior again. Returns false if an invalid LED was selected,
  * otherwise returns true.
  */
@@ -73,18 +73,18 @@ bool ledpwm_set_intensity_override(unsigned int led, float intensity) {
 		return false;
 	}
 
-	led_values_override[led] = intensity > -0.1;
+	led_values_override[led] = intensity > -0.1F;
 
 	if (!led_values_override[led]) {
 		return true;
 	}
 
-	if (intensity < 0.0) {
-		intensity = 0.0;
+	if (intensity < 0.0F) {
+		intensity = 0.0F;
 	}
 
-	if (intensity > 1.0) {
-		intensity = 1.0;
+	if (intensity > 1.0F) {
+		intensity = 1.0F;
 	}
 
 	led_values[led] = gamma_table[(int)(intensity * LEDPWM_CNT_TOP)];

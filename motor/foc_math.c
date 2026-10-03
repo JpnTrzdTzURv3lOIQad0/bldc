@@ -76,15 +76,15 @@ void foc_observer_update(float v_alpha, float v_beta, float i_alpha, float i_bet
 	float iq = motor->m_motor_state.iq;
 
 	// Adjust inductance for saliency.
-	if (fabsf(id) > 0.1 || fabsf(iq) > 0.1) {
-		L = L - ld_lq_diff / 2.0 + ld_lq_diff * SQ(iq) / (SQ(id) + SQ(iq));
+	if (fabsf(id) > 0.1F || fabsf(iq) > 0.1F) {
+		L = L - ld_lq_diff / 2.0F + ld_lq_diff * SQ(iq) / (SQ(id) + SQ(iq));
 	}
 
 	float L_ia = L * i_alpha;
 	float L_ib = L * i_beta;
 	const float R_ia = R * i_alpha;
 	const float R_ib = R * i_beta;
-	const float gamma_half = motor->m_gamma_now * 0.5;
+	const float gamma_half = motor->m_gamma_now * 0.5F;
 
 	switch (conf_now->foc_observer_type) {
 	case FOC_OBSERVER_ORTEGA_ORIGINAL: {
@@ -95,8 +95,8 @@ void foc_observer_update(float v_alpha, float v_beta, float i_alpha, float i_bet
 		// http://cas.ensmp.fr/Publications/Publications/Papers/ObserverPermanentMagnet.pdf
 		// and
 		// https://arxiv.org/pdf/1905.00833.pdf
-		if (err > 0.0) {
-			err = 0.0;
+		if (err > 0.0F) {
+			err = 0.0F;
 		}
 
 		float x1_dot = v_alpha - R_ia + gamma_half * (state->x1 - L_ia) * err;
@@ -123,8 +123,8 @@ void foc_observer_update(float v_alpha, float v_beta, float i_alpha, float i_bet
 
 		if (conf_now->foc_observer_type == FOC_OBSERVER_MXLEMMING_LAMBDA_COMP) {
 			float err = SQ(state->lambda_est) - (SQ(state->x1) + SQ(state->x2));
-			state->lambda_est += 0.1 * gamma_half * state->lambda_est * -err * dt;
-			utils_truncate_number(&(state->lambda_est), lambda * 0.3, lambda * 2.5);
+			state->lambda_est += 0.1F * gamma_half * state->lambda_est * -err * dt;
+			utils_truncate_number(&(state->lambda_est), lambda * 0.3F, lambda * 2.5F);
 
 			utils_truncate_number_abs(&(state->x1), state->lambda_est);
 			utils_truncate_number_abs(&(state->x2), state->lambda_est);
@@ -134,8 +134,8 @@ void foc_observer_update(float v_alpha, float v_beta, float i_alpha, float i_bet
 		}
 
 		// Set these to 0 to allow using the same atan2-code as for Ortega
-		L_ia = 0.0;
-		L_ib = 0.0;
+		L_ia = 0.0F;
+		L_ib = 0.0F;
 		break;
 
 	case FOC_OBSERVER_ORTEGA_LAMBDA_COMP: {
@@ -143,13 +143,13 @@ void foc_observer_update(float v_alpha, float v_beta, float i_alpha, float i_bet
 
 		// FLux linkage observer. See:
 		// https://cas.mines-paristech.fr/~praly/Telechargement/Conferences/2017_IFAC_Bernard-Praly.pdf
-		state->lambda_est += 0.2 * gamma_half * state->lambda_est * -err * dt;
+		state->lambda_est += 0.2F * gamma_half * state->lambda_est * -err * dt;
 
 		// Clamp the observed flux linkage (not sure if this is needed)
-		utils_truncate_number(&(state->lambda_est), lambda * 0.3, lambda * 2.5);
+		utils_truncate_number(&(state->lambda_est), lambda * 0.3F, lambda * 2.5F);
 
-		if (err > 0.0) {
-			err = 0.0;
+		if (err > 0.0F) {
+			err = 0.0F;
 		}
 
 		float x1_dot = v_alpha - R_ia + gamma_half * (state->x1 - L_ia) * err;
@@ -169,8 +169,8 @@ void foc_observer_update(float v_alpha, float v_beta, float i_alpha, float i_bet
 				conf_now->foc_observer_type == FOC_OBSERVER_MXV_LAMBDA_COMP_LIN) {
 			if (conf_now->foc_observer_type == FOC_OBSERVER_MXV_LAMBDA_COMP_LIN) {
 				float mag = NORM2_f(state->x1 - L_ia, state->x2 - L_ib);
-				UTILS_LP_FAST(state->lambda_est, mag, 0.1 * gamma_half * dt * SQ(state->lambda_est));
-				utils_truncate_number(&(state->lambda_est), lambda * 0.3, lambda * 2.5);
+				UTILS_LP_FAST(state->lambda_est, mag, 0.1F * gamma_half * dt * SQ(state->lambda_est));
+				utils_truncate_number(&(state->lambda_est), lambda * 0.3F, lambda * 2.5F);
 
 				if (mag > state->lambda_est) {
 					state->x1 = (state->x1 / mag) * state->lambda_est;
@@ -178,8 +178,8 @@ void foc_observer_update(float v_alpha, float v_beta, float i_alpha, float i_bet
 				}
 			} else if (conf_now->foc_observer_type == FOC_OBSERVER_MXV_LAMBDA_COMP) {
 				float err = SQ(state->lambda_est) - (SQ(state->x1 - L_ia) + SQ(state->x2 - L_ib));
-				state->lambda_est += 0.2 * gamma_half * state->lambda_est * -err * dt;
-				utils_truncate_number(&(state->lambda_est), lambda * 0.3, lambda * 2.5);
+				state->lambda_est += 0.2F * gamma_half * state->lambda_est * -err * dt;
+				utils_truncate_number(&(state->lambda_est), lambda * 0.3F, lambda * 2.5F);
 
 				float mag = NORM2_f(state->x1 - L_ia, state->x2 - L_ib);
 				if (mag > state->lambda_est) {
@@ -208,9 +208,9 @@ void foc_observer_update(float v_alpha, float v_beta, float i_alpha, float i_bet
 
 	// Prevent the magnitude from getting too low, as that makes the angle very unstable.
 	float mag = NORM2_f(state->x1, state->x2);
-	if (mag < (lambda * 0.5)) {
-		state->x1 *= 1.1;
-		state->x2 *= 1.1;
+	if (mag < (lambda * 0.5F)) {
+		state->x1 *= 1.1F;
+		state->x2 *= 1.1F;
 	}
 
 	if (phase) {
@@ -371,7 +371,7 @@ void foc_svm(float alpha, float beta, float max_mod, uint32_t PWMFullDutyCycle,
 	}
 	}
 
-	int t_max = PWMFullDutyCycle * (1.0 - (1.0 - max_mod) * 0.5);
+	int t_max = PWMFullDutyCycle * (1.0F - (1.0F - max_mod) * 0.5F);
 	utils_truncate_number_int(&tA, 0, t_max);
 	utils_truncate_number_int(&tB, 0, t_max);
 	utils_truncate_number_int(&tC, 0, t_max);
@@ -397,18 +397,18 @@ void foc_run_pid_control_pos(bool index_found, float dt, motor_all_state_t *moto
 		motor->m_pos_i_term = 0;
 		motor->m_pos_prev_error = 0;
 		motor->m_pos_prev_proc = angle_now;
-		motor->m_pos_d_filter = 0.0;
-		motor->m_pos_d_filter_proc = 0.0;
+		motor->m_pos_d_filter = 0.0F;
+		motor->m_pos_d_filter_proc = 0.0F;
 		return;
 	}
 
 	// Compute parameters
 	float error = utils_angle_difference(angle_set, angle_now);
-	float error_sign = 1.0;
+	float error_sign = 1.0F;
 
 	if (conf_now->m_sensor_port_mode != SENSOR_PORT_MODE_HALL) {
 		if (conf_now->foc_encoder_inverted) {
-			error_sign = -1.0;
+			error_sign = -1.0F;
 		}
 	}
 
@@ -419,7 +419,7 @@ void foc_run_pid_control_pos(bool index_found, float dt, motor_all_state_t *moto
 	float kd = conf_now->p_pid_kd;
 	float kd_proc = conf_now->p_pid_kd_proc;
 
-	if (conf_now->p_pid_gain_dec_angle > 0.1) {
+	if (conf_now->p_pid_gain_dec_angle > 0.1F) {
 		float min_error = conf_now->p_pid_gain_dec_angle / conf_now->p_pid_ang_div;
 		float error_abs = fabs(error);
 
@@ -441,10 +441,10 @@ void foc_run_pid_control_pos(bool index_found, float dt, motor_all_state_t *moto
 	// TODO: Are there problems with this approach?
 	motor->m_pos_dt_int += dt;
 	if (error == motor->m_pos_prev_error) {
-		d_term = 0.0;
+		d_term = 0.0F;
 	} else {
 		d_term = (error - motor->m_pos_prev_error) * (kd / motor->m_pos_dt_int);
-		motor->m_pos_dt_int = 0.0;
+		motor->m_pos_dt_int = 0.0F;
 	}
 
 	// Filter D
@@ -454,10 +454,10 @@ void foc_run_pid_control_pos(bool index_found, float dt, motor_all_state_t *moto
 	// Process D term
 	motor->m_pos_dt_int_proc += dt;
 	if (angle_now == motor->m_pos_prev_proc) {
-		d_term_proc = 0.0;
+		d_term_proc = 0.0F;
 	} else {
 		d_term_proc = -utils_angle_difference(angle_now, motor->m_pos_prev_proc) * error_sign * (kd_proc / motor->m_pos_dt_int_proc);
-		motor->m_pos_dt_int_proc = 0.0;
+		motor->m_pos_dt_int_proc = 0.0F;
 	}
 
 	// Filter D process
@@ -466,8 +466,8 @@ void foc_run_pid_control_pos(bool index_found, float dt, motor_all_state_t *moto
 
 	// I-term wind-up protection
 	float p_tmp = p_term;
-	utils_truncate_number_abs(&p_tmp, 1.0);
-	utils_truncate_number_abs((float*)&motor->m_pos_i_term, 1.0 - fabsf(p_tmp));
+	utils_truncate_number_abs(&p_tmp, 1.0F);
+	utils_truncate_number_abs((float*)&motor->m_pos_i_term, 1.0F - fabsf(p_tmp));
 
 	// Store previous error
 	motor->m_pos_prev_error = error;
@@ -475,14 +475,14 @@ void foc_run_pid_control_pos(bool index_found, float dt, motor_all_state_t *moto
 
 	// Calculate output
 	float output = p_term + motor->m_pos_i_term + d_term + d_term_proc;
-	utils_truncate_number(&output, -1.0, 1.0);
+	utils_truncate_number(&output, -1.0F, 1.0F);
 
 	if (conf_now->m_sensor_port_mode != SENSOR_PORT_MODE_HALL) {
 		if (index_found) {
 			motor->m_iq_set = output * conf_now->l_current_max * conf_now->l_current_max_scale;;
 		} else {
 			// Rotate the motor with 40 % power until the encoder index is found.
-			motor->m_iq_set = 0.4 * conf_now->l_current_max * conf_now->l_current_max_scale;;
+			motor->m_iq_set = 0.4F * conf_now->l_current_max * conf_now->l_current_max_scale;;
 		}
 	} else {
 		motor->m_iq_set = output * conf_now->l_current_max * conf_now->l_current_max_scale;;
@@ -496,13 +496,13 @@ void foc_run_pid_control_speed(bool index_found, float dt, motor_all_state_t *mo
 
 	// PID is off. Return.
 	if (motor->m_control_mode != CONTROL_MODE_SPEED) {
-		motor->m_speed_i_term = 0.0;
-		motor->m_speed_prev_error = 0.0;
-		motor->m_speed_d_filter = 0.0;
+		motor->m_speed_i_term = 0.0F;
+		motor->m_speed_prev_error = 0.0F;
+		motor->m_speed_d_filter = 0.0F;
 		return;
 	}
 
-	if (conf_now->s_pid_ramp_erpms_s > 0.0) {
+	if (conf_now->s_pid_ramp_erpms_s > 0.0F) {
 		utils_step_towards((float*)&motor->m_speed_pid_set_rpm, motor->m_speed_command_rpm, conf_now->s_pid_ramp_erpms_s * dt);
 		if (!index_found) {
 			utils_truncate_number_abs(&motor->m_speed_pid_set_rpm, conf_now->foc_openloop_rpm);
@@ -515,7 +515,7 @@ void foc_run_pid_control_speed(bool index_found, float dt, motor_all_state_t *mo
 		}
 	}
 
-	float rpm = 0.0;
+	float rpm = 0.0F;
 	switch (conf_now->s_pid_speed_source) {
 	case S_PID_SPEED_SRC_PLL:
 		rpm = RADPS2RPM_f(motor->m_pll_speed);
@@ -532,15 +532,15 @@ void foc_run_pid_control_speed(bool index_found, float dt, motor_all_state_t *mo
 
 	// Too low RPM set. Reset state, release motor and return.
 	if (fabsf(motor->m_speed_pid_set_rpm) < conf_now->s_pid_min_erpm) {
-		motor->m_speed_i_term = 0.0;
+		motor->m_speed_i_term = 0.0F;
 		motor->m_speed_prev_error = error;
-		motor->m_iq_set = 0.0;
+		motor->m_iq_set = 0.0F;
 		return;
 	}
 
 	// Compute parameters
-	p_term = error * conf_now->s_pid_kp * (1.0 / 20.0);
-	d_term = (error - motor->m_speed_prev_error) * (conf_now->s_pid_kd / dt) * (1.0 / 20.0);
+	p_term = error * conf_now->s_pid_kp * (1.0F / 20.0F);
+	d_term = (error - motor->m_speed_prev_error) * (conf_now->s_pid_kd / dt) * (1.0F / 20.0F);
 
 	// Filter D
 	UTILS_LP_FAST(motor->m_speed_d_filter, d_term, conf_now->s_pid_kd_filter);
@@ -551,24 +551,24 @@ void foc_run_pid_control_speed(bool index_found, float dt, motor_all_state_t *mo
 
 	// Calculate output
 	float output = p_term + motor->m_speed_i_term + d_term;
-	utils_truncate_number_abs(&output, 1.0);
+	utils_truncate_number_abs(&output, 1.0F);
 
 	// Integrator windup protection
-	motor->m_speed_i_term += error * conf_now->s_pid_ki * dt * (1.0 / 20.0);
-	utils_truncate_number_abs(&motor->m_speed_i_term, 1.0);
+	motor->m_speed_i_term += error * conf_now->s_pid_ki * dt * (1.0F / 20.0F);
+	utils_truncate_number_abs(&motor->m_speed_i_term, 1.0F);
 
-	if (conf_now->s_pid_ki < 1e-9) {
-		motor->m_speed_i_term = 0.0;
+	if (conf_now->s_pid_ki < 1e-9F) {
+		motor->m_speed_i_term = 0.0F;
 	}
 
 	// Optionally disable braking
 	if (!conf_now->s_pid_allow_braking) {
-		if (rpm > 20.0 && output < 0.0) {
-			output = 0.0;
+		if (rpm > 20.0F && output < 0.0F) {
+			output = 0.0F;
 		}
 
-		if (rpm < -20.0 && output > 0.0) {
-			output = 0.0;
+		if (rpm < -20.0F && output > 0.0F) {
+			output = 0.0F;
 		}
 	}
 
@@ -580,7 +580,7 @@ float foc_correct_encoder(float obs_angle, float enc_angle, float speed,
 	float rpm_abs = fabsf(RADPS2RPM_f(speed));
 
 	// Hysteresis 5 % of total speed
-	float hyst = sl_erpm * 0.05;
+	float hyst = sl_erpm * 0.05F;
 	if (motor->m_using_encoder) {
 		if (rpm_abs > (sl_erpm + hyst)) {
 			motor->m_using_encoder = false;
@@ -599,7 +599,7 @@ float foc_correct_hall(float angle, float dt, motor_all_state_t *motor, int hall
 	motor->m_hall_dt_diff_now += dt;
 
 	float rpm_abs = fabsf(RADPS2RPM_f(motor->m_pll_speed));
-	float rad_per_sec_hall = (M_PI / 3.0) / motor->m_hall_dt_diff_last;
+	float rad_per_sec_hall = (UTILS_PI_F / 3.0F) / motor->m_hall_dt_diff_last;
 	float rpm_abs_hall = fabsf(RADPS2RPM_f(rad_per_sec_hall));
 
 	motor->m_using_hall = rpm_abs < conf_now->foc_sl_erpm;
@@ -610,7 +610,7 @@ float foc_correct_hall(float angle, float dt, motor_all_state_t *motor, int hall
 	// Only override the observer if the hall sensor value is valid.
 	if (ang_hall_int < 201) {
 		// Scale to the circle and convert to radians
-		float ang_hall_now = ((float)ang_hall_int / 200.0) * 2.0 * M_PI;
+		float ang_hall_now = ((float)ang_hall_int / 200.0F) * 2.0F * UTILS_PI_F;
 
 		if (motor->m_ang_hall_int_prev < 0) {
 			// Previous angle not valid
@@ -636,19 +636,19 @@ float foc_correct_hall(float angle, float dt, motor_all_state_t *motor, int hall
 				motor->m_hall_dt_diff_last = -motor->m_hall_dt_diff_last;
 			}
 
-			motor->m_hall_dt_diff_now = 0.0;
+			motor->m_hall_dt_diff_now = 0.0F;
 
 			// A transition was just made. The angle is in the middle of the new and old angle.
 			int ang_avg = motor->m_ang_hall_int_prev + diff / 2;
 			ang_avg %= 200;
 
 			// Scale to the circle and convert to radians
-			motor->m_ang_hall = ((float)ang_avg / 200.0) * 2.0 * M_PI;
+			motor->m_ang_hall = ((float)ang_avg / 200.0F) * 2.0F * UTILS_PI_F;
 		}
 
 		motor->m_ang_hall_int_prev = ang_hall_int;
 
-		if (RADPS2RPM_f((M_PI / 3.0) / fmaxf(fabsf(motor->m_hall_dt_diff_now),
+		if (RADPS2RPM_f((UTILS_PI_F / 3.0F) / fmaxf(fabsf(motor->m_hall_dt_diff_now),
 				fabsf(motor->m_hall_dt_diff_last))) < conf_now->foc_hall_interp_erpm) {
 			// Don't interpolate on very low speed, just use the closest hall sensor. The reason is that we might
 			// get stuck at 60 degrees off if a direction change happens between two steps.
@@ -656,12 +656,12 @@ float foc_correct_hall(float angle, float dt, motor_all_state_t *motor, int hall
 		} else {
 			// Interpolate
 			float diff = utils_angle_difference_rad(motor->m_ang_hall, ang_hall_now);
-			if (fabsf(diff) < ((2.0 * M_PI) / 12.0) || SIGN(diff) != SIGN(rad_per_sec_hall)) {
+			if (fabsf(diff) < ((2.0F * UTILS_PI_F) / 12.0F) || SIGN(diff) != SIGN(rad_per_sec_hall)) {
 				// Do interpolation
 				motor->m_ang_hall += rad_per_sec_hall * dt;
 			} else {
 				// We are too far away with the interpolation
-				motor->m_ang_hall -= diff * 0.01;
+				motor->m_ang_hall -= diff * 0.01F;
 			}
 		}
 
@@ -669,7 +669,7 @@ float foc_correct_hall(float angle, float dt, motor_all_state_t *motor, int hall
 
 		// Limit hall sensor rate of change. This will reduce current spikes in the current controllers when the angle estimation
 		// changes fast.
-		float angle_step = (fmaxf(rpm_abs_hall, conf_now->foc_hall_interp_erpm) / 60.0) * 2.0 * M_PI * dt * 1.5;
+		float angle_step = (fmaxf(rpm_abs_hall, conf_now->foc_hall_interp_erpm) / 60.0F) * 2.0F * UTILS_PI_F * dt * 1.5F;
 		float angle_diff = utils_angle_difference_rad(motor->m_ang_hall, motor->m_ang_hall_rate_limited);
 		if (fabsf(angle_diff) < angle_step) {
 			motor->m_ang_hall_rate_limited = motor->m_ang_hall;
@@ -697,8 +697,8 @@ float foc_correct_hall(float angle, float dt, motor_all_state_t *motor, int hall
 	// Map output angle between hall angle and observer angle in transition region to make
 	// a smooth transition.
 	if (angle_old != angle) {
-		float weight_hall = utils_map(rpm_abs, conf_now->foc_sl_erpm_start, conf_now->foc_sl_erpm, 1.0, 0.0);
-		utils_truncate_number(&weight_hall, 0.0, 1.0);
+		float weight_hall = utils_map(rpm_abs, conf_now->foc_sl_erpm_start, conf_now->foc_sl_erpm, 1.0F, 0.0F);
+		utils_truncate_number(&weight_hall, 0.0F, 1.0F);
 		angle = utils_interpolate_angles_rad(angle, angle_old, weight_hall);
 	}
 
@@ -706,7 +706,7 @@ float foc_correct_hall(float angle, float dt, motor_all_state_t *motor, int hall
 }
 
 void foc_run_fw(motor_all_state_t *motor, float dt) {
-	if (motor->m_conf->foc_fw_current_max < fmaxf(motor->m_conf->cc_min_current, 0.001)) {
+	if (motor->m_conf->foc_fw_current_max < fmaxf(motor->m_conf->cc_min_current, 0.001F)) {
 		return;
 	}
 
@@ -722,10 +722,10 @@ void foc_run_fw(motor_all_state_t *motor, float dt) {
 					motor->m_control_mode == CONTROL_MODE_CURRENT_BRAKE ||
 					motor->m_control_mode == CONTROL_MODE_SPEED ||
 					motor->m_i_fw_set > conf->cc_min_current)) {
-		float fw_current_now = 0.0;
+		float fw_current_now = 0.0F;
 		float duty_abs = motor->m_duty_abs_filtered;
 
-		if (conf->foc_fw_duty_start < 0.99 && duty_abs > conf->foc_fw_duty_start * conf->l_max_duty) {
+		if (conf->foc_fw_duty_start < 0.99F && duty_abs > conf->foc_fw_duty_start * conf->l_max_duty) {
 
 			float i_fw_max = conf->foc_fw_current_max;
 
@@ -733,17 +733,17 @@ void foc_run_fw(motor_all_state_t *motor, float dt) {
 			// place almost all voltage in vd. When that happens we can enter a runaway condition where the iq
 			// controller does not have enough headroom to overcome the D axis coupling. The backoff gain uses
 			// the iq error to reduce the field weakening setpoint when iq is greater than iq_target.
-			if (conf->foc_fw_backoff > 0.001) {
+			if (conf->foc_fw_backoff > 0.001F) {
 				float i_err_backoff = SIGN(motor->m_speed_est_fast) * (state_m->iq - state_m->iq_target) / i_fw_max;
 				i_err_backoff *= conf->foc_fw_backoff;
-				utils_truncate_number(&i_err_backoff, 0.0, 1.0);
-				i_fw_max *= (1.0 - i_err_backoff);
+				utils_truncate_number(&i_err_backoff, 0.0F, 1.0F);
+				i_fw_max *= (1.0F - i_err_backoff);
 			}
 
 			fw_current_now = utils_map(duty_abs,
 					conf->foc_fw_duty_start * conf->l_max_duty,
 					conf->l_max_duty,
-					0.0, i_fw_max);
+					0.0F, i_fw_max);
 
 			// m_current_off_delay is used to not stop the modulation too soon after leaving FW. If axis decoupling
 			// is not working properly an oscillation can occur on the modulation when changing the current
@@ -751,7 +751,7 @@ void foc_run_fw(motor_all_state_t *motor, float dt) {
 			// modulation. When that happens the body diodes in the MOSFETs can see a lot of current and unexpected
 			// braking happens. Therefore the modulation is left on for some time after leaving FW to give the
 			// oscillation a chance to decay while the MOSFETs are still driven.
-			motor->m_current_off_delay = 1.0;
+			motor->m_current_off_delay = 1.0F;
 		}
 
 		if (motor->m_conf->foc_fw_ramp_time < dt) {
@@ -768,8 +768,8 @@ void foc_hfi_adjust_angle(float ang_err, motor_all_state_t *motor, float dt) {
 	utils_truncate_number_abs(&ang_err, conf->foc_hfi_max_err);
 
 	// TODO: Check if ratio between these is sane or introduce separate gains
-	const float gain_int = 4000.0 * conf->foc_hfi_gain;
-	const float gain_int2 = 10.0 * conf->foc_hfi_gain;
+	const float gain_int = 4000.0F * conf->foc_hfi_gain;
+	const float gain_int2 = 10.0F * conf->foc_hfi_gain;
 	motor->m_hfi.double_integrator += ang_err * gain_int2;
 	utils_truncate_number_abs(&motor->m_hfi.double_integrator, fabsf(motor->m_speed_est_fast));
 	motor->m_hfi.angle -= dt * (gain_int * ang_err + motor->m_hfi.double_integrator);
@@ -779,10 +779,10 @@ void foc_hfi_adjust_angle(float ang_err, motor_all_state_t *motor, float dt) {
 
 void foc_precalc_values(motor_all_state_t *motor) {
 	const mc_configuration *conf_now = motor->m_conf;
-	motor->p_lq = conf_now->foc_motor_l + conf_now->foc_motor_ld_lq_diff * 0.5;
-	motor->p_ld = conf_now->foc_motor_l - conf_now->foc_motor_ld_lq_diff * 0.5;
-	motor->p_inv_ld_lq = (1.0 / motor->p_lq - 1.0 / motor->p_ld);
-	motor->p_v2_v3_inv_avg_half = (0.5 / motor->p_lq + 0.5 / motor->p_ld) * 0.9; // With the 0.9 we undo the adjustment from the detection
+	motor->p_lq = conf_now->foc_motor_l + conf_now->foc_motor_ld_lq_diff * 0.5F;
+	motor->p_ld = conf_now->foc_motor_l - conf_now->foc_motor_ld_lq_diff * 0.5F;
+	motor->p_inv_ld_lq = (1.0F / motor->p_lq - 1.0F / motor->p_ld);
+	motor->p_v2_v3_inv_avg_half = (0.5F / motor->p_lq + 0.5F / motor->p_ld) * 0.9F; // With the 0.9F we undo the adjustment from the detection
 	motor->m_observer_state.lambda_est = conf_now->foc_motor_flux_linkage;
 	motor->p_duty_norm = TWO_BY_SQRT3 / conf_now->foc_overmod_factor;
 
@@ -790,10 +790,10 @@ void foc_precalc_values(motor_all_state_t *motor) {
 	if (conf_now->foc_control_sample_mode == FOC_CONTROL_SAMPLE_MODE_V0_V7) {
 		motor->p_fs = conf_now->foc_f_zv;
 	} else {
-		motor->p_fs = conf_now->foc_f_zv * 0.5;
+		motor->p_fs = conf_now->foc_f_zv * 0.5F;
 	}
 #else
-	motor->p_fs = conf_now->foc_f_zv * 0.5;
+	motor->p_fs = conf_now->foc_f_zv * 0.5F;
 #endif
-	motor->p_dt = 1.0 / motor->p_fs;
+	motor->p_dt = 1.0F / motor->p_fs;
 }

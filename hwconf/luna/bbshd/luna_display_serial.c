@@ -161,7 +161,7 @@ void luna_display_serial_start(int8_t initial_level) {
 	palSetPadMode(HW_UART_RX_PORT, HW_UART_RX_PIN, PAL_MODE_ALTERNATE(HW_UART_GPIO_AF) |
 			PAL_STM32_OSPEED_HIGHEST |
 			PAL_STM32_PUDR_PULLUP);
-    
+
 	display_uart_is_running = true;
 }
 
@@ -178,7 +178,7 @@ static LUNA_PAS_LEVEL translate_assist_level(int8_t level) {
         case 8: return PAS_LEVEL_8;
         case 9: return PAS_LEVEL_9;
         default: return -1;
-    }    
+    }
 }
 
 /*
@@ -217,28 +217,28 @@ static void set_assist_level(uint8_t assist_code) {
     volatile mc_configuration *mcconf = (volatile mc_configuration*) mc_interface_get_configuration();
 
 	switch (assist_code) {
-		case PAS_LEVEL_0: current_scale = 0.0; break;
-		case PAS_LEVEL_1: current_scale = 1.0 / 9.0; break;
-		case PAS_LEVEL_2: current_scale = 2.0 / 9.0; break;
-		case PAS_LEVEL_3: current_scale = 3.0 / 9.0; break;
-		case PAS_LEVEL_4: current_scale = 4.0 / 9.0; break;
-		case PAS_LEVEL_5: current_scale = 5.0 / 9.0; break;
-		case PAS_LEVEL_6: current_scale = 6.0 / 9.0; break;
-		case PAS_LEVEL_7: current_scale = 7.0 / 9.0; break;
-		case PAS_LEVEL_8: current_scale = 8.0 / 9.0; break;
-		case PAS_LEVEL_9: current_scale = 1.0; break;
+		case PAS_LEVEL_0: current_scale = 0.0F; break;
+		case PAS_LEVEL_1: current_scale = 1.0F / 9.0F; break;
+		case PAS_LEVEL_2: current_scale = 2.0F / 9.0F; break;
+		case PAS_LEVEL_3: current_scale = 3.0F / 9.0F; break;
+		case PAS_LEVEL_4: current_scale = 4.0F / 9.0F; break;
+		case PAS_LEVEL_5: current_scale = 5.0F / 9.0F; break;
+		case PAS_LEVEL_6: current_scale = 6.0F / 9.0F; break;
+		case PAS_LEVEL_7: current_scale = 7.0F / 9.0F; break;
+		case PAS_LEVEL_8: current_scale = 8.0F / 9.0F; break;
+		case PAS_LEVEL_9: current_scale = 1.0F; break;
 		default: return;
 	}
 
 	if( hw_bbshd_has_fixed_throttle_level() ) {
-		mcconf->l_current_max_scale = 1.0;
+		mcconf->l_current_max_scale = 1.0F;
 		app_pas_set_current_sub_scaling(current_scale);
 	} else {
 		mcconf->l_current_max_scale = current_scale;
 	}
 
 	// In level 0, both PAS and throttle should be disabled
-	if(current_scale == 0.0) {
+	if(current_scale == 0.0F) {
 		mcconf->l_current_max_scale = current_scale;
 	}
 }
@@ -263,7 +263,7 @@ static void serial_display_byte_process(unsigned char byte) {
 	serial_buffer.wr_ptr++;
 
 	uint8_t rd_ptr = serial_buffer.rd_ptr;	//read pointer to try at different start addresses
-	
+
 	// process with at least 2 bytes available to read
 	while( (serial_buffer.wr_ptr - rd_ptr ) > 1) {
 
@@ -312,7 +312,7 @@ static void serial_display_byte_process(unsigned char byte) {
 							mcconf->l_min_vin = (float) serial_buffer.data[rd_ptr + 2];
 							mcconf->l_current_max = (float) serial_buffer.data[rd_ptr + 3];
 							//skipping assist table for now
-							mcconf->si_wheel_diameter = (float)serial_buffer.data[rd_ptr + 24] * 25.4 / 2.0;
+							mcconf->si_wheel_diameter = (float)serial_buffer.data[rd_ptr + 24] * 25.4F / 2.0F;
 
 							//write settings to flash memory as motor_0
 							conf_general_store_mc_configuration((mc_configuration*)mcconf, false);
@@ -320,7 +320,7 @@ static void serial_display_byte_process(unsigned char byte) {
 							for(int i = 0; i<=CMD_WRITE_BASIC_LENGTH;i++) {
 								commands_printf("%02x ", serial_buffer.data[rd_ptr + i]);
 							}
-                            
+
 							serial_buffer.rd_ptr = rd_ptr + CMD_WRITE_BASIC_LENGTH;	//mark bytes as read
 
 							serial_buffer.tx[0] = CMD_WRITE_BASIC;
@@ -390,7 +390,7 @@ static void serial_display_byte_process(unsigned char byte) {
 						serial_buffer.tx[i+14] = (uint8_t) 100;    //speed level [%]
 					}
 
-					serial_buffer.tx[24] = (uint8_t) (mcconf->si_wheel_diameter * 39.4 * 2.0); //wheel diameter [inch*2]
+					serial_buffer.tx[24] = (uint8_t) (mcconf->si_wheel_diameter * 39.4F * 2.0F); //wheel diameter [inch*2]
 					serial_buffer.tx[25] = 0x01;	//speedometer [01 = internal]
 					serial_buffer.tx[26] = checksum(serial_buffer.tx + 2, CMD_READ_BASIC_LENGTH - 3);
 
@@ -404,7 +404,7 @@ static void serial_display_byte_process(unsigned char byte) {
 					}
 				case CMD_AMPS:
 					{
-					float current = mc_interface_get_tot_current_in_filtered() * 2.0;
+					float current = mc_interface_get_tot_current_in_filtered() * 2.0F;
 					utils_truncate_number(&current, 0, 256);
 					serial_buffer.tx[0] = (uint8_t) (current);
 					serial_buffer.tx[1] = serial_buffer.tx[0];
@@ -418,19 +418,19 @@ static void serial_display_byte_process(unsigned char byte) {
 #ifdef HW_HAS_WHEEL_SPEED_SENSOR
 					// rpm = spd [m/s] / perim [m] * 60[s/min]
 					const volatile mc_configuration *conf = mc_interface_get_configuration();
-					uint16_t wheel_rpm = (uint16_t)(mc_interface_get_speed() / (M_PI * conf->si_wheel_diameter) * 60.0);
+					uint16_t wheel_rpm = (uint16_t)(mc_interface_get_speed() / (M_PI * conf->si_wheel_diameter) * 60.0F);
 
 					serial_buffer.tx[0] = (uint8_t)(wheel_rpm / 256);
 					serial_buffer.tx[1] = (uint8_t)(wheel_rpm & 0xFFFF);
 					serial_buffer.tx[2] = serial_buffer.tx[0] + serial_buffer.tx[1] + 32;
 					serial_send_packet(serial_buffer.tx, 3);
 					rd_ptr +=2;
-					serial_buffer.rd_ptr = rd_ptr;              
+					serial_buffer.rd_ptr = rd_ptr;
 #endif
 					continue;
 					}
 				case CMD_MOVING:
-					if( mc_interface_get_speed() > 0.0) {
+					if( mc_interface_get_speed() > 0.0F) {
 						serial_buffer.tx[0] = 0x31;	//0x31 0x31 indicates bike is in movement.
 						serial_buffer.tx[1] = 0x31;
 					}
@@ -452,9 +452,9 @@ static void serial_display_byte_process(unsigned char byte) {
 				case CMD_BATT_SOC:
 					// Battery state of charge 0-100%.
 					{
-					float wh_left = 0.0;
-					float battery_level = mc_interface_get_battery_level(&wh_left) * 100.0;
-					utils_truncate_number((float*)&battery_level, 0.0, 100.0);
+					float wh_left = 0.0F;
+					float battery_level = mc_interface_get_battery_level(&wh_left) * 100.0F;
+					utils_truncate_number((float*)&battery_level, 0.0F, 100.0F);
 
 					serial_buffer.tx[0] = (uint8_t) battery_level;
 					serial_buffer.tx[1] = (uint8_t) battery_level;
@@ -466,13 +466,13 @@ static void serial_display_byte_process(unsigned char byte) {
 				case CMD_BATT_VOLTAGE:
 					{
 					// This command was custom made for the eggrider display running at 72V
-					uint16_t batt_voltage = (uint16_t)(GET_INPUT_VOLTAGE() ) * 100.0;
+					uint16_t batt_voltage = (uint16_t)(GET_INPUT_VOLTAGE() ) * 100.0F;
 					serial_buffer.tx[0] = (uint8_t)(batt_voltage / 256);
 					serial_buffer.tx[1] = (uint8_t)(batt_voltage & 0xFFFF);
 					serial_buffer.tx[2] = serial_buffer.tx[0] + serial_buffer.tx[1] + 0x12;
 					serial_send_packet(serial_buffer.tx, 3);
 					rd_ptr +=2;
-					serial_buffer.rd_ptr = rd_ptr;              
+					serial_buffer.rd_ptr = rd_ptr;
 					continue;
 					}
 				default:

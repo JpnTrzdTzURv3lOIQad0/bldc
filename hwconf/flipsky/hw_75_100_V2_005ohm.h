@@ -19,7 +19,7 @@
 #define HW_75_100_V2_005OHM_H_
 
 #define HW_SOURCE_ALT 		"flipsky/hw_75_100_V2.c"
-#define CURRENT_SHUNT_RES	0.005
+#define CURRENT_SHUNT_RES	0.005F
 
 #include "hw_75_100_V2.h"
 

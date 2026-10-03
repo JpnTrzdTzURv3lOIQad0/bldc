@@ -39,7 +39,7 @@
 #include <math.h>
 
 // Settings
-#define MAX_CAN_AGE_SEC				2.0
+#define MAX_CAN_AGE_SEC				2.0F
 
 // Private variables
 static volatile bms_config m_conf;
@@ -81,7 +81,7 @@ bool bms_process_can_frame(uint32_t can_id, uint8_t *data8, int len, bool is_ext
 	if (m_conf.type == BMS_TYPE_VESC) {
 		if (is_ext) {
 			uint8_t id = can_id & 0xFF;
-			CAN_PACKET_ID cmd = can_id >> 8;
+			uint32_t cmd = can_id >> 8;
 
 			switch (cmd) {
 			case CAN_PACKET_BMS_SOC_SOH_TEMP_STAT:
@@ -97,7 +97,7 @@ bool bms_process_can_frame(uint32_t can_id, uint8_t *data8, int len, bool is_ext
 				unsigned int fwd_len = 0;
 				fwd_data[fwd_len++] = COMM_BMS_FWD_CAN_RX;
 				fwd_data[fwd_len++] = id;
-				fwd_data[fwd_len++] = cmd;
+				fwd_data[fwd_len++] = (uint8_t)cmd;
 				memcpy(fwd_data + fwd_len, data8, len);
 				fwd_len += len;
 
@@ -111,6 +111,9 @@ bool bms_process_can_frame(uint32_t can_id, uint8_t *data8, int len, bool is_ext
 
 				case BMS_FWD_CAN_MODE_ANY:
 					commands_send_packet(fwd_data, fwd_len);
+					break;
+
+				default:
 					break;
 				}
 
@@ -127,10 +130,10 @@ bool bms_process_can_frame(uint32_t can_id, uint8_t *data8, int len, bool is_ext
 				bms_soc_soh_temp_stat msg;
 				msg.id = id;
 				msg.rx_time = chVTGetSystemTimeX();
-				msg.v_cell_min = buffer_get_float16(data8, 1e3, &ind);
-				msg.v_cell_max = buffer_get_float16(data8, 1e3, &ind);
-				msg.soc = ((float)((uint8_t)data8[ind++])) / 255.0;
-				msg.soh = ((float)((uint8_t)data8[ind++])) / 255.0;
+				msg.v_cell_min = buffer_get_float16(data8, 1e3F, &ind);
+				msg.v_cell_max = buffer_get_float16(data8, 1e3F, &ind);
+				msg.soc = ((float)((uint8_t)data8[ind++])) / 255.0F;
+				msg.soh = ((float)((uint8_t)data8[ind++])) / 255.0F;
 				msg.t_cell_max = (float)((int8_t)data8[ind++]);
 				uint8_t stat = data8[ind++];
 				msg.is_charging = (stat >> 0) & 1;
@@ -259,7 +262,7 @@ bool bms_process_can_frame(uint32_t can_id, uint8_t *data8, int len, bool is_ext
 							break;
 						}
 
-						m_values.v_cell[ofs++] = buffer_get_float16(data8, 1e3, &ind);
+						m_values.v_cell[ofs++] = buffer_get_float16(data8, 1e3F, &ind);
 					}
 
 					// Only publish the count once the whole sequence is
@@ -323,7 +326,7 @@ bool bms_process_can_frame(uint32_t can_id, uint8_t *data8, int len, bool is_ext
 							break;
 						}
 
-						m_values.temps_adc[ofs++] = buffer_get_float16(data8, 1e2, &ind);
+						m_values.temps_adc[ofs++] = buffer_get_float16(data8, 1e2F, &ind);
 					}
 
 					// Only publish the count once the whole sequence is
@@ -345,11 +348,11 @@ bool bms_process_can_frame(uint32_t can_id, uint8_t *data8, int len, bool is_ext
 					int32_t ind = 0;
 					m_values.can_id = id;
 					m_values.update_time = chVTGetSystemTimeX();
-					m_values.temp_hum = buffer_get_float16(data8, 1e2, &ind);
-					m_values.hum = buffer_get_float16(data8, 1e2, &ind);
-					m_values.temp_ic = buffer_get_float16(data8, 1e2, &ind);
+					m_values.temp_hum = buffer_get_float16(data8, 1e2F, &ind);
+					m_values.hum = buffer_get_float16(data8, 1e2F, &ind);
+					m_values.temp_ic = buffer_get_float16(data8, 1e2F, &ind);
 					if (len == 8) {
-						m_values.pressure = buffer_get_float16(data8, 1e-1, &ind);
+						m_values.pressure = buffer_get_float16(data8, 1e-1F, &ind);
 					}
 				}
 			} break;
@@ -425,11 +428,11 @@ void bms_update_limits(float *i_in_min, float *i_in_max,
 		if (m_stat_temp_max.id >= 0) {
 			float temp = m_stat_temp_max.t_cell_max;
 
-			if (temp < (m_conf.t_limit_start + 0.1)) {
+			if (temp < (m_conf.t_limit_start + 0.1F)) {
 				// OK
-			} else if (temp > (m_conf.t_limit_end - 0.1)) {
-				i_in_max_bms_temp = 0.0;
-				i_in_min_bms_temp = 0.0;
+			} else if (temp > (m_conf.t_limit_end - 0.1F)) {
+				i_in_max_bms_temp = 0.0F;
+				i_in_min_bms_temp = 0.0F;
 				// Maybe add fault code?
 //				mc_interface_fault_stop(FAULT_CODE_OVER_TEMP_FET, false, false);
 			} else {
@@ -438,7 +441,7 @@ void bms_update_limits(float *i_in_min, float *i_in_max,
 					maxc = fabsf(i_in_min_conf);
 				}
 
-				maxc = utils_map(temp, m_conf.t_limit_start, m_conf.t_limit_end, maxc, 0.0);
+				maxc = utils_map(temp, m_conf.t_limit_start, m_conf.t_limit_end, maxc, 0.0F);
 
 				if (fabsf(i_in_min_bms_temp) > maxc) {
 					i_in_min_bms_temp = SIGN(i_in_min_bms_temp) * maxc;
@@ -457,13 +460,13 @@ void bms_update_limits(float *i_in_min, float *i_in_max,
 		if (m_stat_soc_min.id >= 0) {
 			float soc = m_stat_soc_min.soc;
 
-			if (soc > (m_conf.soc_limit_start - 0.001)) {
+			if (soc > (m_conf.soc_limit_start - 0.001F)) {
 				// OK
-			} else if (soc < (m_conf.soc_limit_end + 0.001)) {
-				i_in_max_bms_soc = 0.0;
+			} else if (soc < (m_conf.soc_limit_end + 0.001F)) {
+				i_in_max_bms_soc = 0.0F;
 			} else {
 				i_in_max_bms_soc = utils_map(soc, m_conf.soc_limit_start,
-						m_conf.soc_limit_end, i_in_max_conf, 0.0);
+						m_conf.soc_limit_end, i_in_max_conf, 0.0F);
 			}
 		}
 	}
@@ -474,13 +477,13 @@ void bms_update_limits(float *i_in_min, float *i_in_max,
 		if (m_stat_vcell_min.id >= 0) {
 			float vmin = m_stat_vcell_min.v_cell_min;
 
-			if (vmin > (m_conf.vmin_limit_start - 0.001)) {
+			if (vmin > (m_conf.vmin_limit_start - 0.001F)) {
 				// OK
-			} else if (vmin < (m_conf.vmin_limit_end + 0.001)) {
-				i_in_max_bms_vmin = 0.0;
+			} else if (vmin < (m_conf.vmin_limit_end + 0.001F)) {
+				i_in_max_bms_vmin = 0.0F;
 			} else {
 				i_in_max_bms_vmin = utils_map(vmin, m_conf.vmin_limit_start,
-						m_conf.vmin_limit_end, i_in_max_conf, 0.0);
+						m_conf.vmin_limit_end, i_in_max_conf, 0.0F);
 			}
 		}
 	}
@@ -491,13 +494,13 @@ void bms_update_limits(float *i_in_min, float *i_in_max,
 		if (m_stat_vcell_max.id >= 0) {
 			float vmax = m_stat_vcell_max.v_cell_max;
 
-			if (vmax < (m_conf.vmax_limit_start + 0.001)) {
+			if (vmax < (m_conf.vmax_limit_start + 0.001F)) {
 				// OK
-			} else if (vmax > (m_conf.vmax_limit_end - 0.001)) {
-				i_in_min_bms_vmax = 0.0;
+			} else if (vmax > (m_conf.vmax_limit_end - 0.001F)) {
+				i_in_min_bms_vmax = 0.0F;
 			} else {
 				i_in_min_bms_vmax = utils_map(vmax, m_conf.vmax_limit_start,
-						m_conf.vmax_limit_end, i_in_min_conf, 0.0);
+						m_conf.vmax_limit_end, i_in_min_conf, 0.0F);
 			}
 		}
 	}
@@ -522,7 +525,7 @@ void bms_update_limits(float *i_in_min, float *i_in_max,
 
 void bms_process_cmd(unsigned char *data, unsigned int len,
 		void(*reply_func)(unsigned char *data, unsigned int len)) {
-	COMM_PACKET_ID packet_id;
+	uint8_t packet_id;
 
 	packet_id = data[0];
 	data++;
@@ -535,17 +538,17 @@ void bms_process_cmd(unsigned char *data, unsigned int len,
 
 		send_buffer[ind++] = packet_id;
 
-		buffer_append_float32(send_buffer, m_values.v_tot, 1e6, &ind);
-		buffer_append_float32(send_buffer, m_values.v_charge, 1e6, &ind);
-		buffer_append_float32(send_buffer, m_values.i_in, 1e6, &ind);
-		buffer_append_float32(send_buffer, m_values.i_in_ic, 1e6, &ind);
-		buffer_append_float32(send_buffer, m_values.ah_cnt, 1e3, &ind);
-		buffer_append_float32(send_buffer, m_values.wh_cnt, 1e3, &ind);
+		buffer_append_float32(send_buffer, m_values.v_tot, 1e6F, &ind);
+		buffer_append_float32(send_buffer, m_values.v_charge, 1e6F, &ind);
+		buffer_append_float32(send_buffer, m_values.i_in, 1e6F, &ind);
+		buffer_append_float32(send_buffer, m_values.i_in_ic, 1e6F, &ind);
+		buffer_append_float32(send_buffer, m_values.ah_cnt, 1e3F, &ind);
+		buffer_append_float32(send_buffer, m_values.wh_cnt, 1e3F, &ind);
 
 		// Cell voltages
 		send_buffer[ind++] = m_values.cell_num;
 		for (int i = 0;i < m_values.cell_num;i++) {
-			buffer_append_float16(send_buffer, m_values.v_cell[i], 1e3, &ind);
+			buffer_append_float16(send_buffer, m_values.v_cell[i], 1e3F, &ind);
 		}
 
 		// Balancing state
@@ -556,20 +559,20 @@ void bms_process_cmd(unsigned char *data, unsigned int len,
 		// Temperatures
 		send_buffer[ind++] = m_values.temp_adc_num;
 		for (int i = 0;i < m_values.temp_adc_num;i++) {
-			buffer_append_float16(send_buffer, m_values.temps_adc[i], 1e2, &ind);
+			buffer_append_float16(send_buffer, m_values.temps_adc[i], 1e2F, &ind);
 		}
-		buffer_append_float16(send_buffer, m_values.temp_ic, 1e2, &ind);
+		buffer_append_float16(send_buffer, m_values.temp_ic, 1e2F, &ind);
 
 		// Humidity
-		buffer_append_float16(send_buffer, m_values.temp_hum, 1e2, &ind);
-		buffer_append_float16(send_buffer, m_values.hum, 1e2, &ind);
+		buffer_append_float16(send_buffer, m_values.temp_hum, 1e2F, &ind);
+		buffer_append_float16(send_buffer, m_values.hum, 1e2F, &ind);
 
 		// Highest cell temperature
-		buffer_append_float16(send_buffer, m_values.temp_max_cell, 1e2, &ind);
+		buffer_append_float16(send_buffer, m_values.temp_max_cell, 1e2F, &ind);
 
 		// State of charge and state of health
-		buffer_append_float16(send_buffer, m_values.soc, 1e3, &ind);
-		buffer_append_float16(send_buffer, m_values.soh, 1e3, &ind);
+		buffer_append_float16(send_buffer, m_values.soc, 1e3F, &ind);
+		buffer_append_float16(send_buffer, m_values.soh, 1e3F, &ind);
 
 		// CAN ID
 		send_buffer[ind++] = m_values.can_id;
@@ -581,7 +584,7 @@ void bms_process_cmd(unsigned char *data, unsigned int len,
 		buffer_append_float32_auto(send_buffer, m_values.wh_cnt_dis_total, &ind);
 
 		// Pressure
-		buffer_append_float16(send_buffer, m_values.pressure, 1e-1, &ind);
+		buffer_append_float16(send_buffer, m_values.pressure, 1e-1F, &ind);
 
 		// Data version
 		send_buffer[ind++] = m_values.data_version;
@@ -649,13 +652,13 @@ void bms_send_status_can(void) {
 		buffer[send_index++] = cell_now;
 		buffer[send_index++] = m_values.cell_num;
 		if (cell_now < cell_max) {
-			buffer_append_float16(buffer, m_values.v_cell[cell_now++], 1e3, &send_index);
+			buffer_append_float16(buffer, m_values.v_cell[cell_now++], 1e3F, &send_index);
 		}
 		if (cell_now < cell_max) {
-			buffer_append_float16(buffer, m_values.v_cell[cell_now++], 1e3, &send_index);
+			buffer_append_float16(buffer, m_values.v_cell[cell_now++], 1e3F, &send_index);
 		}
 		if (cell_now < cell_max) {
-			buffer_append_float16(buffer, m_values.v_cell[cell_now++], 1e3, &send_index);
+			buffer_append_float16(buffer, m_values.v_cell[cell_now++], 1e3F, &send_index);
 		}
 		comm_can_transmit_eid(id | ((uint32_t)CAN_PACKET_BMS_V_CELL << 8), buffer, send_index);
 	}
@@ -686,22 +689,22 @@ void bms_send_status_can(void) {
 		buffer[send_index++] = temp_now;
 		buffer[send_index++] = temp_max;
 		if (temp_now < temp_max) {
-			buffer_append_float16(buffer, m_values.temps_adc[temp_now++], 1e2, &send_index);
+			buffer_append_float16(buffer, m_values.temps_adc[temp_now++], 1e2F, &send_index);
 		}
 		if (temp_now < temp_max) {
-			buffer_append_float16(buffer, m_values.temps_adc[temp_now++], 1e2, &send_index);
+			buffer_append_float16(buffer, m_values.temps_adc[temp_now++], 1e2F, &send_index);
 		}
 		if (temp_now < temp_max) {
-			buffer_append_float16(buffer, m_values.temps_adc[temp_now++], 1e2, &send_index);
+			buffer_append_float16(buffer, m_values.temps_adc[temp_now++], 1e2F, &send_index);
 		}
 		comm_can_transmit_eid(id | ((uint32_t)CAN_PACKET_BMS_TEMPS << 8), buffer, send_index);
 	}
 
 	send_index = 0;
-	buffer_append_float16(buffer, m_values.temp_hum, 1e2, &send_index);
-	buffer_append_float16(buffer, m_values.hum, 1e2, &send_index);
-	buffer_append_float16(buffer, m_values.temp_ic, 1e2, &send_index); // Put IC temp here instead of making mew msg
-	buffer_append_float16(buffer, m_values.pressure, 1e-1, &send_index);
+	buffer_append_float16(buffer, m_values.temp_hum, 1e2F, &send_index);
+	buffer_append_float16(buffer, m_values.hum, 1e2F, &send_index);
+	buffer_append_float16(buffer, m_values.temp_ic, 1e2F, &send_index); // Put IC temp here instead of making mew msg
+	buffer_append_float16(buffer, m_values.pressure, 1e-1F, &send_index);
 	comm_can_transmit_eid(id | ((uint32_t)CAN_PACKET_BMS_HUM << 8), buffer, send_index);
 
 	/*
@@ -717,10 +720,10 @@ void bms_send_status_can(void) {
 	 * [DV3     DV2     DV1     DV0     RSV     CHG_OK  IS_BAL  IS_CHG  ]
 	 */
 	send_index = 0;
-	buffer_append_float16(buffer, (float_t)m_values.v_cell_min, 1e3, &send_index);
-	buffer_append_float16(buffer, (float_t)m_values.v_cell_max, 1e3, &send_index);
-	buffer[send_index++] = (uint8_t)(m_values.soc * 255.0);
-	buffer[send_index++] = (uint8_t)(m_values.soh * 255.0);
+	buffer_append_float16(buffer, (float_t)m_values.v_cell_min, 1e3F, &send_index);
+	buffer_append_float16(buffer, (float_t)m_values.v_cell_max, 1e3F, &send_index);
+	buffer[send_index++] = (uint8_t)(m_values.soc * 255.0F);
+	buffer[send_index++] = (uint8_t)(m_values.soh * 255.0F);
 	buffer[send_index++] = (int8_t)m_values.temp_max_cell;
 	buffer[send_index++] =
 				((m_values.is_charging ? 1 : 0) << 0) |

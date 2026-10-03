@@ -39,7 +39,7 @@ static const I2CConfig i2cfg = {
 static lbm_value ext_basic_read_brake(lbm_value *args, lbm_uint argn) {
 	(void)args; (void)argn;
 
-	return lbm_enc_i(ADC_VOLTS(ADC_IND_EXT2) < 0.5 ? 1 : 0);
+	return lbm_enc_i(ADC_VOLTS(ADC_IND_EXT2) < 0.5F ? 1 : 0);
 }
 
 static lbm_value ext_basic_set_out1(lbm_value *args, lbm_uint argn) {
@@ -131,7 +131,7 @@ void hw_init_gpio(void) {
 	// Phase filters
 //	palSetPadMode(PHASE_FILTER_GPIO, PHASE_FILTER_PIN,PAL_MODE_OUTPUT_PUSHPULL |	PAL_STM32_OSPEED_HIGHEST);
 //	PHASE_FILTER_OFF();
-	
+
 	// Phase filters
 	palSetPadMode(GPIOC, 13, PAL_MODE_OUTPUT_OPENDRAIN | PAL_STM32_OSPEED_HIGHEST);
 	palSetPadMode(GPIOC, 14, PAL_MODE_OUTPUT_OPENDRAIN | PAL_STM32_OSPEED_HIGHEST);

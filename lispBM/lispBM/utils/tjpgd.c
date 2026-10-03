@@ -53,14 +53,14 @@ static const uint8_t Zig[64] = {	/* Zigzag-order to raster-order conversion tabl
 /*-------------------------------------------------*/
 
 static const uint16_t Ipsf[64] = {	/* See also aa_idct.png */
-	(uint16_t)(1.00000*8192), (uint16_t)(1.38704*8192), (uint16_t)(1.30656*8192), (uint16_t)(1.17588*8192), (uint16_t)(1.00000*8192), (uint16_t)(0.78570*8192), (uint16_t)(0.54120*8192), (uint16_t)(0.27590*8192),
-	(uint16_t)(1.38704*8192), (uint16_t)(1.92388*8192), (uint16_t)(1.81226*8192), (uint16_t)(1.63099*8192), (uint16_t)(1.38704*8192), (uint16_t)(1.08979*8192), (uint16_t)(0.75066*8192), (uint16_t)(0.38268*8192),
-	(uint16_t)(1.30656*8192), (uint16_t)(1.81226*8192), (uint16_t)(1.70711*8192), (uint16_t)(1.53636*8192), (uint16_t)(1.30656*8192), (uint16_t)(1.02656*8192), (uint16_t)(0.70711*8192), (uint16_t)(0.36048*8192),
-	(uint16_t)(1.17588*8192), (uint16_t)(1.63099*8192), (uint16_t)(1.53636*8192), (uint16_t)(1.38268*8192), (uint16_t)(1.17588*8192), (uint16_t)(0.92388*8192), (uint16_t)(0.63638*8192), (uint16_t)(0.32442*8192),
-	(uint16_t)(1.00000*8192), (uint16_t)(1.38704*8192), (uint16_t)(1.30656*8192), (uint16_t)(1.17588*8192), (uint16_t)(1.00000*8192), (uint16_t)(0.78570*8192), (uint16_t)(0.54120*8192), (uint16_t)(0.27590*8192),
-	(uint16_t)(0.78570*8192), (uint16_t)(1.08979*8192), (uint16_t)(1.02656*8192), (uint16_t)(0.92388*8192), (uint16_t)(0.78570*8192), (uint16_t)(0.61732*8192), (uint16_t)(0.42522*8192), (uint16_t)(0.21677*8192),
-	(uint16_t)(0.54120*8192), (uint16_t)(0.75066*8192), (uint16_t)(0.70711*8192), (uint16_t)(0.63638*8192), (uint16_t)(0.54120*8192), (uint16_t)(0.42522*8192), (uint16_t)(0.29290*8192), (uint16_t)(0.14932*8192),
-	(uint16_t)(0.27590*8192), (uint16_t)(0.38268*8192), (uint16_t)(0.36048*8192), (uint16_t)(0.32442*8192), (uint16_t)(0.27590*8192), (uint16_t)(0.21678*8192), (uint16_t)(0.14932*8192), (uint16_t)(0.07612*8192)
+	(uint16_t)(1.00000F*8192), (uint16_t)(1.38704F*8192), (uint16_t)(1.30656F*8192), (uint16_t)(1.17588F*8192), (uint16_t)(1.00000F*8192), (uint16_t)(0.78570F*8192), (uint16_t)(0.54120F*8192), (uint16_t)(0.27590F*8192),
+	(uint16_t)(1.38704F*8192), (uint16_t)(1.92388F*8192), (uint16_t)(1.81226F*8192), (uint16_t)(1.63099F*8192), (uint16_t)(1.38704F*8192), (uint16_t)(1.08979F*8192), (uint16_t)(0.75066F*8192), (uint16_t)(0.38268F*8192),
+	(uint16_t)(1.30656F*8192), (uint16_t)(1.81226F*8192), (uint16_t)(1.70711F*8192), (uint16_t)(1.53636F*8192), (uint16_t)(1.30656F*8192), (uint16_t)(1.02656F*8192), (uint16_t)(0.70711F*8192), (uint16_t)(0.36048F*8192),
+	(uint16_t)(1.17588F*8192), (uint16_t)(1.63099F*8192), (uint16_t)(1.53636F*8192), (uint16_t)(1.38268F*8192), (uint16_t)(1.17588F*8192), (uint16_t)(0.92388F*8192), (uint16_t)(0.63638F*8192), (uint16_t)(0.32442F*8192),
+	(uint16_t)(1.00000F*8192), (uint16_t)(1.38704F*8192), (uint16_t)(1.30656F*8192), (uint16_t)(1.17588F*8192), (uint16_t)(1.00000F*8192), (uint16_t)(0.78570F*8192), (uint16_t)(0.54120F*8192), (uint16_t)(0.27590F*8192),
+	(uint16_t)(0.78570F*8192), (uint16_t)(1.08979F*8192), (uint16_t)(1.02656F*8192), (uint16_t)(0.92388F*8192), (uint16_t)(0.78570F*8192), (uint16_t)(0.61732F*8192), (uint16_t)(0.42522F*8192), (uint16_t)(0.21677F*8192),
+	(uint16_t)(0.54120F*8192), (uint16_t)(0.75066F*8192), (uint16_t)(0.70711F*8192), (uint16_t)(0.63638F*8192), (uint16_t)(0.54120F*8192), (uint16_t)(0.42522F*8192), (uint16_t)(0.29290F*8192), (uint16_t)(0.14932F*8192),
+	(uint16_t)(0.27590F*8192), (uint16_t)(0.38268F*8192), (uint16_t)(0.36048F*8192), (uint16_t)(0.32442F*8192), (uint16_t)(0.27590F*8192), (uint16_t)(0.21678F*8192), (uint16_t)(0.14932F*8192), (uint16_t)(0.07612F*8192)
 };
 
 
@@ -580,7 +580,7 @@ static void block_idct (
 	jd_yuv_t* dst	/* Pointer to the destination to store the block as byte array */
 )
 {
-	const int32_t M13 = (int32_t)(1.41421*4096), M2 = (int32_t)(1.08239*4096), M4 = (int32_t)(2.61313*4096), M5 = (int32_t)(1.84776*4096);
+	const int32_t M13 = (int32_t)(1.41421F*4096), M2 = (int32_t)(1.08239F*4096), M4 = (int32_t)(2.61313F*4096), M5 = (int32_t)(1.84776F*4096);
 	int32_t v0, v1, v2, v3, v4, v5, v6, v7;
 	int32_t t10, t11, t12, t13;
 	int i;
@@ -834,9 +834,9 @@ static JRESULT mcu_output (
 						pc++;						/* Step forward chroma pointer every pixel */
 					}
 					yy = *py++;			/* Get Y component */
-					*pix++ = /*R*/ BYTECLIP(yy + ((int)(1.402 * CVACC) * cr) / CVACC);
-					*pix++ = /*G*/ BYTECLIP(yy - ((int)(0.344 * CVACC) * cb + (int)(0.714 * CVACC) * cr) / CVACC);
-					*pix++ = /*B*/ BYTECLIP(yy + ((int)(1.772 * CVACC) * cb) / CVACC);
+					*pix++ = /*R*/ BYTECLIP(yy + ((int)(1.402F * CVACC) * cr) / CVACC);
+					*pix++ = /*G*/ BYTECLIP(yy - ((int)(0.344F * CVACC) * cb + (int)(0.714F * CVACC) * cr) / CVACC);
+					*pix++ = /*B*/ BYTECLIP(yy + ((int)(1.772F * CVACC) * cb) / CVACC);
 				}
 			}
 		} else {	/* Monochrome output (build a grayscale MCU from Y comopnent) */
@@ -901,9 +901,9 @@ static JRESULT mcu_output (
 				yy = *py;	/* Get Y component */
 				py += 64;
 				if (JD_FORMAT != 2) {
-					*pix++ = /*R*/ BYTECLIP(yy + ((int)(1.402 * CVACC) * cr / CVACC));
-					*pix++ = /*G*/ BYTECLIP(yy - ((int)(0.344 * CVACC) * cb + (int)(0.714 * CVACC) * cr) / CVACC);
-					*pix++ = /*B*/ BYTECLIP(yy + ((int)(1.772 * CVACC) * cb / CVACC));
+					*pix++ = /*R*/ BYTECLIP(yy + ((int)(1.402F * CVACC) * cr / CVACC));
+					*pix++ = /*G*/ BYTECLIP(yy - ((int)(0.344F * CVACC) * cb + (int)(0.714F * CVACC) * cr) / CVACC);
+					*pix++ = /*B*/ BYTECLIP(yy + ((int)(1.772F * CVACC) * cb / CVACC));
 				} else {
                                   *pix++ = (uint8_t)yy;
 				}
@@ -945,7 +945,7 @@ static JRESULT mcu_output (
 	}
 
 	/* Output the rectangular */
-	return outfunc(jd, jd->workbuf, &rect) ? JDR_OK : JDR_INTR; 
+	return outfunc(jd, jd->workbuf, &rect) ? JDR_OK : JDR_INTR;
 }
 
 

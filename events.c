@@ -76,8 +76,8 @@ void events_add(const char *name, float param) {
 	// fill too fast.
 	if (e->name != name || // Comparing memory location is enough
 			e->thread != chThdGetSelfX() ||
-			UTILS_AGE_S(e->time) > 0.2 ||
-			(fabsf(param) > 1e-4) != (fabsf(e->param) > 1e-4)) {
+			UTILS_AGE_S(e->time) > 0.2F ||
+			(fabsf(param) > 1e-4F) != (fabsf(e->param) > 1e-4F)) {
 		event = (event + 1) % EVENTS_LEN;
 		e = &m_events[event];
 	}

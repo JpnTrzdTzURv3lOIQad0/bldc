@@ -22,8 +22,8 @@
 
 #define HW_NAME					"Thor400v2"
 
-#define CURRENT_SHUNT_RES		(0.00025)
-#define CURRENT_AMP_GAIN		15.0
+#define CURRENT_SHUNT_RES		(0.00025F)
+#define CURRENT_AMP_GAIN		15.0F
 
 
 #include "hw_Thor400_core.h"

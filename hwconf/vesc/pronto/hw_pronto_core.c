@@ -42,14 +42,14 @@ static lbm_value ext_reg_v(lbm_value *args, lbm_uint argn) {
 	(void)args; (void)argn;
 	float adc = (float)ADC_Value[ADC_IND_12V_SENSE_V];
 	// V-div 22k - 2.2k
-	return lbm_enc_float(adc * (V_REG / 4095.0) * ((22.0 + 2.2) / 2.2));
+	return lbm_enc_float(adc * (V_REG / 4095.0F) * ((22.0F + 2.2F) / 2.2F));
 }
 
 static lbm_value ext_reg_i(lbm_value *args, lbm_uint argn) {
 	(void)args; (void)argn;
 	float adc = (float)ADC_Value[ADC_IND_12V_SENSE_I];
 	// 0.01 ohm, 20x shunt amp
-	return lbm_enc_float((adc * (V_REG / 4095.0)) / (20.0 * 0.01));
+	return lbm_enc_float((adc * (V_REG / 4095.0F)) / (20.0F * 0.01F));
 }
 
 static lbm_value ext_reg_t(lbm_value *args, lbm_uint argn) {
@@ -367,5 +367,5 @@ static THD_FUNCTION(mux_thread, arg) {
 }
 
 bool hw_sample_shutdown_button(void) {
-	return ADC_VOLTS(ADC_IND_SHUTDOWN) > 0.4;
+	return ADC_VOLTS(ADC_IND_SHUTDOWN) > 0.4F;
 }

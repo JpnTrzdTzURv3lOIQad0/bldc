@@ -21,8 +21,8 @@
 #define HW_FLIPSKY_110_200_H_
 
 #define HW_FLIPSKY_110_200
-#define CURRENT_AMP_GAIN		18.0
-#define CURRENT_SHUNT_RES		(0.0005 / 2.0)
+#define CURRENT_AMP_GAIN		18.0F
+#define CURRENT_SHUNT_RES		(0.0005F / 2.0F)
 #include "hw_flipsky_110_core.h"
 
 #endif /* HW_FLIPSKY_110_200_H_ */

@@ -154,33 +154,33 @@
 
 // Component parameters (can be overridden)
 #ifndef V_REG
-#define V_REG					3.3
+#define V_REG					3.3F
 #endif
 #ifndef VIN_R1
-#define VIN_R1					150000.0
+#define VIN_R1					150000.0F
 #endif
 #ifndef VIN_R2
-#define VIN_R2					4700.0
+#define VIN_R2					4700.0F
 #endif
 #ifndef CURRENT_AMP_GAIN
-#define CURRENT_AMP_GAIN		20.0
+#define CURRENT_AMP_GAIN		20.0F
 #endif
 #ifndef CURRENT_SHUNT_RES
-#define CURRENT_SHUNT_RES		0.0005
+#define CURRENT_SHUNT_RES		0.0005F
 #endif
 
 // Input voltage
-#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
+#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0F) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
 
 // NTC Termistors
-#define NTC_RES(adc_val)		(10000.0 / ((4095.0 / (float)adc_val) - 1.0)) // MOS temp sensor on low side //((4095.0 * 10000.0) / adc_val - 10000.0)
-#define NTC_TEMP(adc_ind)		(1.0 / ((logf(NTC_RES(ADC_Value[adc_ind]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15)
+#define NTC_RES(adc_val)		(10000.0F / ((4095.0F / (float)adc_val) - 1.0F)) // MOS temp sensor on low side //((4095.0F * 10000.0F) / adc_val - 10000.0F)
+#define NTC_TEMP(adc_ind)		(1.0F / ((logf(NTC_RES(ADC_Value[adc_ind]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F)
 
-#define NTC_RES_MOTOR(adc_val)	(10000.0 / ((4095.0 / (float)adc_val) - 1.0)) // Motor temp sensor on low side
-#define NTC_TEMP_MOTOR(beta)	(1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0) / beta) + (1.0 / 298.15)) - 273.15)
+#define NTC_RES_MOTOR(adc_val)	(10000.0F / ((4095.0F / (float)adc_val) - 1.0F)) // Motor temp sensor on low side
+#define NTC_TEMP_MOTOR(beta)	(1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0F) / beta) + (1.0F / 298.15F)) - 273.15F)
 
 // Voltage on ADC channel
-#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4095.0 * V_REG)
+#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4095.0F * V_REG)
 
 // COMM-port ADC GPIOs
 #define HW_ADC_EXT_GPIO			GPIOA
@@ -267,7 +267,7 @@
 #define READ_HALL2()			palReadPad(HW_HALL_ENC_GPIO2, HW_HALL_ENC_PIN2)
 #define READ_HALL3()			palReadPad(HW_HALL_ENC_GPIO3, HW_HALL_ENC_PIN3)
 
-#define HW_DEAD_TIME_NSEC		200.0
+#define HW_DEAD_TIME_NSEC		200.0F
 
 // Default setting overrides
 #ifndef MCCONF_DEFAULT_MOTOR_TYPE
@@ -296,24 +296,24 @@
 #ifndef MCCONF_L_MAX_VOLTAGE
 #define MCCONF_L_MAX_VOLTAGE			55.0F
 #endif
-#define HW_LIM_CURRENT			-100.0, 100.0
-#define HW_LIM_CURRENT_IN		-100.0, 100.0
-#define HW_LIM_CURRENT_ABS		0.0, 150.0
-#define HW_LIM_VIN				11.0, 57.0
+#define HW_LIM_CURRENT			-100.0F, 100.0F
+#define HW_LIM_CURRENT_IN		-100.0F, 100.0F
+#define HW_LIM_CURRENT_ABS		0.0F, 150.0F
+#define HW_LIM_VIN				11.0F, 57.0F
 #else
 #ifndef MCCONF_L_MAX_VOLTAGE
 #define MCCONF_L_MAX_VOLTAGE			90.0F
 #endif
-#define HW_LIM_CURRENT			-65.0, 65.0
-#define HW_LIM_CURRENT_IN		-65.0, 65.0
-#define HW_LIM_CURRENT_ABS		0.0, 110.0
-#define HW_LIM_VIN				11.0, 94.0
+#define HW_LIM_CURRENT			-65.0F, 65.0F
+#define HW_LIM_CURRENT_IN		-65.0F, 65.0F
+#define HW_LIM_CURRENT_ABS		0.0F, 110.0F
+#define HW_LIM_VIN				11.0F, 94.0F
 #endif
 
-#define HW_LIM_ERPM				-200e3, 200e3
-#define HW_LIM_DUTY_MIN			0.0, 0.1
-#define HW_LIM_DUTY_MAX			0.0, 1.0
-#define HW_LIM_TEMP_FET			-40.0, 110.0
+#define HW_LIM_ERPM				-200e3F, 200e3F
+#define HW_LIM_DUTY_MIN			0.0F, 0.1F
+#define HW_LIM_DUTY_MAX			0.0F, 1.0F
+#define HW_LIM_TEMP_FET			-40.0F, 110.0F
 
 // Functions
 void smart_switch_thread_start(void);

@@ -47,7 +47,7 @@ typedef enum {
 
 volatile routine_rate_t m_routine_rate = routine_rate_1k;
 static encoder_type_t m_encoder_type_now = ENCODER_TYPE_NONE;
-static float m_enc_custom_pos = 0.0;
+static float m_enc_custom_pos = 0.0F;
 
 static THD_WORKING_AREA(routine_thread_wa, 256);
 static THD_FUNCTION(routine_thread, arg);
@@ -169,7 +169,7 @@ bool encoder_init(volatile mc_configuration *conf) {
 				{{NULL, NULL}, NULL, NULL}, // Mutex
 				false // Mutex init done
 		};
-		encoder_cfg_tle5012.sw_spi = sw_ssc;	
+		encoder_cfg_tle5012.sw_spi = sw_ssc;
 
 		if (!enc_tle5012_init_sw_ssc(&encoder_cfg_tle5012)) {
 			m_encoder_type_now = ENCODER_TYPE_NONE;
@@ -203,13 +203,13 @@ bool encoder_init(volatile mc_configuration *conf) {
 	case SENSOR_PORT_MODE_SINCOS: {
 		SENSOR_PORT_5V();
 
-		encoder_cfg_sincos.s_gain = 1.0 / conf->m_encoder_sin_amp;
+		encoder_cfg_sincos.s_gain = 1.0F / conf->m_encoder_sin_amp;
 		encoder_cfg_sincos.s_offset = conf->m_encoder_sin_offset;
-		encoder_cfg_sincos.c_gain = 1.0 /conf->m_encoder_cos_amp;
+		encoder_cfg_sincos.c_gain = 1.0F /conf->m_encoder_cos_amp;
 		encoder_cfg_sincos.c_offset =  conf->m_encoder_cos_offset;
 		encoder_cfg_sincos.filter_constant = conf->m_encoder_sincos_filter_constant;
 		encoder_cfg_sincos.ratio = conf->foc_encoder_ratio;
-		encoder_cfg_sincos.delay_comp_sign = conf->foc_encoder_inverted ? -1.0 : 1.0;
+		encoder_cfg_sincos.delay_comp_sign = conf->foc_encoder_inverted ? -1.0F : 1.0F;
 		sincosf(DEG2RAD_f(conf->m_encoder_sincos_phase_correction), &encoder_cfg_sincos.sph, &encoder_cfg_sincos.cph);
 
 		if (!enc_sincos_init(&encoder_cfg_sincos)) {
@@ -368,13 +368,13 @@ bool encoder_init(volatile mc_configuration *conf) {
 void encoder_update_config(volatile mc_configuration *conf) {
 	switch (conf->m_sensor_port_mode) {
 	case SENSOR_PORT_MODE_SINCOS: {
-		encoder_cfg_sincos.s_gain = 1.0 / conf->m_encoder_sin_amp;
+		encoder_cfg_sincos.s_gain = 1.0F / conf->m_encoder_sin_amp;
 		encoder_cfg_sincos.s_offset = conf->m_encoder_sin_offset;
-		encoder_cfg_sincos.c_gain = 1.0 /conf->m_encoder_cos_amp;
+		encoder_cfg_sincos.c_gain = 1.0F /conf->m_encoder_cos_amp;
 		encoder_cfg_sincos.c_offset =  conf->m_encoder_cos_offset;
 		encoder_cfg_sincos.filter_constant = conf->m_encoder_sincos_filter_constant;
 		encoder_cfg_sincos.ratio = conf->foc_encoder_ratio;
-		encoder_cfg_sincos.delay_comp_sign = conf->foc_encoder_inverted ? -1.0 : 1.0;
+		encoder_cfg_sincos.delay_comp_sign = conf->foc_encoder_inverted ? -1.0F : 1.0F;
 		sincosf(DEG2RAD_f(conf->m_encoder_sincos_phase_correction), &encoder_cfg_sincos.sph, &encoder_cfg_sincos.cph);
 	} break;
 
@@ -478,7 +478,7 @@ void encoder_set_custom_callbacks (
 // The optimize pragma above disables -falign-functions=16 for the whole file,
 // even after pop_options. Align the hot function explicitly.
 __attribute__((aligned(16))) float encoder_read_deg(void) {
-	float res = 0.0;
+	float res = 0.0F;
 
 	switch (m_encoder_type_now) {
 	case ENCODER_TYPE_NONE:
@@ -560,14 +560,14 @@ __attribute__((aligned(16))) float encoder_read_deg(void) {
 float encoder_read_deg_multiturn(void) {
 	if (m_encoder_type_now == ENCODER_TYPE_TS5700N8501) {
 		float ts_mt = (float)enc_ts5700n8501_get_abm(&encoder_cfg_TS5700N8501);
-		if (fabsf(ts_mt) > 5000.0) {
+		if (fabsf(ts_mt) > 5000.0F) {
 			ts_mt = 0;
 			encoder_reset_multiturn();
 		}
 
 		ts_mt += 5000;
 
-		return encoder_read_deg() / 10000.0 + (360 * ts_mt) / 10000.0;
+		return encoder_read_deg() / 10000.0F + (360 * ts_mt) / 10000.0F;
 	} else {
 		return encoder_read_deg();
 	}
@@ -577,7 +577,7 @@ void encoder_set_deg(float deg) {
 	utils_norm_angle(&deg);
 
 	if (m_encoder_type_now == ENCODER_TYPE_ABI) {
-		encoder_cfg_ABI.timer->CNT = (uint32_t)(deg / 360.0 * (float)encoder_cfg_ABI.counts);
+		encoder_cfg_ABI.timer->CNT = (uint32_t)(deg / 360.0F * (float)encoder_cfg_ABI.counts);
 		encoder_cfg_ABI.state.index_found = true;
 	} else if (m_encoder_type_now == ENCODER_TYPE_CUSTOM) {
 		m_enc_custom_pos = deg;
@@ -629,7 +629,7 @@ void encoder_tim_isr(void) {
 #pragma GCC optimize ("Os")
 
 float encoder_get_error_rate(void) {
-	float res = -1.0;
+	float res = -1.0F;
 
 	switch (m_encoder_type_now) {
 	case ENCODER_TYPE_AS504x:
@@ -694,7 +694,7 @@ void encoder_check_faults(volatile mc_configuration *m_conf, bool is_second_moto
 	if (is_foc_encoder) {
 		switch (m_conf->m_sensor_port_mode) {
 		case SENSOR_PORT_MODE_AS5047_SPI:
-			if (encoder_cfg_as504x.state.spi_error_rate > 0.05) {
+			if (encoder_cfg_as504x.state.spi_error_rate > 0.05F) {
 				mc_interface_fault_stop(FAULT_CODE_ENCODER_SPI, is_second_motor, false);
 			}
 
@@ -713,20 +713,20 @@ void encoder_check_faults(volatile mc_configuration *m_conf, bool is_second_moto
 			break;
 
 		case SENSOR_PORT_MODE_MT6816_SPI_HW:
-			if (encoder_cfg_mt6816.state.encoder_no_magnet_error_rate > 0.05) {
+			if (encoder_cfg_mt6816.state.encoder_no_magnet_error_rate > 0.05F) {
 				mc_interface_fault_stop(FAULT_CODE_ENCODER_NO_MAGNET, is_second_motor, false);
 			}
 			break;
 
 		case SENSOR_PORT_MODE_MT6835_SPI_HW:
-			if (encoder_cfg_mt6835.state.spi_error_rate > 0.05) {
+			if (encoder_cfg_mt6835.state.spi_error_rate > 0.05F) {
 				mc_interface_fault_stop(FAULT_CODE_ENCODER_SPI, is_second_motor, false);
 			}
 			break;
-		
+
 		case SENSOR_PORT_MODE_TLE5012_SSC_HW:
 		case SENSOR_PORT_MODE_TLE5012_SSC_SW:
-			if (encoder_cfg_tle5012.state.spi_error_rate > 0.10) {
+			if (encoder_cfg_tle5012.state.spi_error_rate > 0.10F) {
 				mc_interface_fault_stop(FAULT_CODE_ENCODER_FAULT, is_second_motor, false);
 			}
 			if (encoder_cfg_tle5012.state.last_status_error != NO_ERROR &&
@@ -736,37 +736,37 @@ void encoder_check_faults(volatile mc_configuration *m_conf, bool is_second_moto
 			break;
 
 		case SENSOR_PORT_MODE_SINCOS:
-			if (encoder_cfg_sincos.state.signal_low_error_rate > 0.05) {
+			if (encoder_cfg_sincos.state.signal_low_error_rate > 0.05F) {
 				mc_interface_fault_stop(FAULT_CODE_ENCODER_SINCOS_BELOW_MIN_AMPLITUDE, is_second_motor, false);
 			}
-			if (encoder_cfg_sincos.state.signal_above_max_error_rate > 0.05) {
+			if (encoder_cfg_sincos.state.signal_above_max_error_rate > 0.05F) {
 				mc_interface_fault_stop(FAULT_CODE_ENCODER_SINCOS_ABOVE_MAX_AMPLITUDE, is_second_motor, false);
 			}
 			break;
 
 		case SENSOR_PORT_MODE_AD2S1205:
-			if (encoder_cfg_ad2s1205.state.resolver_loss_of_tracking_error_rate > 0.05) {
+			if (encoder_cfg_ad2s1205.state.resolver_loss_of_tracking_error_rate > 0.05F) {
 				mc_interface_fault_stop(FAULT_CODE_RESOLVER_LOT, is_second_motor, false);
 			}
-			if (encoder_cfg_ad2s1205.state.resolver_degradation_of_signal_error_rate > 0.05) {
+			if (encoder_cfg_ad2s1205.state.resolver_degradation_of_signal_error_rate > 0.05F) {
 				mc_interface_fault_stop(FAULT_CODE_RESOLVER_DOS, is_second_motor, false);
 			}
-			if (encoder_cfg_ad2s1205.state.resolver_loss_of_signal_error_rate > 0.04) {
+			if (encoder_cfg_ad2s1205.state.resolver_loss_of_signal_error_rate > 0.04F) {
 				mc_interface_fault_stop(FAULT_CODE_RESOLVER_LOS, is_second_motor, false);
 			}
-			if (encoder_cfg_ad2s1205.state.resolver_void_packet_error_rate > 0.05){
+			if (encoder_cfg_ad2s1205.state.resolver_void_packet_error_rate > 0.05F){
 				mc_interface_fault_stop(FAULT_CODE_ENCODER_SPI, is_second_motor, false);
 			}
-			if (encoder_cfg_ad2s1205.state.resolver_vel_packet_error_rate  > 0.05){
+			if (encoder_cfg_ad2s1205.state.resolver_vel_packet_error_rate  > 0.05F){
 				mc_interface_fault_stop( FAULT_CODE_ENCODER_SPI, is_second_motor, false);
 			}
-			if (encoder_cfg_ad2s1205.state.spi_error_rate > 0.05){
+			if (encoder_cfg_ad2s1205.state.spi_error_rate > 0.05F){
 				mc_interface_fault_stop( FAULT_CODE_ENCODER_SPI, is_second_motor, false);
 			}
 			break;
 
 		case SENSOR_PORT_MODE_AS5x47U_SPI:
-			if (encoder_cfg_as5x47u.state.spi_error_rate > 0.05) {
+			if (encoder_cfg_as5x47u.state.spi_error_rate > 0.05F) {
 				mc_interface_fault_stop(FAULT_CODE_ENCODER_SPI, is_second_motor, false);
 			}
 
@@ -786,10 +786,10 @@ void encoder_check_faults(volatile mc_configuration *m_conf, bool is_second_moto
 			break;
 
 		case SENSOR_PORT_MODE_BISSC:
-			if (encoder_cfg_bissc.state.spi_comm_error_rate > 0.04) {
+			if (encoder_cfg_bissc.state.spi_comm_error_rate > 0.04F) {
 				mc_interface_fault_stop(FAULT_CODE_ENCODER_SPI, is_second_motor, false);
 			}
-			if (encoder_cfg_bissc.state.spi_data_error_rate > 0.05) {
+			if (encoder_cfg_bissc.state.spi_data_error_rate > 0.05F) {
 				mc_interface_fault_stop(FAULT_CODE_RESOLVER_LOT, is_second_motor, false);
 			}
 			break;
@@ -802,7 +802,7 @@ void encoder_check_faults(volatile mc_configuration *m_conf, bool is_second_moto
 			}
 			break;
 		case SENSOR_PORT_MODE_AMT22:
-			if (encoder_cfg_amt22.state.spi_error_rate > 0.05) {
+			if (encoder_cfg_amt22.state.spi_error_rate > 0.05F) {
 				mc_interface_fault_stop(FAULT_CODE_ENCODER_SPI, is_second_motor, false);
 			}
 			break;
@@ -850,9 +850,9 @@ static void terminal_encoder(int argc, const char **argv) {
 	switch (mcconf->m_sensor_port_mode) {
 	case SENSOR_PORT_MODE_AS5047_SPI:
 		commands_printf("SPI encoder value: %d, errors: %d, error rate: %.3f %%",
-				encoder_cfg_as504x.state.spi_val, 
+				encoder_cfg_as504x.state.spi_val,
 				encoder_cfg_as504x.state.spi_communication_error_count,
-				(double)(encoder_cfg_as504x.state.spi_error_rate * 100.0));
+				(double)(encoder_cfg_as504x.state.spi_error_rate * 100.0F));
 
 		if (encoder_cfg_as504x.sw_spi.mosi_gpio != NULL) {
 			commands_printf("\nAS5047 DIAGNOSTICS:\n"
@@ -876,13 +876,13 @@ static void terminal_encoder(int argc, const char **argv) {
 	case SENSOR_PORT_MODE_MT6816_SPI_HW:
 		commands_printf("Low flux error (no magnet): errors: %d, error rate: %.3f %%",
 				encoder_cfg_mt6816.state.encoder_no_magnet_error_cnt,
-				(double)(encoder_cfg_mt6816.state.encoder_no_magnet_error_rate * 100.0));
+				(double)(encoder_cfg_mt6816.state.encoder_no_magnet_error_rate * 100.0F));
 		break;
 
 	case SENSOR_PORT_MODE_MT6835_SPI_HW:
 		commands_printf("MT6835 - Angle raw: %d, error rate: %.3f %%, error cnt: %d",
 				encoder_cfg_mt6835.state.spi_val,
-				(double)(encoder_cfg_mt6835.state.spi_error_rate * 100.0),
+				(double)(encoder_cfg_mt6835.state.spi_error_rate * 100.0F),
 				encoder_cfg_mt6835.state.spi_error_cnt);
 		break;
 
@@ -895,7 +895,7 @@ static void terminal_encoder(int argc, const char **argv) {
 		enc_tle5012_get_magnet_magnitude(&encoder_cfg_tle5012, &magnet_magnitude);
 		commands_printf("Last error: %d, ssc error rate: %.3f %%, magnet strength: %d, temp %.2f C",
 				status,
-				(double)(encoder_cfg_tle5012.state.spi_error_rate * 100.0),
+				(double)(encoder_cfg_tle5012.state.spi_error_rate * 100.0F),
 				magnet_magnitude,
 				temperature);
 		// todo, get/report status word (reg 0x00), make "last error" verbose
@@ -913,45 +913,45 @@ static void terminal_encoder(int argc, const char **argv) {
 	case SENSOR_PORT_MODE_SINCOS:
 		commands_printf("Sin/Cos encoder signal below minimum amplitude: errors: %d, error rate: %.3f %%",
 				encoder_cfg_sincos.state.signal_below_min_error_cnt,
-				(double)(encoder_cfg_sincos.state.signal_low_error_rate * 100.0));
+				(double)(encoder_cfg_sincos.state.signal_low_error_rate * 100.0F));
 
 		commands_printf("Sin/Cos encoder signal above maximum amplitude: errors: %d, error rate: %.3f %%",
 				encoder_cfg_sincos.state.signal_above_max_error_cnt,
-				(double)(encoder_cfg_sincos.state.signal_above_max_error_rate * 100.0));
+				(double)(encoder_cfg_sincos.state.signal_above_max_error_rate * 100.0F));
 		break;
 
 	case SENSOR_PORT_MODE_AD2S1205:
 		commands_printf("SPI encoder value: %d, errors: %d, error rate: %.3f %%",
 				encoder_cfg_ad2s1205.state.spi_val,
 				encoder_cfg_ad2s1205.state.spi_error_cnt,
-				(double)(encoder_cfg_ad2s1205.state.spi_error_rate * 100.0));
+				(double)(encoder_cfg_ad2s1205.state.spi_error_rate * 100.0F));
 		commands_printf("SPI encoder peak error rate: %.3f %%",
-					(double)encoder_cfg_ad2s1205.state.resolver_SPI_peak_error_rate * (double)100.0);
+					(double)encoder_cfg_ad2s1205.state.resolver_SPI_peak_error_rate * (double)100.0F);
 		commands_printf("Resolver Loss Of Tracking (>5%c error): errors: %d, error rate: %.3f %%", 0xB0,
 				encoder_cfg_ad2s1205.state.resolver_loss_of_tracking_error_cnt,
-				(double)(encoder_cfg_ad2s1205.state.resolver_loss_of_tracking_error_rate * 100.0));
+				(double)(encoder_cfg_ad2s1205.state.resolver_loss_of_tracking_error_rate * 100.0F));
 		commands_printf("Resolver Loss Of Tracking peak error rate: %.3f %%",
-				(double)encoder_cfg_ad2s1205.state.resolver_LOT_peak_error_rate * (double)100.0);
+				(double)encoder_cfg_ad2s1205.state.resolver_LOT_peak_error_rate * (double)100.0F);
 		commands_printf("Resolver Degradation Of Signal (>33%c error): errors: %d, error rate: %.3f %%", 0xB0,
 				encoder_cfg_ad2s1205.state.resolver_degradation_of_signal_error_cnt,
-				(double)(encoder_cfg_ad2s1205.state.resolver_degradation_of_signal_error_rate * 100.0));
+				(double)(encoder_cfg_ad2s1205.state.resolver_degradation_of_signal_error_rate * 100.0F));
 		commands_printf("Resolver Degradation Of Signal peak error rate: %.3f %%",
-				(double)encoder_cfg_ad2s1205.state.resolver_DOS_peak_error_rate * (double)100.0);
+				(double)encoder_cfg_ad2s1205.state.resolver_DOS_peak_error_rate * (double)100.0F);
 		commands_printf("Resolver Loss Of Signal (>57%c error): errors: %d, error rate: %.3f %%", 0xB0,
 				encoder_cfg_ad2s1205.state.resolver_loss_of_signal_error_cnt,
-				(double)(encoder_cfg_ad2s1205.state.resolver_loss_of_signal_error_rate * 100.0));
+				(double)(encoder_cfg_ad2s1205.state.resolver_loss_of_signal_error_rate * 100.0F));
 		commands_printf("Resolver Loss Of Signal peak error rate: %.3f %%",
-				(double)encoder_cfg_ad2s1205.state.resolver_LOS_peak_error_rate * (double)100.0);
+				(double)encoder_cfg_ad2s1205.state.resolver_LOS_peak_error_rate * (double)100.0F);
 		commands_printf("Resolver SPI empty packet: errors: %d, error rate: %.3f %%",
 				encoder_cfg_ad2s1205.state.resolver_void_packet_cnt,
-				(double)encoder_cfg_ad2s1205.state.resolver_void_packet_error_rate * (double)100.0);
+				(double)encoder_cfg_ad2s1205.state.resolver_void_packet_error_rate * (double)100.0F);
 		commands_printf("Resolver SPI empty packet peak error rate: %.3f %%",
-				(double)encoder_cfg_ad2s1205.state.resolver_VOIDspi_peak_error_rate * (double)100.0);
+				(double)encoder_cfg_ad2s1205.state.resolver_VOIDspi_peak_error_rate * (double)100.0F);
 		commands_printf("Resolver angle velocity readings: errors: %d, error rate: %.3f %%",
 				encoder_cfg_ad2s1205.state.resolver_vel_packet_cnt,
-				(double)encoder_cfg_ad2s1205.state.resolver_vel_packet_error_rate * (double)100.0);
+				(double)encoder_cfg_ad2s1205.state.resolver_vel_packet_error_rate * (double)100.0F);
 		commands_printf("Resolver angle velocity readings peak error rate: %.3f %%",
-				(double)encoder_cfg_ad2s1205.state.resolver_VELread_peak_error_rate * (double)100.0);
+				(double)encoder_cfg_ad2s1205.state.resolver_VELread_peak_error_rate * (double)100.0F);
 		commands_printf("\n");
 
 		break;
@@ -973,7 +973,7 @@ static void terminal_encoder(int argc, const char **argv) {
 	case SENSOR_PORT_MODE_AS5x47U_SPI:
 		commands_printf("SPI AS5x47U encoder value: %d, errors: %d, error rate: %.3f %%",
 				encoder_cfg_as5x47u.state.spi_val, encoder_cfg_as5x47u.state.spi_communication_error_count,
-				(double)(encoder_cfg_as5x47u.state.spi_error_rate * 100.0));
+				(double)(encoder_cfg_as5x47u.state.spi_error_rate * 100.0F));
 
 		commands_printf("\nAS5x47U DIAGNOSTICS:\n"
 				"Connected   : %u\n"
@@ -1007,10 +1007,10 @@ static void terminal_encoder(int argc, const char **argv) {
 	case SENSOR_PORT_MODE_BISSC:
 		commands_printf("BissC Loss SPI communication (>4%c error): errors: %d, error rate: %.3f %%", 0xB0,
 				encoder_cfg_bissc.state.spi_comm_error_cnt,
-				(double)(encoder_cfg_bissc.state.spi_comm_error_rate * 100.0));
+				(double)(encoder_cfg_bissc.state.spi_comm_error_rate * 100.0F));
 		commands_printf("BissC Degradation Of Signal (>5%c error): errors: %d, error rate: %.3f %%", 0xB0,
 				encoder_cfg_bissc.state.spi_data_error_cnt,
-				(double)(encoder_cfg_bissc.state.spi_data_error_rate * 100.0));
+				(double)(encoder_cfg_bissc.state.spi_data_error_rate * 100.0F));
 		break;
 
 	case SENSOR_PORT_MODE_CUSTOM_ENCODER:

@@ -92,40 +92,40 @@ void hw_init_gpio(void) {
 	palSetPadMode(GPIOA, 1, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(GPIOA, 2, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(GPIOA, 3, PAL_MODE_INPUT_ANALOG);
-	palSetPadMode(GPIOA, 5, PAL_MODE_INPUT_ANALOG);	
-	
+	palSetPadMode(GPIOA, 5, PAL_MODE_INPUT_ANALOG);
+
 	palSetPadMode(GPIOC, 0, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(GPIOC, 2, PAL_MODE_INPUT_ANALOG);
-	palSetPadMode(GPIOC, 3, PAL_MODE_INPUT_ANALOG);			
-		
+	palSetPadMode(GPIOC, 3, PAL_MODE_INPUT_ANALOG);
+
 	// DAC as voltage reference for shunt amps
 	palSetPadMode(GPIOA, 4, PAL_MODE_INPUT_ANALOG);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, ENABLE);
 	DAC->CR |= DAC_CR_EN1 | DAC_CR_BOFF1;
 	DAC->DHR12R1 = 2047;
-	
+
 	hw_a50s_get_id_from_pins();
 }
 
 void hw_setup_adc_channels(void) {
 	// ADC1 regular channels
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_10, 		1, ADC_SampleTime_15Cycles);	// 0 - ADC_IND_CURR1
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_0,  		2, ADC_SampleTime_15Cycles);	// 3 - ADC_IND_SENS1	
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_5,  		3, ADC_SampleTime_15Cycles);	// 6 - ADC_IND_VIN_SENS	
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_0,  		2, ADC_SampleTime_15Cycles);	// 3 - ADC_IND_SENS1
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_5,  		3, ADC_SampleTime_15Cycles);	// 6 - ADC_IND_VIN_SENS
 
-	// ADC2 regular channels																
+	// ADC2 regular channels
 	ADC_RegularChannelConfig(ADC2, ADC_Channel_12, 		1, ADC_SampleTime_15Cycles);	// 1 - ADC_IND_CURR2
-	ADC_RegularChannelConfig(ADC2, ADC_Channel_1, 		2, ADC_SampleTime_15Cycles);	// 4 - ADC_IND_SENS2	
-	ADC_RegularChannelConfig(ADC2, ADC_Channel_6, 		3, ADC_SampleTime_15Cycles);	// 7 - unsued	
+	ADC_RegularChannelConfig(ADC2, ADC_Channel_1, 		2, ADC_SampleTime_15Cycles);	// 4 - ADC_IND_SENS2
+	ADC_RegularChannelConfig(ADC2, ADC_Channel_6, 		3, ADC_SampleTime_15Cycles);	// 7 - unsued
 
-	// ADC3 regular channels - only a subset of channels avaliable											
+	// ADC3 regular channels - only a subset of channels avaliable
 	ADC_RegularChannelConfig(ADC3, ADC_Channel_13, 		1, ADC_SampleTime_15Cycles);	// 2 - ADC_IND_CURR3
-	ADC_RegularChannelConfig(ADC3, ADC_Channel_2, 		2, ADC_SampleTime_15Cycles);	// 5 - ADC_IND_SENS3	
-	ADC_RegularChannelConfig(ADC3, ADC_Channel_3, 		3, ADC_SampleTime_15Cycles);	// 8 - ADC_IND_TEMP_MOS		
-	
+	ADC_RegularChannelConfig(ADC3, ADC_Channel_2, 		2, ADC_SampleTime_15Cycles);	// 5 - ADC_IND_SENS3
+	ADC_RegularChannelConfig(ADC3, ADC_Channel_3, 		3, ADC_SampleTime_15Cycles);	// 8 - ADC_IND_TEMP_MOS
 
 
-	// Injected channels																	
+
+	// Injected channels
 	ADC_InjectedChannelConfig(ADC1, ADC_Channel_10, 1, ADC_SampleTime_15Cycles);			// ADC_IND_CURR1
 	ADC_InjectedChannelConfig(ADC2, ADC_Channel_12, 1, ADC_SampleTime_15Cycles);			// ADC_IND_CURR2
 	ADC_InjectedChannelConfig(ADC3, ADC_Channel_13, 1, ADC_SampleTime_15Cycles);			// ADC_IND_CURR3
@@ -135,7 +135,7 @@ void hw_setup_adc_channels(void) {
 	ADC_InjectedChannelConfig(ADC1, ADC_Channel_10, 3, ADC_SampleTime_15Cycles);			// ADC_IND_CURR1
 	ADC_InjectedChannelConfig(ADC2, ADC_Channel_12, 3, ADC_SampleTime_15Cycles);			// ADC_IND_CURR2
 	ADC_InjectedChannelConfig(ADC3, ADC_Channel_13, 3, ADC_SampleTime_15Cycles);			// ADC_IND_CURR3
-	
+
 }
 void hw_start_i2c(void){}
 void hw_stop_i2c(void){}
@@ -145,7 +145,7 @@ void hw_a50s_get_id_from_pins(void) {
 	// ID pins for CAN ID
 	uint8_t id0 = palReadPad(GPIOD, 4);
 	uint8_t id1 = palReadPad(GPIOC, 12);
-	
+
 	a50s_dual_id = id0 | (id1 << 1);
 }
 
@@ -156,24 +156,24 @@ uint8_t get_a50s_dual_id()
 
 float get_cal1(){
 	if(get_a50s_dual_id() & 1)
-		return 0.909384;
+		return 0.909384F;
 	else
-		return 0.894089;
+		return 0.894089F;
 	return 1;
 }
 
 float get_cal2(){
 	if(get_a50s_dual_id() & 1)
-		return 0.919358;
+		return 0.919358F;
 	else
-		return 0.895433;
+		return 0.895433F;
 	return 1;
 }
 
 float get_cal3(){
 	if(get_a50s_dual_id() & 1)
-		return 0.907427;
+		return 0.907427F;
 	else
-		return 0.903154;
+		return 0.903154F;
 	return 1;
 }

@@ -38,7 +38,7 @@ bool shutdown_sample_button(void) {
 
 // Private variables
 bool volatile m_button_pressed = false;
-static volatile float m_inactivity_time = 0.0;
+static volatile float m_inactivity_time = 0.0F;
 static THD_WORKING_AREA(shutdown_thread_wa, 256);
 static mutex_t m_sample_mutex;
 static volatile bool m_init_done = false;
@@ -55,7 +55,7 @@ void shutdown_init(void) {
 }
 
 void shutdown_reset_timer(void) {
-	m_inactivity_time = 0.0;
+	m_inactivity_time = 0.0F;
 }
 
 bool shutdown_button_pressed(void) {
@@ -132,7 +132,7 @@ bool do_shutdown(bool resample) {
 	if (disable_gates) {
 		mc_interface_ignore_input_both(10000);
 		mc_interface_release_motor_override_both();
-		if (!mc_interface_wait_for_motor_release_both(10.0)) {
+		if (!mc_interface_wait_for_motor_release_both(10.0F)) {
 			return false;
 		}
 
@@ -149,7 +149,7 @@ static THD_FUNCTION(shutdown_thread, arg) {
 	chRegSetThreadName("Shutdown");
 
 	bool gates_disabled_here = false;
-	float gate_disable_time = 0.0;
+	float gate_disable_time = 0.0F;
 	systime_t last_iteration_time = chVTGetSystemTimeX();
 	uint64_t odometer_old = mc_interface_get_odometer();
 
@@ -162,7 +162,7 @@ static THD_FUNCTION(shutdown_thread, arg) {
 		int sw_samples_f = 0;
 		bool sampling_disabled_here = false;
 
-		while (UTILS_AGE_S(t0) < 0.7) {
+		while (UTILS_AGE_S(t0) < 0.7F) {
 			chMtxLock(&m_sample_mutex);
 			if (m_sampling_disabled) {
 				chMtxUnlock(&m_sample_mutex);
@@ -231,7 +231,7 @@ static THD_FUNCTION(shutdown_thread, arg) {
 			// to prevent excessive flash write cycles.
 			if (m_inactivity_time >= SHUTDOWN_SAVE_BACKUPDATA_TIMEOUT) {
 				shutdown_reset_timer();
-				// If at least 1km was done then we can store data 
+				// If at least 1km was done then we can store data
 				if((mc_interface_get_odometer() - odometer_old) >= 1000) {
 					conf_general_store_backup_data();
 					odometer_old = mc_interface_get_odometer();
@@ -247,25 +247,25 @@ static THD_FUNCTION(shutdown_thread, arg) {
 		if (gates_disabled_here && m_button_pressed) {
 			gate_disable_time += dt;
 
-			if (gate_disable_time > 3.0) {
+			if (gate_disable_time > 3.0F) {
 				ENABLE_GATE();
 				gates_disabled_here = false;
-				gate_disable_time = 0.0;
+				gate_disable_time = 0.0F;
 			}
 		}
 
 		if (conf->shutdown_mode >= SHUTDOWN_MODE_OFF_AFTER_10S) {
 			m_inactivity_time += dt;
 
-			float shutdown_timeout = 0.0;
+			float shutdown_timeout = 0.0F;
 			switch (conf->shutdown_mode) {
-			case SHUTDOWN_MODE_OFF_AFTER_10S: shutdown_timeout = 10.0; break;
-			case SHUTDOWN_MODE_OFF_AFTER_1M: shutdown_timeout = 60.0; break;
-			case SHUTDOWN_MODE_OFF_AFTER_5M: shutdown_timeout = 60.0 * 5.0; break;
-			case SHUTDOWN_MODE_OFF_AFTER_10M: shutdown_timeout = 60.0 * 10.0; break;
-			case SHUTDOWN_MODE_OFF_AFTER_30M: shutdown_timeout = 60.0 * 30.0; break;
-			case SHUTDOWN_MODE_OFF_AFTER_1H: shutdown_timeout = 60.0 * 60.0; break;
-			case SHUTDOWN_MODE_OFF_AFTER_5H: shutdown_timeout = 60.0 * 60.0 * 5.0; break;
+			case SHUTDOWN_MODE_OFF_AFTER_10S: shutdown_timeout = 10.0F; break;
+			case SHUTDOWN_MODE_OFF_AFTER_1M: shutdown_timeout = 60.0F; break;
+			case SHUTDOWN_MODE_OFF_AFTER_5M: shutdown_timeout = 60.0F * 5.0F; break;
+			case SHUTDOWN_MODE_OFF_AFTER_10M: shutdown_timeout = 60.0F * 10.0F; break;
+			case SHUTDOWN_MODE_OFF_AFTER_30M: shutdown_timeout = 60.0F * 30.0F; break;
+			case SHUTDOWN_MODE_OFF_AFTER_1H: shutdown_timeout = 60.0F * 60.0F; break;
+			case SHUTDOWN_MODE_OFF_AFTER_5H: shutdown_timeout = 60.0F * 60.0F * 5.0F; break;
 			default: break;
 			}
 
@@ -278,11 +278,11 @@ static THD_FUNCTION(shutdown_thread, arg) {
 	}
 }
 
-#else // HARDWARE WITHOUT POWER SWITCH 
+#else // HARDWARE WITHOUT POWER SWITCH
 // just saving backup data, no actual shutdown
 
 // Private variables
-static volatile float m_inactivity_time = 0.0;
+static volatile float m_inactivity_time = 0.0F;
 static THD_WORKING_AREA(shutdown_thread_wa, 128);
 
 // Private functions
@@ -293,7 +293,7 @@ void shutdown_init(void) {
 }
 
 void shutdown_reset_timer(void) {
-	m_inactivity_time = 0.0;
+	m_inactivity_time = 0.0F;
 }
 
 float shutdown_get_inactivity_time(void) {

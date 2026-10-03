@@ -72,9 +72,9 @@ enum tle5012_registers {
 };
 
 typedef enum ssc_direction {
-	SSC_READ = true, 
+	SSC_READ = true,
 	SSC_WRITE = false
-} ssc_direction; 
+} ssc_direction;
 
 bool enc_tle5012_setup(TLE5012_config_t *cfg);
 tle5012_errortypes enc_tle5012_transfer(TLE5012_config_t *cfg, uint8_t address, uint16_t *data, ssc_direction read, bool safe);
@@ -85,23 +85,23 @@ tle5012_errortypes checkSafety(uint16_t command, uint16_t safetyword, const uint
 
 bool enc_tle5012_init_sw_ssc(TLE5012_config_t *cfg) {
 	// software ssc
-	memset(&cfg->state, 0, sizeof(TLE5012_state)); 
+	memset(&cfg->state, 0, sizeof(TLE5012_state));
 
 	spi_bb_init(&(cfg->sw_spi));
 
 	cfg->state.last_status_error = 0;
-	cfg->state.spi_error_rate = 0.0;
-	cfg->state.encoder_no_magnet_error_rate = 0.0;
+	cfg->state.spi_error_rate = 0.0F;
+	cfg->state.encoder_no_magnet_error_rate = 0.0F;
 
 	return enc_tle5012_setup(cfg);
 }
 
 void enc_tle5012_deinit(TLE5012_config_t *cfg) {
 	// sw spi
-	spi_bb_deinit(&(cfg->sw_spi)); 
+	spi_bb_deinit(&(cfg->sw_spi));
 
-	cfg->state.last_enc_angle = 0.0;
-	cfg->state.spi_error_rate = 0.0;
+	cfg->state.last_enc_angle = 0.0F;
+	cfg->state.spi_error_rate = 0.0F;
 
 }
 
@@ -110,21 +110,21 @@ bool enc_tle5012_setup(TLE5012_config_t *cfg) {
 	/*
 	// TLE5012B E1000 (IIF) configuration:
 	IIF-type: E1000
-	The TLE5012B E1000 is preconfigured for Incremental Interface and fast angle update rate (42.7 μs). 
+	The TLE5012B E1000 is preconfigured for Incremental Interface and fast angle update rate (42.7F μs).
 	It is most suitable for BLDC motor commutation.
 	• Incremental Interface A/B mode.
-	• 12bit mode, one count per 0.088° angle step.
+	• 12bit mode, one count per 0.088F° angle step.
 	• Absolute count enabled.
 	• Autocalibration mode 1 enabled.
 	• Prediction disabled.
-	• Hysteresis set to 0.703°.
+	• Hysteresis set to 0.703F°.
 	• IFA/IFB/IFC pins set to push-pull output.
 	• SSC interface’s DATA pin set to push-pull output.
 	• IFA/IFB/IFC pins set to strong driver, DATA pin set to strong driver, fast edge.
 	• Voltage spike filter on input pads disabled.
 
 	- Interface Mode1 Register
-		fir_md = 0b01  // Update Rate Setting (Filter Decimation), 42.7 μs (minimum)
+		fir_md = 0b01  // Update Rate Setting (Filter Decimation), 42.7F μs (minimum)
 		clk_sel = 0    // Clock Source Select, internal
 		dspu_hold = 0  // DSPU in normal schedule operation, no watchdog reset
 		iif_mod = 0b01 // Incremental Interface Mode, A/B operation with Index on IFC pin
@@ -141,7 +141,7 @@ bool enc_tle5012_setup(TLE5012_config_t *cfg) {
 	- Interface Mode3 Register
 		spikef = 0   // Analog Spike Filter of Input Pads, disabled
 		ssc_od = 0   // SSC-Interface Data Pin Output Mode, Push-Pull
-		PAD_drv = 00 // Configuration of Pad-Driver, 
+		PAD_drv = 00 // Configuration of Pad-Driver,
 					 // IFA/IFB/IFC: strong driver, DATA: strong driver, fast edge
 		Offset = 0x09
 		mask = 0b00000000000 1 1 11 // can overwrite ang base to 0?
@@ -150,14 +150,14 @@ bool enc_tle5012_setup(TLE5012_config_t *cfg) {
 		sbist = 1// built in self test on startup
 		crc = crc of parameters if autocalibrate not set.
 	- IFAB Register
-		fir_udr = 1 // FIR Update Rate, FIR_MD = ‘01’ (42.7 μs)
+		fir_udr = 1 // FIR Update Rate, FIR_MD = ‘01’ (42.7F μs)
 		ifab_od = 0 // IFA,IFB,IFC Output Mode, Push-Pull
-		ifab_hyst = 0b11 // HSM and IIF Mode: Hysteresis, 0.70° (max)
+		ifab_hyst = 0b11 // HSM and IIF Mode: Hysteresis, 0.70F° (max)
 		mask = 0b00000000000 1 1 11
 		word = 0b00000000000 1 0 11
 	- Interface Mode4 Register
 		hsm_plp = 0b0001 // Incremental Interface Mode: Absolute Count, absolute count enabled
-		ifab_res = 0b00  // Incremental Interface Mode: IIF resolution, 12bit, 0.088° step
+		ifab_res = 0b00  // Incremental Interface Mode: IIF resolution, 12bit, 0.088F° step
 		if_md = 0b00     // Interface Mode on IFA,IFB,IFC, IIF
 		mask = 0b0000000 1111 11 11
 		word = 0b0000000 0001 00 00
@@ -207,8 +207,8 @@ bool enc_tle5012_setup(TLE5012_config_t *cfg) {
 
 void enc_tle5012_routine(TLE5012_config_t *cfg) {
 	float timestep = timer_seconds_elapsed_since(cfg->state.last_update_time);
-	if (timestep > 1.0) {
-		timestep = 1.0;
+	if (timestep > 1.0F) {
+		timestep = 1.0F;
 	}
 	cfg->state.last_update_time = timer_time_now();
 
@@ -218,8 +218,8 @@ void enc_tle5012_routine(TLE5012_config_t *cfg) {
 
 	if (tle_status == NO_ERROR ){
 		uint16_t pos = rx_data & 0x7FFF;
-		cfg->state.last_enc_angle = (float) pos * (360.0 / 32768.0); // 2^15 = 32768.0
-		UTILS_LP_FAST(cfg->state.spi_error_rate, 0.0, timestep);
+		cfg->state.last_enc_angle = (float) pos * (360.0F / 32768.0F); // 2^15 = 32768.0F
+		UTILS_LP_FAST(cfg->state.spi_error_rate, 0.0F, timestep);
 	}else{
 		if (tle_status != CRC_ERROR ) { // if not just a crc error
 
@@ -229,7 +229,7 @@ void enc_tle5012_routine(TLE5012_config_t *cfg) {
 		}
 
 		++cfg->state.spi_error_cnt;
-		UTILS_LP_FAST(cfg->state.spi_error_rate, 1.0, timestep);
+		UTILS_LP_FAST(cfg->state.spi_error_rate, 1.0F, timestep);
 	}
 }
 
@@ -238,13 +238,13 @@ tle5012_errortypes enc_tle5012_get_temperature(TLE5012_config_t *cfg, double *te
 	uint16_t rawTemp = 0;
 	uint8_t tle_status_err = enc_tle5012_transfer(cfg, REG_FSYNC, &rawTemp, SSC_READ, true);
 	// extract 9 temp bits
-	rawTemp = (rawTemp & (0x01FF)); 
+	rawTemp = (rawTemp & (0x01FF));
 	//check if the value received is positive or negative
 	if (rawTemp & 0x0100) {
 		rawTemp = rawTemp - 0x0200; // 9 bit compliment
 	}
 	// temperature = (rawTemp + TEMP_OFFSET) / (TEMP_DIV);
-	*temperature = ((((int16_t) rawTemp) + 152.0) / (2.776));
+	*temperature = ((((int16_t) rawTemp) + 152.0F) / (2.776F));
 	return (tle_status_err);
 }
 
@@ -256,7 +256,7 @@ tle5012_errortypes enc_tle5012_get_magnet_magnitude(TLE5012_config_t *cfg, uint1
 	uint8_t tle_status_err = enc_tle5012_transfer(cfg, REG_D_MAG, &rawMag, SSC_READ, true);
 
 	// extract 10 mag bits
-	rawMag = (rawMag && (0x03FF)); 
+	rawMag = (rawMag && (0x03FF));
 
 	// MAG = (SQRT(X*X+Y*Y))/64; X,Y = raw gmr adc values
 	*magnitude = (uint16_t) rawMag;
@@ -322,7 +322,7 @@ uint8_t crc8(uint8_t *data, uint8_t length) {
 }
 
 // check crc and safety word
-tle5012_errortypes checkSafety(uint16_t command, uint16_t safetyword, const uint16_t *readreg, uint16_t length){	
+tle5012_errortypes checkSafety(uint16_t command, uint16_t safetyword, const uint16_t *readreg, uint16_t length){
 	/*
 	safety word:
 	[15]:Indication of chip reset or watchdog overflow (resets after readout) via SSC
@@ -330,7 +330,7 @@ tle5012_errortypes checkSafety(uint16_t command, uint16_t safetyword, const uint
 	[13]: Interface access error
 	[12]: Invalid angle value (produce vesc fault if 1)
 	[11..8]: Sensor number response indicator
-	[7..0]: crc 
+	[7..0]: crc
 	*/
 	tle5012_errortypes errorCheck;
 	if (!((safetyword) & TLE5012_SYSTEM_ERROR_MASK)) {
@@ -477,6 +477,6 @@ tle5012_errortypes checkSafety(uint16_t command, uint16_t safetyword, const uint
 // 	{REG_ACCESS_RU,  REG_IIF_CNT, 0x7FFF, 0,  0x00, 20},       //!< 84 bits 14:0 IIFCNT 14 bit counter value of IIF increments
 // 	{REG_ACCESS_RES, REG_IIF_CNT, 0x8000, 15, 0x00, 20},       //!< 85 bits 15:14 Reserved1
 
-// 	{REG_ACCESS_R,   REG_T25O,    0x1FFF, 0,  0x00, 21},       //!< 86 bit 8:0 T250 Signed offset value at 25°C temperature; 1dig=0.36°C
+// 	{REG_ACCESS_R,   REG_T25O,    0x1FFF, 0,  0x00, 21},       //!< 86 bit 8:0 T250 Signed offset value at 25°C temperature; 1dig=0.36F°C
 // 	{REG_ACCESS_RES, REG_T25O,    0xFE00, 9,  0x00, 21},       //!< 87 bits 15:9 Reserved1
 // };

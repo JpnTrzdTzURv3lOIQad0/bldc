@@ -90,20 +90,20 @@ void virtual_motor_init(volatile mc_configuration *conf){
 	//virtual motor variables init
 	virtual_motor.connected = false; //disconnected
 
-	virtual_motor.me = 0.0;
-	virtual_motor.va = 0.0;
-	virtual_motor.vb = 0.0;
-	virtual_motor.vc = 0.0;
-	virtual_motor.ia = 0.0;
-	virtual_motor.ib = 0.0;
-	virtual_motor.ic = 0.0;
-	virtual_motor.we = 0.0;
-	virtual_motor.v_alpha = 0.0;
-	virtual_motor.v_beta = 0.0;
-	virtual_motor.i_alpha = 0.0;
-	virtual_motor.i_beta = 0.0;
-	virtual_motor.id_int = 0.0;
-	virtual_motor.iq = 0.0;
+	virtual_motor.me = 0.0F;
+	virtual_motor.va = 0.0F;
+	virtual_motor.vb = 0.0F;
+	virtual_motor.vc = 0.0F;
+	virtual_motor.ia = 0.0F;
+	virtual_motor.ib = 0.0F;
+	virtual_motor.ic = 0.0F;
+	virtual_motor.we = 0.0F;
+	virtual_motor.v_alpha = 0.0F;
+	virtual_motor.v_beta = 0.0F;
+	virtual_motor.i_alpha = 0.0F;
+	virtual_motor.i_beta = 0.0F;
+	virtual_motor.id_int = 0.0F;
+	virtual_motor.iq = 0.0F;
 
 	// Register terminal callbacks used for virtual motor setup
 	terminal_register_command_callback(
@@ -124,18 +124,18 @@ void virtual_motor_set_configuration(volatile mc_configuration *conf){
 
 	//recalculate constants that depend on m_conf
 	virtual_motor.pole_pairs = m_conf->si_motor_poles / 2;
-	virtual_motor.km = 1.5 * virtual_motor.pole_pairs;
+	virtual_motor.km = 1.5F * virtual_motor.pole_pairs;
 #ifdef HW_HAS_PHASE_SHUNTS
 	if (m_conf->foc_control_sample_mode == FOC_CONTROL_SAMPLE_MODE_V0_V7) {
-		virtual_motor.Ts = (1.0 / m_conf->foc_f_zv) ;
+		virtual_motor.Ts = (1.0F / m_conf->foc_f_zv) ;
 	} else {
-		virtual_motor.Ts = (1.0 / (m_conf->foc_f_zv / 2.0));
+		virtual_motor.Ts = (1.0F / (m_conf->foc_f_zv / 2.0F));
 	}
 #else
-	virtual_motor.Ts = (1.0 / m_conf->foc_f_zv) ;
+	virtual_motor.Ts = (1.0F / m_conf->foc_f_zv) ;
 #endif
 
-	if(m_conf->foc_motor_ld_lq_diff > 0.0){
+	if(m_conf->foc_motor_ld_lq_diff > 0.0F){
 		virtual_motor.lq = m_conf->foc_motor_l + m_conf->foc_motor_ld_lq_diff /2;
 		virtual_motor.ld = m_conf->foc_motor_l - m_conf->foc_motor_ld_lq_diff /2;
 	}else{
@@ -179,7 +179,7 @@ float virtual_motor_get_angle_deg(void){
 static void connect_virtual_motor(float ml , float J, float Vbus){
 	if(virtual_motor.connected == false){
 		//first we send 0.0 current command to make system stop PWM outputs
-		mcpwm_foc_set_current(0.0);
+		mcpwm_foc_set_current(0.0F);
 		//first we disconnect the ADC triggering from TIM8_CC1
 		ADC_InitTypeDef ADC_InitStructure;
 
@@ -209,8 +209,8 @@ static void connect_virtual_motor(float ml , float J, float Vbus){
 		ADC_Value[ ADC_IND_VOUT_GATE_DRV ] = 1;
 
 		float tempVoltage = GET_GATE_DRIVER_SUPPLY_VOLTAGE();
-		if(tempVoltage != 0.0){
-			ADC_Value[ ADC_IND_VOUT_GATE_DRV ] = ( (HW_GATE_DRIVER_SUPPLY_MAX_VOLTAGE + HW_GATE_DRIVER_SUPPLY_MIN_VOLTAGE) / 2.0 ) /
+		if(tempVoltage != 0.0F){
+			ADC_Value[ ADC_IND_VOUT_GATE_DRV ] = ( (HW_GATE_DRIVER_SUPPLY_MAX_VOLTAGE + HW_GATE_DRIVER_SUPPLY_MIN_VOLTAGE) / 2.0F ) /
 																							GET_GATE_DRIVER_SUPPLY_VOLTAGE();
 		}
 #endif
@@ -228,7 +228,7 @@ static void connect_virtual_motor(float ml , float J, float Vbus){
 	ADC_Value[ ADC_IND_VIN_SENS ] = 1;
 
 	float tempVoltage = GET_INPUT_VOLTAGE();
-	if(tempVoltage != 0.0){
+	if(tempVoltage != 0.0F){
 		ADC_Value[ ADC_IND_VIN_SENS ] = Vbus / GET_INPUT_VOLTAGE();
 	}
 
@@ -252,7 +252,7 @@ static void connect_virtual_motor(float ml , float J, float Vbus){
 static void disconnect_virtual_motor( void ){
 
 	if(virtual_motor.connected){
-		mcpwm_foc_set_current( 0.0 );
+		mcpwm_foc_set_current( 0.0F );
 
 		//disconnect virtual motor
 		virtual_motor.connected = false;
@@ -344,12 +344,12 @@ static inline void run_virtual_motor_mechanics(float ml){
 	virtual_motor.phi += virtual_motor.we * virtual_motor.Ts;
 
 	// phi limits
-	while( virtual_motor.phi > M_PI ){
-		virtual_motor.phi -= ( 2 * M_PI);
+	while( virtual_motor.phi > UTILS_PI_F ){
+		virtual_motor.phi -= ( 2.0F * UTILS_PI_F);
 	}
 
-	while( virtual_motor.phi < -1.0 * M_PI ){
-		virtual_motor.phi += ( 2 * M_PI);
+	while( virtual_motor.phi < -UTILS_PI_F ){
+		virtual_motor.phi += ( 2.0F * UTILS_PI_F);
 	}
 }
 
@@ -373,12 +373,12 @@ static inline void run_virtual_motor_park_clark_inverse( void ){
 
 	//	Clark Inverse
 	virtual_motor.ia = virtual_motor.i_alpha;
-	virtual_motor.ib = -0.5 * virtual_motor.i_alpha + SQRT3_BY_2 * virtual_motor.i_beta;
-	virtual_motor.ic = -0.5 * virtual_motor.i_alpha - SQRT3_BY_2 * virtual_motor.i_beta;
+	virtual_motor.ib = -0.5F * virtual_motor.i_alpha + SQRT3_BY_2 * virtual_motor.i_beta;
+	virtual_motor.ic = -0.5F * virtual_motor.i_alpha - SQRT3_BY_2 * virtual_motor.i_beta;
 
 	virtual_motor.va = virtual_motor.v_alpha;
-	virtual_motor.vb = -0.5 * virtual_motor.v_alpha + SQRT3_BY_2 * virtual_motor.v_beta;
-	virtual_motor.vc = -0.5 * virtual_motor.v_alpha - SQRT3_BY_2 * virtual_motor.v_beta;
+	virtual_motor.vb = -0.5F * virtual_motor.v_alpha + SQRT3_BY_2 * virtual_motor.v_beta;
+	virtual_motor.vc = -0.5F * virtual_motor.v_alpha - SQRT3_BY_2 * virtual_motor.v_beta;
 
 	//	simulate current samples
 	ADC_Value[ ADC_IND_CURR1 ] =  virtual_motor.ia / FAC_CURRENT + 2048;

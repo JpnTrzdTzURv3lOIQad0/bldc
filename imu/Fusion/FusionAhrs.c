@@ -65,8 +65,8 @@ static float calculateAccConfidence(float acc_confidence_decay, float accMag, fl
 	accMag = *accMagP * 0.9f + accMag * 0.1f;
 	*accMagP = accMag;
 
-	confidence = 1.0 - (acc_confidence_decay * sqrtf(fabsf(accMag - 1.0f)));
-	utils_truncate_number(&confidence, 0.0, 1.0);
+	confidence = 1.0F - (acc_confidence_decay * sqrtf(fabsf(accMag - 1.0f)));
+	utils_truncate_number(&confidence, 0.0F, 1.0F);
 
 	return confidence;
 }
@@ -123,7 +123,7 @@ void FusionAhrsUpdate(FusionAhrs * const fusionAhrs, const FusionVector3 gyrosco
 #define Q fusionAhrs->quaternion.element // define shorthand label for more readable code
 
     // Calculate feedback error
-    FusionVector3 halfFeedbackError = FUSION_VECTOR3_ZERO; // scaled by 0.5 to avoid repeated multiplications by 2
+    FusionVector3 halfFeedbackError = FUSION_VECTOR3_ZERO; // scaled by 0.5F to avoid repeated multiplications by 2
     do {
         // Abandon feedback calculation if accelerometer measurement invalid
         if ((accelerometer.axis.x == 0.0f) && (accelerometer.axis.y == 0.0f) && (accelerometer.axis.z == 0.0f)) {
@@ -135,7 +135,7 @@ void FusionAhrsUpdate(FusionAhrs * const fusionAhrs, const FusionVector3 gyrosco
             .axis.x = Q.x * Q.z - Q.w * Q.y,
             .axis.y = Q.w * Q.x + Q.y * Q.z,
             .axis.z = Q.w * Q.w - 0.5f + Q.z * Q.z,
-        }; // equal to 3rd column of rotation matrix representation scaled by 0.5
+        }; // equal to 3rd column of rotation matrix representation scaled by 0.5F
 
         // Calculate accelerometer feedback error
         halfFeedbackError = FusionVectorCrossProduct(FusionVectorFastNormalise(accelerometer), halfGravity);
@@ -151,7 +151,7 @@ void FusionAhrsUpdate(FusionAhrs * const fusionAhrs, const FusionVector3 gyrosco
             .axis.x = Q.x * Q.y + Q.w * Q.z,
             .axis.y = Q.w * Q.w - 0.5f + Q.y * Q.y,
             .axis.z = Q.y * Q.z - Q.w * Q.x
-        }; // equal to 2nd column of rotation matrix representation scaled by 0.5
+        }; // equal to 2nd column of rotation matrix representation scaled by 0.5F
 
         // Calculate magnetometer feedback error
         halfFeedbackError = FusionVectorAdd(halfFeedbackError, FusionVectorCrossProduct(FusionVectorFastNormalise(FusionVectorCrossProduct(accelerometer, magnetometer)), halfWest));
@@ -164,7 +164,7 @@ void FusionAhrsUpdate(FusionAhrs * const fusionAhrs, const FusionVector3 gyrosco
     float accelConfidence = calculateAccConfidence(fusionAhrs->acc_conf_decay, accMag, &fusionAhrs->accMagP);
     feedbackGain *= accelConfidence;
 
-    // Convert gyroscope to radians per second scaled by 0.5
+    // Convert gyroscope to radians per second scaled by 0.5F
     FusionVector3 halfGyroscope = FusionVectorMultiplyScalar(gyroscope, 0.5f * FusionDegreesToRadians(1.0f));
 
     // Apply feedback to gyroscope

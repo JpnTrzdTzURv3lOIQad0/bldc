@@ -19,7 +19,7 @@
 #define HW_RSR_DD_V1_005_H_
 
 #define HW_SOURCE_ALT 		"repas/RSR_DD_V1/hw_RSR_DD_V1.c"
-#define CURRENT_SHUNT_RES	0.005
+#define CURRENT_SHUNT_RES	0.005F
 
 #include "hw_RSR_DD_V1.h"
 

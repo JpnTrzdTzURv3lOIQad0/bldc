@@ -31,8 +31,8 @@ static float calculateAccConfidence(float accMag, float *accMagP, float acc_conf
 	accMag = *accMagP * 0.9f + accMag * 0.1f;
 	*accMagP = accMag;
 
-	confidence = 1.0 - (acc_confidence_decay * sqrtf(fabsf(accMag - 1.0f)));
-	utils_truncate_number(&confidence, 0.0, 1.0);
+	confidence = 1.0F - (acc_confidence_decay * sqrtf(fabsf(accMag - 1.0f)));
+	utils_truncate_number(&confidence, 0.0F, 1.0F);
 
 	return confidence;
 }
@@ -45,14 +45,14 @@ void ahrs_update_all_parameters(ATTITUDE_INFO *att, float confidence_decay, floa
 }
 
 void ahrs_init_attitude_info(ATTITUDE_INFO *att) {
-	att->q0 = 1.0;
-	att->q1 = 0.0;
-	att->q2 = 0.0;
-	att->q3 = 0.0;
-	att->integralFBx = 0.0;
-	att->integralFBy = 0.0;
-	att->integralFBz = 0.0;
-	att->accMagP = 1.0;
+	att->q0 = 1.0F;
+	att->q1 = 0.0F;
+	att->q2 = 0.0F;
+	att->q3 = 0.0F;
+	att->integralFBx = 0.0F;
+	att->integralFBy = 0.0F;
+	att->integralFBz = 0.0F;
+	att->accMagP = 1.0F;
 	att->initialUpdateDone = 0;
 }
 
@@ -78,7 +78,7 @@ void ahrs_update_initial_orientation(const float *accelXYZ, const float *magXYZ,
 
 	float c_mx = mx * cp + my * sr * sp + mz * sp * cr;
 	float c_my = my * cr - mz * sr;
-	float yaw = atan2f(-c_my, c_mx) - M_PI / 2.0;
+	float yaw = atan2f(-c_my, c_mx) - UTILS_PI_F / 2.0F;
 	utils_norm_angle_rad(&yaw);
 
 	cr = cosf(-roll * 0.5f);
@@ -110,13 +110,13 @@ void ahrs_update_mahony_imu(const float *gyroXYZ, const float *accelXYZ, float d
 
 	// Compute feedback only if accelerometer abs(vector)is not too small to avoid a division
 	// by a small number
-	if (accelNorm > 0.01) {
+	if (accelNorm > 0.01F) {
 		float halfvx, halfvy, halfvz;
 		float halfex, halfey, halfez;
 		float accelConfidence;
 
-		volatile float twoKp = 2.0 * att->kp;
-		volatile float twoKi = 2.0 * att->ki;
+		volatile float twoKp = 2.0F * att->kp;
+		volatile float twoKi = 2.0F * att->ki;
 
 		accelConfidence = calculateAccConfidence(accelNorm, &att->accMagP, att->acc_confidence_decay);
 		twoKp *= accelConfidence;
@@ -205,7 +205,7 @@ void ahrs_update_madgwick_imu(const float *gyroXYZ, const float *accelXYZ, float
 
 	// Compute feedback only if accelerometer abs(vector)is not too small to avoid a division
 	// by a small number
-	if (accelNorm > 0.01) {
+	if (accelNorm > 0.01F) {
 		float _2q0, _2q1, _2q2, _2q3, _4q0, _4q1, _4q2 ,_8q1, _8q2, q0q0, q1q1, q2q2, q3q3;
 		float s0, s1, s2, s3;
 		float accelConfidence;
@@ -275,7 +275,7 @@ float ahrs_get_roll(const ATTITUDE_INFO *att) {
 	const float q2 = att->q2;
 	const float q3 = att->q3;
 
-	return -atan2f(q0 * q1 + q2 * q3, 0.5 - (q1 * q1 + q2 * q2));
+	return -atan2f(q0 * q1 + q2 * q3, 0.5F - (q1 * q1 + q2 * q2));
 }
 
 float ahrs_get_pitch(const ATTITUDE_INFO *att) {
@@ -284,7 +284,7 @@ float ahrs_get_pitch(const ATTITUDE_INFO *att) {
 	const float q2 = att->q2;
 	const float q3 = att->q3;
 
-	return asinf(-2.0 * (q1 * q3 - q0 * q2));
+	return asinf(-2.0F * (q1 * q3 - q0 * q2));
 }
 
 float ahrs_get_yaw(const ATTITUDE_INFO *att) {
@@ -293,7 +293,7 @@ float ahrs_get_yaw(const ATTITUDE_INFO *att) {
 	const float q2 = att->q2;
 	const float q3 = att->q3;
 
-	return -atan2f(q0 * q3 + q1 * q2, 0.5 - (q2 * q2 + q3 * q3));
+	return -atan2f(q0 * q3 + q1 * q2, 0.5F - (q2 * q2 + q3 * q3));
 }
 
 void ahrs_get_roll_pitch_yaw(float *rpy, const ATTITUDE_INFO *att) {
@@ -303,9 +303,9 @@ void ahrs_get_roll_pitch_yaw(float *rpy, const ATTITUDE_INFO *att) {
 	const float q2 = att->q2;
 	const float q3 = att->q3;
 
-	rpy[0] = -atan2f(q0 * q1 + q2 * q3, 0.5 - (q1 * q1 + q2 * q2));
-	rpy[1] = asinf(-2.0 * (q1 * q3 - q0 * q2));
-	rpy[2] = -atan2f(q0 * q3 + q1 * q2, 0.5 - (q2 * q2 + q3 * q3));
+	rpy[0] = -atan2f(q0 * q1 + q2 * q3, 0.5F - (q1 * q1 + q2 * q2));
+	rpy[1] = asinf(-2.0F * (q1 * q3 - q0 * q2));
+	rpy[2] = -atan2f(q0 * q3 + q1 * q2, 0.5F - (q2 * q2 + q3 * q3));
 }
 
 static float invSqrt(float x) {
@@ -324,5 +324,5 @@ static float invSqrt(float x) {
 
 	// Use normal inverse square root.
 	// http://diydrones.com/forum/topics/madgwick-imu-ahrs-and-fast-inverse-square-root
-	return 1.0 / sqrtf(x);
+	return 1.0F / sqrtf(x);
 }

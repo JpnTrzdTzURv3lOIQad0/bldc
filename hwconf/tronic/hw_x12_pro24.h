@@ -27,7 +27,7 @@
 #define HW_HAS_3_SHUNTS
 #define HW_HAS_PHASE_SHUNTS
 #define HW_HAS_PHASE_FILTERS
-//#define INVERTED_SHUNT_POLARITY 
+//#define INVERTED_SHUNT_POLARITY
 
 //#define HW_USE_BRK
 
@@ -53,7 +53,7 @@
 //#define AUX_GPIO				GPIOC
 //#define AUX_PIN				12
 //#define AUX_ON()				palSetPad(AUX_GPIO, AUX_PIN)
-//#define AUX_OFF()				palClearPad(AUX_GPIO, AUX_PIN) 
+//#define AUX_OFF()				palClearPad(AUX_GPIO, AUX_PIN)
 
 
 
@@ -76,8 +76,8 @@
 #define ADC_IND_EXT2			13   //PA4
 #define ADC_IND_EXT3			9   //PA7
 
-#define ADC_IND_TEMP_MOS		10   //PC4      
-#define ADC_IND_TEMP_MOS_2		12   //PC5          
+#define ADC_IND_TEMP_MOS		10   //PC4
+#define ADC_IND_TEMP_MOS_2		12   //PC5
 #define ADC_IND_TEMP_MOS_3		10   //Only 2 sensors
 #define ADC_IND_TEMP_MOTOR		16   //PB1
 
@@ -87,39 +87,39 @@
 
 // Component parameters (can be overridden)
 #ifndef V_REG
-#define V_REG					3.3
+#define V_REG					3.3F
 #endif
 #ifndef VIN_R1
-#define VIN_R1					100000.0
+#define VIN_R1					100000.0F
 #endif
 #ifndef VIN_R2
-#define VIN_R2					2700.0
+#define VIN_R2					2700.0F
 #endif
 #ifndef CURRENT_AMP_GAIN
-#define CURRENT_AMP_GAIN		(1.35/750)
+#define CURRENT_AMP_GAIN		(1.35F/750)
 //Isolated current ring sensors for 750A, experiment shows 1.35V/750A
 
 #endif
 #ifndef CURRENT_SHUNT_RES
-#define CURRENT_SHUNT_RES		(1.0) 
+#define CURRENT_SHUNT_RES		(1.0F)
 #endif
 
 // Input voltage
-#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
+#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0F) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
 
 // NTC Termistors
-#define NTC_RES(adc_val)		((4095.0 * 10000.0) / adc_val - 10000.0)
+#define NTC_RES(adc_val)		((4095.0F * 10000.0F) / adc_val - 10000.0F)
 #define NTC_TEMP(adc_ind)       hwt12t_get_temp()
 
-#define NTC_RES_MOTOR(adc_val)	(4700.0 / ((4095.0 / (float)adc_val) - 1.0)) // Motor temp sensor on low side
-#define NTC_TEMP_MOTOR(beta)	(1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0) / beta) + (1.0 / 298.15)) - 273.15)
+#define NTC_RES_MOTOR(adc_val)	(4700.0F / ((4095.0F / (float)adc_val) - 1.0F)) // Motor temp sensor on low side
+#define NTC_TEMP_MOTOR(beta)	(1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0F) / beta) + (1.0F / 298.15F)) - 273.15F)
 
-#define NTC_TEMP_MOS1()			(1.0 / ((logf(NTC_RES((4095-ADC_Value[ADC_IND_TEMP_MOS])) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15)
-#define NTC_TEMP_MOS2()			(1.0 / ((logf(NTC_RES((4095-ADC_Value[ADC_IND_TEMP_MOS_2])) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15)
-#define NTC_TEMP_MOS3()			(1.0 / ((logf(NTC_RES((4095-ADC_Value[ADC_IND_TEMP_MOS_3])) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15)
+#define NTC_TEMP_MOS1()			(1.0F / ((logf(NTC_RES((4095-ADC_Value[ADC_IND_TEMP_MOS])) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F)
+#define NTC_TEMP_MOS2()			(1.0F / ((logf(NTC_RES((4095-ADC_Value[ADC_IND_TEMP_MOS_2])) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F)
+#define NTC_TEMP_MOS3()			(1.0F / ((logf(NTC_RES((4095-ADC_Value[ADC_IND_TEMP_MOS_3])) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F)
 
 // Voltage on ADC channel
-#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4096.0 * V_REG)
+#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4096.0F * V_REG)
 
 // COMM-port ADC GPIOs
 #define HW_ADC_EXT_GPIO			GPIOA
@@ -145,23 +145,23 @@
 #define HW_ICU_DEV				ICUD4
 #define HW_ICU_CHANNEL			ICU_CHANNEL_1
 #define HW_ICU_GPIO_AF			GPIO_AF_TIM4
-#define HW_ICU_GPIO				GPIOB       
+#define HW_ICU_GPIO				GPIOB
 #define HW_ICU_PIN				6
 
 // I2C Peripheral
 #define HW_I2C_DEV				I2CD2
 #define HW_I2C_GPIO_AF			GPIO_AF_I2C2
-#define HW_I2C_SCL_PORT			GPIOB       
+#define HW_I2C_SCL_PORT			GPIOB
 #define HW_I2C_SCL_PIN			10
-#define HW_I2C_SDA_PORT			GPIOB       
+#define HW_I2C_SDA_PORT			GPIOB
 #define HW_I2C_SDA_PIN			11
 
 // Hall/encoder pins
-#define HW_HALL_ENC_GPIO1		GPIOC       
-#define HW_HALL_ENC_PIN1		6   
-#define HW_HALL_ENC_GPIO2		GPIOC       
+#define HW_HALL_ENC_GPIO1		GPIOC
+#define HW_HALL_ENC_PIN1		6
+#define HW_HALL_ENC_GPIO2		GPIOC
 #define HW_HALL_ENC_PIN2		7
-#define HW_HALL_ENC_GPIO3		GPIOC       
+#define HW_HALL_ENC_GPIO3		GPIOC
 #define HW_HALL_ENC_PIN3		8
 #define HW_ENC_TIM				TIM3
 #define HW_ENC_TIM_AF			GPIO_AF_TIM3
@@ -176,13 +176,13 @@
 //Placeholder on T12T, only applicable to later versions where input filter caps not fitted
 #define HW_SPI_DEV				SPID1
 #define HW_SPI_GPIO_AF			GPIO_AF_SPI1
-#define HW_SPI_PORT_NSS			GPIOA       
+#define HW_SPI_PORT_NSS			GPIOA
 #define HW_SPI_PIN_NSS			4 //TBC...//re-use ADC in 2 on PA4 since it has the hardware NSS
-#define HW_SPI_PORT_SCK			GPIOA       
+#define HW_SPI_PORT_SCK			GPIOA
 #define HW_SPI_PIN_SCK			5
-#define HW_SPI_PORT_MOSI		GPIOA       
+#define HW_SPI_PORT_MOSI		GPIOA
 #define HW_SPI_PIN_MOSI			7
-#define HW_SPI_PORT_MISO		GPIOA      
+#define HW_SPI_PORT_MISO		GPIOA
 #define HW_SPI_PIN_MISO			6
 
 // IMU
@@ -214,7 +214,7 @@
 #define READ_HALL3()			palReadPad(HW_HALL_ENC_GPIO3, HW_HALL_ENC_PIN3)
 
 // Override dead time. See the stm32f4 reference manual for calculating this value.
-#define HW_DEAD_TIME_NSEC		350.0
+#define HW_DEAD_TIME_NSEC		350.0F
 
 // Default setting overrides
 #ifndef MCCONF_L_MIN_VOLTAGE
@@ -222,7 +222,7 @@
 #endif
 #ifndef MCCONF_L_MAX_VOLTAGE
 #define MCCONF_L_MAX_VOLTAGE			110.0F
-//Set max in to 110V - targetting 24s = 24*4.2 = 100.8 , keep some headroom for the MOS
+//Set max in to 110V - targetting 24s = 24*4.2F = 100.8F , keep some headroom for the MOS
 #endif
 #ifndef MCCONF_DEFAULT_MOTOR_TYPE
 #define MCCONF_DEFAULT_MOTOR_TYPE		MOTOR_TYPE_FOC
@@ -244,14 +244,14 @@
 #endif
 
 // Setting limits
-#define HW_LIM_CURRENT			-500.0, 500.0
-#define HW_LIM_CURRENT_IN		-250.0, 250.0
-#define HW_LIM_CURRENT_ABS		0.0, 600.0
-#define HW_LIM_VIN				18.0, 115.0
-#define HW_LIM_ERPM				-200e3, 200e3
-#define HW_LIM_DUTY_MIN			0.0, 0.1
-#define HW_LIM_DUTY_MAX			0.0, 0.98
-#define HW_LIM_TEMP_FET			-40.0, 90.0
+#define HW_LIM_CURRENT			-500.0F, 500.0F
+#define HW_LIM_CURRENT_IN		-250.0F, 250.0F
+#define HW_LIM_CURRENT_ABS		0.0F, 600.0F
+#define HW_LIM_VIN				18.0F, 115.0F
+#define HW_LIM_ERPM				-200e3F, 200e3F
+#define HW_LIM_DUTY_MIN			0.0F, 0.1F
+#define HW_LIM_DUTY_MAX			0.0F, 0.98F
+#define HW_LIM_TEMP_FET			-40.0F, 90.0F
 
 // HW-specific functions
 

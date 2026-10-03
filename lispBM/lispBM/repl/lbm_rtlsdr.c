@@ -480,8 +480,8 @@ static void rtlsdr_callback(unsigned char *buf, uint32_t len, void *ctx) {
   // So the effect of that is that we get more volume when signal is good.
 
   for (int i = 0; i < n; i ++) {
-    float curr_i = ((float)buf[i * 2] - 127.5) / 128.0f;
-    float curr_q = ((float)buf[(i * 2) + 1] - 127.5) / 128.0f;
+    float curr_i = ((float)buf[i * 2] - 127.5F) / 128.0f;
+    float curr_q = ((float)buf[(i * 2) + 1] - 127.5F) / 128.0f;
     audio[i] = curr_q * prev_i - curr_i * prev_q;
 
     prev_i = curr_i;
@@ -510,7 +510,7 @@ static void rtlsdr_callback(unsigned char *buf, uint32_t len, void *ctx) {
     if (out > 0.9f) out = 0.9f + 0.1f * (out - 0.9f) / (1.0f + fabsf(out - 0.9f));
     if (out < -0.9f) out = -0.9f + 0.1f * (out + 0.9f) / (1.0f + fabsf(out + 0.9f));
 
-    sound_samples[i*2] = out * 32767.0;
+    sound_samples[i*2] = out * 32767.0F;
     sound_samples[i*2+1] = sound_samples[i*2];
   }
 
@@ -552,11 +552,11 @@ static void rtlsdr_normalize_and_buffer_callback(unsigned char *buf, uint32_t le
   }
   int n = len / 2;
 
-  float sum_sq = 0.0;
-  
+  float sum_sq = 0.0F;
+
   for (int i = 0; i < n; i ++) {
-    float i_val = ((float)buf[i * 2] - 127.5) / 128.0f;
-    float q_val = ((float)buf[(i * 2) + 1] - 127.5) / 128.0f;
+    float i_val = ((float)buf[i * 2] - 127.5F) / 128.0f;
+    float q_val = ((float)buf[(i * 2) + 1] - 127.5F) / 128.0f;
     i_data[i] = i_val;
     q_data[i] = q_val;
     sum_sq += i_val*i_val + q_val*q_val;
@@ -675,8 +675,8 @@ static void fm_playback_thd(void *arg) {
   float i_buf[8192];
   float q_buf[8192];
   float audio[8192];
-  float prev_i = 0.0;
-  float prev_q = 0.0;
+  float prev_i = 0.0F;
+  float prev_q = 0.0F;
   int n = 8192;
 
   int16_t sound_samples[8192];
@@ -711,7 +711,7 @@ static void fm_playback_thd(void *arg) {
       if (out > 0.9f) out = 0.9f + 0.1f * (out - 0.9f) / (1.0f + fabsf(out - 0.9f));
       if (out < -0.9f) out = -0.9f + 0.1f * (out + 0.9f) / (1.0f + fabsf(out + 0.9f));
 
-      sound_samples[i*2] = out * 32767.0;
+      sound_samples[i*2] = out * 32767.0F;
       sound_samples[i*2+1] = sound_samples[i*2];
     }
     if (pcmh) {

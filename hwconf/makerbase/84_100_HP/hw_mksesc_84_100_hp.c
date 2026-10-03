@@ -12,7 +12,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     */
 
-// 
+//
 
 #include "hw.h"
 #include "ch.h"
@@ -25,7 +25,7 @@
 // Variables
 static volatile bool i2c_running = false;
 static mutex_t shutdown_mutex;
-static float bt_diff = 0.0;
+static float bt_diff = 0.0F;
 
 // I2C configuration
 static const I2CConfig i2cfg = {
@@ -246,10 +246,10 @@ void hw_try_restore_i2c(void) {
 }
 
 float hw84_100_get_temp(void) {
-	float t1 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-	float t2 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_2]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-	float t3 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_3]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-	float res = 0.0;
+	float t1 = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+	float t2 = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_2]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+	float t3 = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_3]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+	float res = 0.0F;
 
 	if (t1 > t2 && t1 > t3) {
 		res = t1;
@@ -265,7 +265,7 @@ float hw84_100_get_temp(void) {
 bool hw_sample_shutdown_button(void) {
 	chMtxLock(&shutdown_mutex);
 
-	bt_diff = 0.0;
+	bt_diff = 0.0F;
 
 	for (int i = 0;i < 3;i++) {
 		palSetPadMode(HW_SHUTDOWN_GPIO, HW_SHUTDOWN_PIN, PAL_MODE_INPUT_ANALOG);
@@ -280,6 +280,6 @@ bool hw_sample_shutdown_button(void) {
 	}
 
 	chMtxUnlock(&shutdown_mutex);
-	
-	return (bt_diff > 0.12);
+
+	return (bt_diff > 0.12F);
 }

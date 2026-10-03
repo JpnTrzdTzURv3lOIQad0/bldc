@@ -23,7 +23,7 @@
 #include "stm32f4xx_conf.h"
 
 // Settings
-#define TIMER_HZ					1.4e7
+#define TIMER_HZ					1.4e7F
 
 void timer_init(void) {
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE);
@@ -42,12 +42,12 @@ void timer_init(void) {
 
 float timer_seconds_elapsed_since(uint32_t time) {
 	uint32_t diff = TIM5->CNT - time;
-	return (float)diff * (1.0 / (float)TIMER_HZ);
+	return (float)diff * (1.0F / (float)TIMER_HZ);
 }
 
 float timer_calc_diff(uint32_t start, uint32_t time) {
 	uint32_t diff = time - start;
-	return (float)diff * (1.0 / (float)TIMER_HZ);
+	return (float)diff * (1.0F / (float)TIMER_HZ);
 }
 
 /**

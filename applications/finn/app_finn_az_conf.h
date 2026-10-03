@@ -32,29 +32,29 @@
 // Limits
 #define MCCONF_L_RPM_MIN				-7000
 #define MCCONF_L_RPM_MAX				7000
-#define MCCONF_L_RPM_START				0.3
-#define MCCONF_L_CURRENT_MAX			20.0
-#define MCCONF_L_CURRENT_MIN			-20.0
-#define MCCONF_L_IN_CURRENT_MAX			30.0
-#define MCCONF_L_IN_CURRENT_MIN			-10.0
+#define MCCONF_L_RPM_START				0.3F
+#define MCCONF_L_CURRENT_MAX			20.0F
+#define MCCONF_L_CURRENT_MIN			-20.0F
+#define MCCONF_L_IN_CURRENT_MAX			30.0F
+#define MCCONF_L_IN_CURRENT_MIN			-10.0F
 
 // Position PID controller
-#define APP_FINN_WRAP_FACTOR			4.0 // Avoid wrap-around within the control region by only using a fraction of it
-#define MCCONF_P_PID_KP					(0.2 * APP_FINN_WRAP_FACTOR)
-#define MCCONF_P_PID_KI					(0.2 * APP_FINN_WRAP_FACTOR)
-#define MCCONF_P_PID_KD					(0.01 * APP_FINN_WRAP_FACTOR)
-#define MCCONF_P_PID_ANG_DIV			(150.0 * 7.0 * APP_FINN_WRAP_FACTOR) // 1:75 gearing and 7 pole pairs
-#define MCCONF_P_PID_KD_FILTER			0.2
-#define MCCONF_P_PID_GAIN_DEC_ANGLE		300.0
+#define APP_FINN_WRAP_FACTOR			4.0F // Avoid wrap-around within the control region by only using a fraction of it
+#define MCCONF_P_PID_KP					(0.2F * APP_FINN_WRAP_FACTOR)
+#define MCCONF_P_PID_KI					(0.2F * APP_FINN_WRAP_FACTOR)
+#define MCCONF_P_PID_KD					(0.01F * APP_FINN_WRAP_FACTOR)
+#define MCCONF_P_PID_ANG_DIV			(150.0F * 7.0F * APP_FINN_WRAP_FACTOR) // 1:75 gearing and 7 pole pairs
+#define MCCONF_P_PID_KD_FILTER			0.2F
+#define MCCONF_P_PID_GAIN_DEC_ANGLE		300.0F
 
 // FOC
-#define MCCONF_FOC_CURRENT_KP			0.027
-#define MCCONF_FOC_CURRENT_KI			20.0
+#define MCCONF_FOC_CURRENT_KP			0.027F
+#define MCCONF_FOC_CURRENT_KI			20.0F
 #define MCCONF_FOC_MOTOR_L				100e-6
 #define MCCONF_FOC_MOTOR_LD_LQ_DIFF		50.0e-6
 #define MCCONF_FOC_MOTOR_R				70e-3
 #define MCCONF_FOC_MOTOR_FLUX_LINKAGE	6.0e-3
-#define MCCONF_FOC_OBSERVER_GAIN		30e6
+#define MCCONF_FOC_OBSERVER_GAIN		30e6F
 
 // Hall sensors
 #define MCCONF_FOC_HALL_TAB_0			255
@@ -65,7 +65,7 @@
 #define MCCONF_FOC_HALL_TAB_5			108
 #define MCCONF_FOC_HALL_TAB_6			42
 #define MCCONF_FOC_HALL_TAB_7			255
-#define MCCONF_FOC_SL_ERPM				2000.0
+#define MCCONF_FOC_SL_ERPM				2000.0F
 #define MCCONF_M_HALL_EXTRA_SAMPLES		3
 
 #define QMLUI_SOURCE_APP				"finn/finn_qml.c"

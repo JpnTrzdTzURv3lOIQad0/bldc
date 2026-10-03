@@ -17,26 +17,26 @@
 */
 
 #ifndef LBM_UTILS_H_
-#define LBM_UTILS_H_ 
+#define LBM_UTILS_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #ifndef M_PI
-#define M_PI 3.14159265358979323846
+#define M_PI 3.14159265358979323846F
 #endif
 
 #ifndef M_PI_2
-#define M_PI_2 1.57079632679
+#define M_PI_2 1.57079632679F
 #endif
 
 #ifndef M_3PI_2
-#define M_3PI_2 4.71238898038469
+#define M_3PI_2 4.71238898038469F
 #endif
 
-#define DEG2RAD_f(deg) ((deg) * (float)(M_PI / 180.0))
-#define RAD2DEG_f(rad) ((rad) * (float)(180.0 / M_PI))
+#define DEG2RAD_f(deg) ((deg) * (float)(M_PI / 180.0F))
+#define RAD2DEG_f(rad) ((rad) * (float)(180.0F / M_PI))
 
 #ifndef MIN
 #define MIN(a,b) (((a)<(b))?(a):(b))

@@ -90,21 +90,21 @@ void buffer_append_double64(uint8_t* buffer, double number, double scale, int32_
  * they should be quite fast. They are (more or less) equivalent with the following:
  *
  * float frexp_slow(float f, int *e) {
- *     if (f == 0.0) {
+ *     if (f == 0.0F) {
  *         *e = 0;
- *         return 0.0;
+ *         return 0.0F;
  *     }
  *
  *     *e = ceilf(log2f(fabsf(f)));
- *     float res = f / powf(2.0, (float)*e);
+ *     float res = f / powf(2.0F, (float)*e);
  *
- *     if (res >= 1.0) {
- *         res -= 0.5;
+ *     if (res >= 1.0F) {
+ *         res -= 0.5F;
  *         *e += 1;
  *     }
  *
- *     if (res <= -1.0) {
- *         res += 0.5;
+ *     if (res <= -1.0F) {
+ *         res += 0.5F;
  *         *e += 1;
  *     }
  *
@@ -112,10 +112,10 @@ void buffer_append_double64(uint8_t* buffer, double number, double scale, int32_
  * }
  *
  * float ldexp_slow(float f, int e) {
- *     return f * powf(2.0, (float)e);
+ *     return f * powf(2.0F, (float)e);
  * }
  *
- * 8388608.0 is 2^23, which scales the result to fit within 23 bits if sig_abs < 1.0.
+ * 8388608.0F is 2^23, which scales the result to fit within 23 bits if sig_abs < 1.0F.
  *
  * This should be a relatively fast and efficient way to serialize
  * floating point numbers in a fully defined manner.
@@ -124,7 +124,7 @@ void buffer_append_float32_auto(uint8_t* buffer, float number, int32_t *index) {
 	// Set subnormal numbers to 0 as they are not handled properly
 	// using this method.
 	if (fabsf(number) < 1.5e-38) {
-		number = 0.0;
+		number = 0.0F;
 	}
 
 	int e = 0;
@@ -132,7 +132,7 @@ void buffer_append_float32_auto(uint8_t* buffer, float number, int32_t *index) {
 	float sig_abs = fabsf(sig);
 	uint32_t sig_i = 0;
 
-	if (sig_abs >= 0.5) {
+	if (sig_abs >= 0.5F) {
 		sig_i = (uint32_t)((sig_abs - 0.5f) * 2.0f * 8388608.0f);
 		e += 126;
 	}
@@ -229,7 +229,7 @@ float buffer_get_float32_auto(const uint8_t *buffer, int32_t *index) {
 	uint32_t sig_i = res & 0x7FFFFF;
 	bool neg = res & (1U << 31);
 
-	float sig = 0.0;
+	float sig = 0.0F;
 	if (e != 0 || sig_i != 0) {
 		sig = (float)sig_i / (8388608.0f * 2.0f) + 0.5f;
 		e -= 126;

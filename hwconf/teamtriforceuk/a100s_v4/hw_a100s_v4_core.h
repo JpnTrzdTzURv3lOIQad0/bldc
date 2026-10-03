@@ -44,7 +44,7 @@
 
 #define ADC_IND_EXT				6
 #define ADC_IND_EXT2			7
-//#define ADC_IND_EXT3			
+//#define ADC_IND_EXT3
 
 #define ADC_IND_TEMP_MOS		11
 //#define ADC_IND_TEMP_MOS_2		12
@@ -58,38 +58,38 @@
 
 // Component parameters (can be overridden)
 #ifndef V_REG
-#define V_REG					3.30
+#define V_REG					3.30F
 #endif
 #ifndef VIN_R1
-#define VIN_R1					105000.0
+#define VIN_R1					105000.0F
 #endif
 #ifndef VIN_R2
-#define VIN_R2					3300.0
+#define VIN_R2					3300.0F
 #endif
 #ifndef CURRENT_AMP_GAIN
-#define CURRENT_AMP_GAIN		20.0
+#define CURRENT_AMP_GAIN		20.0F
 #endif
 #ifndef CURRENT_SHUNT_RES
-#define CURRENT_SHUNT_RES		0.0002
+#define CURRENT_SHUNT_RES		0.0002F
 #endif
 
 
 // Input voltage
-#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
+#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0F) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
 
 // NTC Termistors
-#define NTC_RES(adc_val)		(10000.0 / ((4095.0 / (float)adc_val) - 1.0)) // Mos temp sensor on low side
+#define NTC_RES(adc_val)		(10000.0F / ((4095.0F / (float)adc_val) - 1.0F)) // Mos temp sensor on low side
 
-#define NTC_RES_MOTOR(adc_val)	(10000.0 / ((4095.0 / (float)adc_val) - 1.0)) // Motor temp sensor on low side
-#define NTC_TEMP_MOTOR(beta)	(1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0) / beta) + (1.0 / 298.15)) - 273.15)
+#define NTC_RES_MOTOR(adc_val)	(10000.0F / ((4095.0F / (float)adc_val) - 1.0F)) // Motor temp sensor on low side
+#define NTC_TEMP_MOTOR(beta)	(1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0F) / beta) + (1.0F / 298.15F)) - 273.15F)
 
 #define NTC_TEMP(adc_ind)		NTC_TEMP_MOS1()
-#define NTC_TEMP_MOS1()			(1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15)
-#define NTC_TEMP_MOS2()			(1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15)
-#define NTC_TEMP_MOS3()			(1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15)
+#define NTC_TEMP_MOS1()			(1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F)
+#define NTC_TEMP_MOS2()			(1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F)
+#define NTC_TEMP_MOS3()			(1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F)
 
 // Voltage on ADC channel
-#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4096.0 * V_REG)
+#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4096.0F * V_REG)
 
 
 #define LED_GREEN_GPIO			GPIOB
@@ -206,7 +206,7 @@
 
 #define MCCONF_FOC_F_ZV					30000.0F
 
-#define HW_LIM_FOC_CTRL_LOOP_FREQ		5000.0, 25000.0	//Limit to 50kHz max
+#define HW_LIM_FOC_CTRL_LOOP_FREQ		5000.0F, 25000.0F	//Limit to 50kHz max
 
 #define MCCONF_L_MAX_ABS_CURRENT		200.0F	// The maximum absolute current above which a fault is generated
 
@@ -227,23 +227,23 @@
 //#define MCCONF_FOC_OFFSETS_CAL_ON_BOOT	false // Don't Measure offsets every boot, it is done once at motor setup
 
 // Setting limits
-#define HW_LIM_CURRENT			-200.0, 200.0	
-#define HW_LIM_CURRENT_IN		-120.0, 120.0  
-#define HW_LIM_CURRENT_ABS		0.0, 400.0
-#define HW_LIM_VIN				-1.0, 90.0			  
-#define HW_LIM_ERPM				-200e3, 200e3
-#define HW_LIM_DUTY_MIN			0.0, 0.1
-#define HW_LIM_DUTY_MAX			0.0, 0.95
-#define HW_LIM_TEMP_FET			-40.0, 110.0
+#define HW_LIM_CURRENT			-200.0F, 200.0F
+#define HW_LIM_CURRENT_IN		-120.0F, 120.0F
+#define HW_LIM_CURRENT_ABS		0.0F, 400.0F
+#define HW_LIM_VIN				-1.0F, 90.0F
+#define HW_LIM_ERPM				-200e3F, 200e3F
+#define HW_LIM_DUTY_MIN			0.0F, 0.1F
+#define HW_LIM_DUTY_MAX			0.0F, 0.95F
+#define HW_LIM_TEMP_FET			-40.0F, 110.0F
 #ifndef MCCONF_L_MAX_VOLTAGE
-#define MCCONF_L_MAX_VOLTAGE	20.0 * 4.2 + 5.0	// Maximum input voltage
+#define MCCONF_L_MAX_VOLTAGE	20.0F * 4.2F + 5.0F	// Maximum input voltage
 #endif
 #ifndef MCCONF_FOC_DT_US
 #define MCCONF_FOC_DT_US		0.1F // Microseconds for dead time compensation
 #endif
 
-#define HW_DEAD_TIME_NSEC		500.0 // FD6288q adds 200ns
+#define HW_DEAD_TIME_NSEC		500.0F // FD6288q adds 200ns
 #define HW_NAME					"A100S_V4"
- 
+
 
 #endif /* HW_A100S_V4_CORE_H_ */

@@ -27,7 +27,7 @@
 #if defined (HW_VER_IS_100S_V2)
 static THD_WORKING_AREA(switch_color_thread_wa, 128);
 static THD_FUNCTION(switch_color_thread, arg);
-static volatile float switch_bright = 1.0;
+static volatile float switch_bright = 1.0F;
 #endif
 
 // I2C configuration
@@ -264,21 +264,21 @@ void hw_try_restore_i2c(void) {
 static THD_FUNCTION(switch_color_thread, arg) {
 	(void)arg;
 	chRegSetThreadName("switch_color");
-	float switch_red = 0.0;
-	float switch_green = 0.0;
-	float switch_blue = 0.0;
+	float switch_red = 0.0F;
+	float switch_green = 0.0F;
+	float switch_blue = 0.0F;
 
 	for(int i = 0; i < 400; i++) {
-		float angle = i*3.14/400.0;
+		float angle = i*3.14F/400.0F;
 		float s,c;
 		utils_fast_sincos_better(angle, &s, &c);
-		switch_blue = 0.75* c*c;
+		switch_blue = 0.75F* c*c;
 		ledpwm_set_intensity(LED_HW1,switch_bright*switch_blue);
-		utils_fast_sincos_better(angle + 3.14/3.0, &s, &c);
-		switch_green = 0.75* c*c;
+		utils_fast_sincos_better(angle + 3.14F/3.0F, &s, &c);
+		switch_green = 0.75F* c*c;
 		ledpwm_set_intensity(LED_HW2,switch_bright*switch_green);
-		utils_fast_sincos_better(angle + 6.28/3.0, &s, &c);
-		switch_red = 0.75* c*c;
+		utils_fast_sincos_better(angle + 6.28F/3.0F, &s, &c);
+		switch_red = 0.75F* c*c;
 		ledpwm_set_intensity(LED_HW3,switch_bright*switch_red);
 		chThdSleepMilliseconds(4);
 	}
@@ -287,21 +287,21 @@ static THD_FUNCTION(switch_color_thread, arg) {
 	float switch_blue_old = switch_blue;
 	float wh_left;
 	float left = mc_interface_get_battery_level(&wh_left);
-	if(left < 0.5){
-		float intense = utils_map(left,0.0, 0.5, 0.0, 1.0);
+	if(left < 0.5F){
+		float intense = utils_map(left,0.0F, 0.5F, 0.0F, 1.0F);
 		utils_truncate_number(&intense,0,1);
 		switch_blue = intense;
-		switch_red  = 1.0-intense;
+		switch_red  = 1.0F-intense;
 	}else{
-		float intense = utils_map(left , 0.5, 1.0, 0.0, 1.0);
+		float intense = utils_map(left , 0.5F, 1.0F, 0.0F, 1.0F);
 		utils_truncate_number(&intense,0,1);
 		switch_green = intense;
-		switch_blue  = 1.0-intense;
+		switch_blue  = 1.0F-intense;
 	}
 	for(int i = 0; i < 100; i++) {
-		float red_now = utils_map((float) i,0.0, 100.0, switch_red_old, switch_red);
-		float blue_now = utils_map((float) i,0.0, 100.0, switch_blue_old, switch_blue);
-		float green_now = utils_map((float) i,0.0, 100.0, switch_green_old, switch_green);
+		float red_now = utils_map((float) i,0.0F, 100.0F, switch_red_old, switch_red);
+		float blue_now = utils_map((float) i,0.0F, 100.0F, switch_blue_old, switch_blue);
+		float green_now = utils_map((float) i,0.0F, 100.0F, switch_green_old, switch_green);
 		ledpwm_set_intensity(LED_HW1, switch_bright*blue_now);
 		ledpwm_set_intensity(LED_HW2, switch_bright*green_now);
 		ledpwm_set_intensity(LED_HW3, switch_bright*red_now);
@@ -318,18 +318,18 @@ static THD_FUNCTION(switch_color_thread, arg) {
 			ledpwm_set_intensity(LED_HW1, 0);
 			for (int i = 0;i < (int)fault;i++) {
 
-				ledpwm_set_intensity(LED_HW3, 1.0);
+				ledpwm_set_intensity(LED_HW3, 1.0F);
 				chThdSleepMilliseconds(250);
-				ledpwm_set_intensity(LED_HW3, 0.0);
+				ledpwm_set_intensity(LED_HW3, 0.0F);
 				chThdSleepMilliseconds(250);
 			}
 
 			chThdSleepMilliseconds(500);
 
 			for (int i = 0;i < (int)fault2;i++) {
-				ledpwm_set_intensity(LED_HW3, 1.0);
+				ledpwm_set_intensity(LED_HW3, 1.0F);
 				chThdSleepMilliseconds(250);
-				ledpwm_set_intensity(LED_HW3, 0.0);
+				ledpwm_set_intensity(LED_HW3, 0.0F);
 				chThdSleepMilliseconds(250);
 			}
 
@@ -337,22 +337,22 @@ static THD_FUNCTION(switch_color_thread, arg) {
 		} else {
 			left = mc_interface_get_battery_level(&wh_left);
 			if(HW_SAMPLE_SHUTDOWN()){
-				switch_bright = 0.5;
+				switch_bright = 0.5F;
 			}else{
-				switch_bright = 1.0;
+				switch_bright = 1.0F;
 			}
 
-			if(left < 0.5){
-				float intense = utils_map(left,0.0, 0.5, 0.0, 1.0);
+			if(left < 0.5F){
+				float intense = utils_map(left,0.0F, 0.5F, 0.0F, 1.0F);
 				utils_truncate_number(&intense,0,1);
 				switch_blue = intense;
-				switch_red  = 1.0-intense;
+				switch_red  = 1.0F-intense;
 				switch_green = 0;
 			}else{
-				float intense = utils_map(left , 0.5, 1.0, 0.0, 1.0);
+				float intense = utils_map(left , 0.5F, 1.0F, 0.0F, 1.0F);
 				utils_truncate_number(&intense,0,1);
 				switch_green = intense;
-				switch_blue  = 1.0-intense;
+				switch_blue  = 1.0F-intense;
 				switch_red = 0;
 			}
 			ledpwm_set_intensity(LED_HW1, switch_bright*switch_blue);

@@ -30,7 +30,7 @@
 // Variables
 static volatile bool i2c_running = false;
 static mutex_t shutdown_mutex;
-static float bt_diff = 0.0;
+static float bt_diff = 0.0F;
 
 // I2C configuration
 static const I2CConfig i2cfg = {
@@ -274,7 +274,7 @@ void hw_try_restore_i2c(void) {
 bool hw_sample_shutdown_button(void) {
 	chMtxLock(&shutdown_mutex);
 
-	bt_diff = 0.0;
+	bt_diff = 0.0F;
 
 	for (int i = 0;i < 3;i++) {
 		palSetPadMode(HW_SHUTDOWN_GPIO, HW_SHUTDOWN_PIN, PAL_MODE_INPUT_ANALOG);
@@ -290,7 +290,7 @@ bool hw_sample_shutdown_button(void) {
 
 	chMtxUnlock(&shutdown_mutex);
 
-	return (bt_diff > 0.12);
+	return (bt_diff > 0.12F);
 }
 
 static void terminal_shutdown_now(int argc, const char **argv) {
