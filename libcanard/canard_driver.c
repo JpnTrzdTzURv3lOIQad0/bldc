@@ -185,8 +185,8 @@ static const uint32_t flash_addr[FLASH_SECTORS] = {
 	ADDR_FLASH_SECTOR_11
 };
 
-/* 
- * Parameter types and enums 
+/*
+ * Parameter types and enums
  */
 typedef struct
 {
@@ -219,7 +219,7 @@ static void write_app_config(void);
 
 /*
  * Local parameter table
- * This table contains the parameters we want to be able to change via UAVCAN. It is a copy of the 
+ * This table contains the parameters we want to be able to change via UAVCAN. It is a copy of the
  * appconf parameters with more information, the format of each parameter is as follows:
  * { parameter name, parameter type, current value, min value, max value, default value}
  */
@@ -239,7 +239,7 @@ static param_t parameters[] =
  * This function updates the local parameter value. It is called after reading the current appconf
  * data to update the local copy of the parameter.
  */
-static void updateParamByName(uint8_t * name, float value) 
+static void updateParamByName(uint8_t * name, float value)
 {
 	param_t* p = NULL;
 	p = getParamByName((char *)name);
@@ -258,7 +258,7 @@ static void updateParamByName(uint8_t * name, float value)
 }
 
 /*
- * This function updates the app config from the local app config. It is used to 
+ * This function updates the app config from the local app config. It is used to
  * write new parameters after a set parameter request.
  */
 static void write_app_config(void) {
@@ -292,7 +292,7 @@ static void write_app_config(void) {
 /*
  * This function updates the local copy of the parameters from the appconf data
  * This is called periodically so that the paremters are kept in sync. Care has
- * to be taken when a set parameter request is recieved so that the parameter is 
+ * to be taken when a set parameter request is recieved so that the parameter is
  * not overwritten before it is actually writen to the emulated EEPROM.
  */
 static void refresh_parameters(void){
@@ -331,7 +331,7 @@ static param_t* getParamByIndex(uint16_t index)
 
 /*
  * Get parameter by name
- * Searches the parameter table for the given name and returns the parameter information 
+ * Searches the parameter table for the given name and returns the parameter information
  * if no parameter is found it returns null.
  */
 static param_t* getParamByName(char * name)
@@ -341,7 +341,7 @@ static param_t* getParamByName(char * name)
 		if (debug_level == 2) {
 			commands_printf("name: %s paramname: %s", name, parameters[i].name);
 		}
-		
+
 		if (strcmp(name, parameters[i].name) == 0)
 		{
 			if (debug_level == 2) {
@@ -349,7 +349,7 @@ static param_t* getParamByName(char * name)
 			}
 			return &parameters[i];
 		}
-	} 
+	}
 	return NULL;
 }
 
@@ -509,7 +509,7 @@ static void calculateTotalCurrent(void) {
 	float totalSysCurrent = 0;
 
 	uint8_t escTotal = 1;
-	
+
 	for (int i = 0;i < STATUS_MSGS_TO_STORE;i++) {
 		status_msg_wrapper_t *msgw = &stat_msgs[i];
 		if (msgw->id != -1) {
@@ -544,7 +544,7 @@ static void calculateTotalCurrent(void) {
 */
 static void sendNodeStatus(CanardInstance *ins) {
 	node_mode = fw_update.node_id?UAVCAN_PROTOCOL_NODESTATUS_MODE_SOFTWARE_UPDATE:UAVCAN_PROTOCOL_NODESTATUS_MODE_OPERATIONAL;
-	
+
 	node_status.health = node_health;
 	node_status.mode = node_mode;
 	node_status.uptime_sec = (uint32_t)ST2S(chVTGetSystemTimeX());
@@ -580,9 +580,9 @@ static void sendEscStatus(CanardInstance *ins) {
 	status.error_count = mc_interface_get_fault();
 	status.esc_index = app_get_configuration()->uavcan_esc_index;
 	status.power_rating_pct = (fabsf(mc_interface_get_tot_current()) /
-			conf->l_current_max * conf->l_current_max_scale) * 100.0;
-	status.rpm = mc_interface_get_rpm() / ((float)conf->si_motor_poles / 2.0);
-	status.temperature = fmaxf(mc_interface_temp_fet_filtered(), mc_interface_temp_motor_filtered()) + 273.15;
+			conf->l_current_max * conf->l_current_max_scale) * 100.0F;
+	status.rpm = mc_interface_get_rpm() / ((float)conf->si_motor_poles / 2.0F);
+	status.temperature = fmaxf(mc_interface_temp_fet_filtered(), mc_interface_temp_motor_filtered()) + 273.15F;
 	status.voltage = mc_interface_get_input_voltage_filtered();
 
 	uavcan_equipment_esc_Status_encode(&status, msg_buffer);
@@ -642,14 +642,14 @@ static void sendRtData(CanardInstance *ins) {
 	data.gyro_z = gyro[2];
 
 	data.erpm = mc_interface_get_rpm();
-	data.rpm = mc_interface_get_rpm() / ((float)conf->si_motor_poles / 2.0);
+	data.rpm = mc_interface_get_rpm() / ((float)conf->si_motor_poles / 2.0F);
 	data.duty = mc_interface_get_duty_cycle_now();
 	data.ah_used = mc_interface_get_amp_hours(false);
 	data.ah_charged = mc_interface_get_amp_hours_charged(false);
 	data.wh_used = mc_interface_get_watt_hours(false);
 	data.wh_charged = mc_interface_get_watt_hours_charged(false);
 	data.encoder_pos = mc_interface_get_pid_pos_now();
-	float wh_left = 0.0;
+	float wh_left = 0.0F;
 	data.battery_level = mc_interface_get_battery_level(&wh_left);
 	data.battery_wh_tot = wh_left / data.battery_level;
 	data.fault_code = mc_interface_get_fault();
@@ -687,7 +687,7 @@ static void readUniqueID(uint8_t* out_uid) {
  * HW_VERSION is from HW_HEADER if HW_MAJOR/HW_MINOR are defined, else it sends 0
  *     This needs a change to all HW_HEADER files if desired.
  * Unique ID is now being read from the STM32 UUID field
- * Node status is syncronize with the data from the node status message. 
+ * Node status is syncronize with the data from the node status message.
  */
 static void handle_get_node_info(CanardInstance* ins, CanardRxTransfer* transfer) {
 	uavcan_protocol_GetNodeInfoResponse pkt;
@@ -752,7 +752,7 @@ static void handle_esc_raw_command(CanardInstance* ins, CanardRxTransfer* transf
 
 	if (uavcan_equipment_esc_RawCommand_decode_internal(transfer, transfer->payload_len, &cmd, &tmp, 0) >= 0) {
 		if (cmd.cmd.len > app_get_configuration()->uavcan_esc_index) {
-			float raw_val = ((float)cmd.cmd.data[app_get_configuration()->uavcan_esc_index]) / 8192.0;
+			float raw_val = ((float)cmd.cmd.data[app_get_configuration()->uavcan_esc_index]) / 8192.0F;
 
 			if (ins == &canard_ins) {
 				can1_cmd.rawtime = chVTGetSystemTimeX();
@@ -776,7 +776,7 @@ static void handle_esc_raw_command(CanardInstance* ins, CanardRxTransfer* transf
 					break;
 
 				case UAVCAN_RAW_MODE_CURRENT_NO_REV_BRAKE:
-					if (raw_val >= 0.0) {
+					if (raw_val >= 0.0F) {
 						mc_interface_set_current_rel(raw_val);
 					} else {
 						mc_interface_set_brake_current_rel(-raw_val);
@@ -859,11 +859,11 @@ static void handle_esc_status(CanardInstance* ins, CanardRxTransfer* transfer) {
 /*
  * Handle parameter GetSet request
  * In UAVCAN parameters are requested individually either by index or by name
- * VESC currently does not have a way to write parameters individually or a way to 
+ * VESC currently does not have a way to write parameters individually or a way to
  * access the parameters by name. So I needed to create a bridge between the parameters
- * and the UAVCAN driver which was not very clean and creates too much overhead if we 
- * want to access a large number of parameters. For that reason only a few paremeters 
- * were added here to allow changing of the most basic features. 
+ * and the UAVCAN driver which was not very clean and creates too much overhead if we
+ * want to access a large number of parameters. For that reason only a few paremeters
+ * were added here to allow changing of the most basic features.
  * For now any tunning that needs to be done could be done using the USB interface
  * parameters can be changed and if it needs to be deployed on the field to other
  * ESCs that are using a UAVCAN interface then a special firmware with the defaults
@@ -1021,7 +1021,7 @@ static void handle_param_getset(CanardInstance* ins, CanardRxTransfer* transfer)
 
 	if ((resp_res <= 0) && (debug_level > 1)) {
 		commands_printf("Could not respond to param_getset_req: %d\n", resp_res);
-	}												
+	}
 }
 
 /**
@@ -1055,7 +1055,7 @@ static void handle_restart_node(CanardInstance* ins, CanardRxTransfer* transfer)
 /*
  * Send a read for a fw update file
  * This request is sent after we recieve a begin firmware udpate request, and then
- * everytime we finish processing one chunk of the firmware file. It uses the 
+ * everytime we finish processing one chunk of the firmware file. It uses the
  * fw_update.ofs value to keep track of what chunk of data needs to be requested.
  * We use fw_update.last_ms to give the server enough time to respond to the previous
  * request before we send a new one. The value is cleared after procesing a response
@@ -1093,8 +1093,8 @@ static void send_fw_read(CanardInstance *ins)
 }
 
 /*
- * Handle response to file read request. This is called when we recieve a response to 
- * send_fw_read() above. the packet contains a 16 bit value at the begining called 
+ * Handle response to file read request. This is called when we recieve a response to
+ * send_fw_read() above. the packet contains a 16 bit value at the begining called
  * error that needs to be removed before reading the file chunk
  */
 static void handle_file_read_response(CanardInstance* ins, CanardRxTransfer* transfer) {
@@ -1127,7 +1127,7 @@ static void handle_file_read_response(CanardInstance* ins, CanardRxTransfer* tra
 	// Write to flash, skip the first 6 bytes for Size and CRC so need to add 6 always
 	uint16_t flash_res = flash_helper_write_new_app_data(fw_update.ofs+6, buf, len);
 	fw_update.ofs += len;
-	
+
 	// TODO: Check result and abort on failure.
 	(void)flash_res;
 
@@ -1148,7 +1148,7 @@ static void handle_file_read_response(CanardInstance* ins, CanardRxTransfer* tra
 		if (debug_level == 8) {
 			commands_printf("UAVCAN read_response transfer finished %d kB", fw_update.ofs / 1024U);
 			commands_printf("new app address: 0x%lx", flash_addr[NEW_APP_BASE]);
-			
+
 			// Print reserved space contents for size and crc
 			sizefromflash = buffer_get_uint32((uint8_t *)flash_addr[NEW_APP_BASE], &ind);
 			crc_app = buffer_get_uint16((uint8_t *)flash_addr[NEW_APP_BASE], &ind);
@@ -1173,7 +1173,7 @@ static void handle_file_read_response(CanardInstance* ins, CanardRxTransfer* tra
 			commands_printf("crc16: 0x%02hhX", app_crc);
 			uint16_t app_crc1 = crc16((uint8_t *)flash_addr[APP_BASE],app_size);
 			commands_printf("app crc16: 0x%02hhX", app_crc1);
-			
+
 			// Print size and crc data read from flash after calculation and write
 			ind = 0;
 			sizefromflash = buffer_get_uint32((uint8_t *)flash_addr[NEW_APP_BASE], &ind);
@@ -1198,16 +1198,16 @@ static void handle_file_read_response(CanardInstance* ins, CanardRxTransfer* tra
 	// show offset number we are flashing in kbyte as crude progress indicator
 	node_status.vendor_specific_status_code = 1 + (fw_update.ofs / 1024U);
 
-	// Clear the counter so we dont delay the next request for data unecesarily 
+	// Clear the counter so we dont delay the next request for data unecesarily
 	fw_update.last_ms = 0;
 }
 
 /**
- * Handle a begin firmware update request. 
+ * Handle a begin firmware update request.
  * UAVCAN uses the file system requests to pull the firmware file from the host.
  * A begin firmware update call is made to tell the client node to ask the host
  * for the firmware file. From this point on the client basically becomes the host
- * for the file transfer until the file is received by sending requests for the 
+ * for the file transfer until the file is received by sending requests for the
  * next chunk of data every so often.
  */
 static void handle_begin_firmware_update(CanardInstance* ins, CanardRxTransfer* transfer)
@@ -1260,7 +1260,7 @@ static void handle_begin_firmware_update(CanardInstance* ins, CanardRxTransfer* 
 	if (debug_level > 0) {
 		commands_printf("UAVCAN Begin firmware update from node_id: %d",fw_update.node_id);
 	}
-	
+
 	send_fw_read(ins);
 }
 
@@ -1386,7 +1386,7 @@ static bool shouldAcceptTransfer(const CanardInstance* ins,
 		case UAVCAN_PROTOCOL_FILE_READ_ID:
 			*out_data_type_signature = UAVCAN_PROTOCOL_FILE_READ_SIGNATURE;
 			return transfer_type == CanardTransferTypeResponse;
-		
+
 		case UAVCAN_PROTOCOL_FILE_BEGINFIRMWAREUPDATE_ID:
 			*out_data_type_signature = UAVCAN_PROTOCOL_FILE_BEGINFIRMWAREUPDATE_SIGNATURE;
 			return transfer_type == CanardTransferTypeRequest;
@@ -1501,7 +1501,7 @@ static THD_FUNCTION(canard_thread, arg) {
 #endif
 		}
 
-		if (conf->can_status_rate_1 > 0 && UTILS_AGE_S(last_esc_status_time) >= (1.0 / (float)conf->can_status_rate_1)) {
+		if (conf->can_status_rate_1 > 0 && UTILS_AGE_S(last_esc_status_time) >= (1.0F / (float)conf->can_status_rate_1)) {
 			last_esc_status_time = chVTGetSystemTimeX();
 			sendEscStatus(&canard_ins);
 #ifdef HW_CAN2_DEV
@@ -1516,7 +1516,7 @@ static THD_FUNCTION(canard_thread, arg) {
 			}
 		}
 
-		if (conf->can_status_rate_2 > 0 && UTILS_AGE_S(last_esc_status_time_r2) >= (1.0 / (float)conf->can_status_rate_2)) {
+		if (conf->can_status_rate_2 > 0 && UTILS_AGE_S(last_esc_status_time_r2) >= (1.0F / (float)conf->can_status_rate_2)) {
 			last_esc_status_time_r2 = chVTGetSystemTimeX();
 
 			if ((conf->can_status_msgs_r2 >> 0) & 1) {

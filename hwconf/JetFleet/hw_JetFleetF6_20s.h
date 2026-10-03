@@ -24,12 +24,12 @@
 #define HW_NAME					"JetFleetF6_20s"
 #define HW_JetFleetF6_20s
 
-#define VIN_R2				            4700.0
+#define VIN_R2				            4700.0F
 #define MCCONF_L_MAX_VOLTAGE			90.0F	// Maximum input voltage
 #define MCCONF_L_MAX_ABS_CURRENT		260.0F	// The maximum absolute current above which a fault is generated
-#define HW_LIM_CURRENT			        -260.0, 260.0
-#define HW_LIM_CURRENT_ABS		        0.0, 320.0
-#define HW_LIM_VIN			            18.0, 90.0
+#define HW_LIM_CURRENT			        -260.0F, 260.0F
+#define HW_LIM_CURRENT_ABS		        0.0F, 320.0F
+#define HW_LIM_VIN			            18.0F, 90.0F
 
 
 #include "hw_JetFleetF6_core.h"

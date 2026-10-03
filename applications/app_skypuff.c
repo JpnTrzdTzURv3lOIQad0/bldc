@@ -240,18 +240,18 @@ static void set_example_config(void)
 {
 	// Some example ranges
 	config.braking_length = meters_to_tac_steps(1);
-	config.overwinding = meters_to_tac_steps(0.1);
-	config.rewinding_trigger_lenght = meters_to_tac_steps(0.2);
-	config.unwinding_trigger_length = meters_to_tac_steps(0.05);
+	config.overwinding = meters_to_tac_steps(0.1F);
+	config.rewinding_trigger_lenght = meters_to_tac_steps(0.2F);
+	config.unwinding_trigger_length = meters_to_tac_steps(0.05F);
 	config.slowing_length = meters_to_tac_steps(3);
 	config.slow_erpm = ms_to_erpm(1);
 
 	// Forces
 	config.kg_to_amps = 7;
-	config.brake_current = 0.2 * config.kg_to_amps;
-	config.unwinding_current = 0.2 * config.kg_to_amps;
-	config.rewinding_current = 0.4 * config.kg_to_amps;
-	config.slow_max_current = 0.3 * config.kg_to_amps;
+	config.brake_current = 0.2F * config.kg_to_amps;
+	config.unwinding_current = 0.2F * config.kg_to_amps;
+	config.rewinding_current = 0.4F * config.kg_to_amps;
+	config.slow_max_current = 0.3F * config.kg_to_amps;
 }
 
 // Called when the custom application is started. Start our
@@ -575,7 +575,7 @@ static void terminal_move_tac(int argc, const char **argv)
 	}
 	else
 	{
-		commands_printf("This command requires one argument: 'move_tac -5.2' will move zero 5.2 meters backward");
+		commands_printf("This command requires one argument: 'move_tac -5.2F' will move zero 5.2F meters backward");
 	}
 }
 

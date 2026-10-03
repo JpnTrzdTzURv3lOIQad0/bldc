@@ -12,7 +12,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     */
-	
+
 #ifndef HW_FSESC_75_200_ALU_H_
 #define HW_FSESC_75_200_ALU_H_
 
@@ -21,7 +21,7 @@
 // (jaykup) HW properties
 #define HW_HAS_3_SHUNTS
 
-// Macros  
+// Macros
 #define LED_GREEN_GPIO			GPIOB
 #define LED_GREEN_PIN			5
 #define LED_RED_GPIO			GPIOB
@@ -94,35 +94,35 @@
 
 // Component parameters (can be overridden)
 #ifndef V_REG
-#define V_REG					3.413 // (jaykup) Updated from @1zuna's calculations.  75_300 was 3.44
+#define V_REG					3.413F // (jaykup) Updated from @1zuna's calculations.  75_300 was 3.44F
 #endif
 #ifndef VIN_R1
-#define VIN_R1					56000.0 //
+#define VIN_R1					56000.0F //
 #endif
 #ifndef VIN_R2
-#define VIN_R2					2200.0 //
+#define VIN_R2					2200.0F //
 #endif
 #ifndef CURRENT_AMP_GAIN
-#define CURRENT_AMP_GAIN		20.0 //
+#define CURRENT_AMP_GAIN		20.0F //
 #endif
 #ifndef CURRENT_SHUNT_RES
-#define CURRENT_SHUNT_RES		(0.0005 / 3.0) // (jaykup) updated
+#define CURRENT_SHUNT_RES		(0.0005F / 3.0F) // (jaykup) updated
 #endif
 
 // Input voltage
-#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
+#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0F) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
 
 // NTC Termistors
-#define NTC_RES(adc_val)		((4095.0 * 10000.0) / adc_val - 10000.0)
+#define NTC_RES(adc_val)		((4095.0F * 10000.0F) / adc_val - 10000.0F)
 
 // (jaykup) 273 is C to K conversion
-#define NTC_TEMP(adc_ind)		(1.0 / ((logf(NTC_RES(ADC_Value[adc_ind]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15) 
+#define NTC_TEMP(adc_ind)		(1.0F / ((logf(NTC_RES(ADC_Value[adc_ind]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F)
 
-#define NTC_RES_MOTOR(adc_val)	(10000.0 / ((4095.0 / (float)adc_val) - 1.0)) // Motor temp sensor on low side
-#define NTC_TEMP_MOTOR(beta)	(1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0) / beta) + (1.0 / 298.15)) - 273.15)
+#define NTC_RES_MOTOR(adc_val)	(10000.0F / ((4095.0F / (float)adc_val) - 1.0F)) // Motor temp sensor on low side
+#define NTC_TEMP_MOTOR(beta)	(1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0F) / beta) + (1.0F / 298.15F)) - 273.15F)
 
 // Voltage on ADC channel
-#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4096.0 * V_REG)
+#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4096.0F * V_REG)
 
 // Double samples in beginning and end for positive current measurement.
 // Useful when the shunt sense traces have noise that causes offset.
@@ -224,7 +224,7 @@
 #define READ_HALL3()			palReadPad(HW_HALL_ENC_GPIO3, HW_HALL_ENC_PIN3)
 
 // Override dead time. See the stm32f4 reference manual for calculating this value.
-#define HW_DEAD_TIME_NSEC		660.0
+#define HW_DEAD_TIME_NSEC		660.0F
 
 // Default setting overrides
 #ifndef MCCONF_L_MIN_VOLTAGE
@@ -264,13 +264,13 @@
 #endif
 
 // Setting limits
-#define HW_LIM_CURRENT			-300.0, 300.0 // (jaykup) phase amps based on Flipsky website
-#define HW_LIM_CURRENT_IN		-280.0, 280.0 // (jaykup) battery amps based on Flipsky website
-#define HW_LIM_CURRENT_ABS		0.0, 450 // (jaykup) abs phase amps 1.5x burst
-#define HW_LIM_VIN				6.0, 120.0 // (jaykup) based on Flipsky 75_100 firmware
-#define HW_LIM_ERPM				-200e3, 200e3 // (jaykup)
-#define HW_LIM_DUTY_MIN			0.0, 0.1
-#define HW_LIM_DUTY_MAX			0.0, 0.99
-#define HW_LIM_TEMP_FET			-40.0, 110.0
+#define HW_LIM_CURRENT			-300.0F, 300.0F // (jaykup) phase amps based on Flipsky website
+#define HW_LIM_CURRENT_IN		-280.0F, 280.0F // (jaykup) battery amps based on Flipsky website
+#define HW_LIM_CURRENT_ABS		0.0F, 450 // (jaykup) abs phase amps 1.5x burst
+#define HW_LIM_VIN				6.0F, 120.0F // (jaykup) based on Flipsky 75_100 firmware
+#define HW_LIM_ERPM				-200e3F, 200e3F // (jaykup)
+#define HW_LIM_DUTY_MIN			0.0F, 0.1F
+#define HW_LIM_DUTY_MAX			0.0F, 0.99F
+#define HW_LIM_TEMP_FET			-40.0F, 110.0F
 
 #endif /* HW_FSESC_75_200_ALU_H_ */

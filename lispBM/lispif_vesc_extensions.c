@@ -328,7 +328,7 @@ typedef struct {
 	// Arrays
 	lbm_uint copy;
 	lbm_uint mut;
-	
+
 	// Other
 	lbm_uint half_duplex;
 } vesc_syms;
@@ -467,17 +467,17 @@ static bool compare_symbol(lbm_uint sym, lbm_uint *comp) {
 #endif
 		else if (comp == &syms_vesc.pin_ppm) {
 			lbm_add_symbol_const("pin-ppm", comp);
-		} 
+		}
 #ifdef PIN_HW_1
 		else if (comp == &syms_vesc.pin_hw_1) {
 			lbm_add_symbol_const("pin-hw-1", comp);
-		} 
+		}
 #endif
 #ifdef PIN_HW_2
 		else if (comp == &syms_vesc.pin_hw_2) {
 			lbm_add_symbol_const("pin-hw-2", comp);
-		} 
-#endif	
+		}
+#endif
 
 		else if (comp == &syms_vesc.l_current_min) {
 			lbm_add_symbol_const("l-current-min", comp);
@@ -940,7 +940,7 @@ static lbm_value ext_get_ppm(lbm_value *args, lbm_uint argn) {
 
 static lbm_value ext_get_ppm_age(lbm_value *args, lbm_uint argn) {
 	(void)args; (void)argn;
-	return lbm_enc_float((float)servodec_get_time_since_update() / 1000.0);
+	return lbm_enc_float((float)servodec_get_time_since_update() / 1000.0F);
 }
 
 static lbm_value ext_get_vin(lbm_value *args, lbm_uint argn) {
@@ -1491,14 +1491,14 @@ static lbm_value ext_recv_data(lbm_value *args, lbm_uint argn) {
 		lbm_set_error_reason((char*)lbm_error_str_incorrect_arg);
 	}
 
-	float timeout = -1.0;
+	float timeout = -1.0F;
 	if (argn == 1) {
 		timeout = lbm_dec_as_float(args[0]);
 	}
 
 	recv_data_cid = lbm_get_current_cid();
 
-	if (timeout > 0.0) {
+	if (timeout > 0.0F) {
 		lbm_block_ctx_from_extension_timeout(timeout);
 	} else {
 		lbm_block_ctx_from_extension();
@@ -1824,7 +1824,7 @@ static lbm_value ext_app_adc_override(lbm_value *args, lbm_uint argn) {
 
 	uint32_t target = lbm_dec_as_u32(args[0]);
 	float val = lbm_dec_as_float(args[1]);
-	bool state = val > 0.0 ? true : false;
+	bool state = val > 0.0F ? true : false;
 
 	switch (target){
 		case 0:
@@ -1866,12 +1866,12 @@ static lbm_value ext_set_remote_state(lbm_value *args, lbm_uint argn) {
 	LBM_CHECK_ARGN_NUMBER(5);
 	chuck_data chuk = {0};
 
-	float js_y = (lbm_dec_as_float(args[0]) + 1.0) * 128.0;
-	utils_truncate_number(&js_y, 0.0, 255.0);
+	float js_y = (lbm_dec_as_float(args[0]) + 1.0F) * 128.0F;
+	utils_truncate_number(&js_y, 0.0F, 255.0F);
 	chuk.js_y = (int)js_y;
 
-	float js_x = (lbm_dec_as_float(args[1]) + 1.0) * 128.0;
-	utils_truncate_number(&js_x, 0.0, 255.0);
+	float js_x = (lbm_dec_as_float(args[1]) + 1.0F) * 128.0F;
+	utils_truncate_number(&js_x, 0.0F, 255.0F);
 	chuk.js_x = (int)js_x;
 
 	chuk.bt_c = lbm_dec_as_u32(args[2]) > 0;
@@ -2103,7 +2103,7 @@ static bool check_arg_filter(lbm_value *args, lbm_uint argn, int *res) {
 }
 
 static float dir_mult(void) {
-	return mc_interface_get_configuration()->m_invert_direction ? -1.0 : 1.0;
+	return mc_interface_get_configuration()->m_invert_direction ? -1.0F : 1.0F;
 }
 
 static lbm_value ext_get_current(lbm_value *args, lbm_uint argn) {
@@ -2318,9 +2318,9 @@ static lbm_value ext_get_speed_set(lbm_value *args, lbm_uint argn) {
 	(void)args; (void)argn;
 
 	const volatile mc_configuration *conf = mc_interface_get_configuration();
-	const float rpm = mcpwm_foc_get_pid_speed_set() / (conf->si_motor_poles / 2.0);
+	const float rpm = mcpwm_foc_get_pid_speed_set() / (conf->si_motor_poles / 2.0F);
 
-	return lbm_enc_float((rpm / 60.0) * conf->si_wheel_diameter * M_PI / conf->si_gear_ratio);
+	return lbm_enc_float((rpm / 60.0F) * conf->si_wheel_diameter * M_PI / conf->si_gear_ratio);
 }
 
 static lbm_value ext_get_dist(lbm_value *args, lbm_uint argn) {
@@ -2741,7 +2741,7 @@ static lbm_value ext_can_get_current(lbm_value *args, lbm_uint argn) {
 	if (stat0) {
 		return lbm_enc_float(stat0->current);
 	} else {
-		return lbm_enc_float(0.0);
+		return lbm_enc_float(0.0F);
 	}
 }
 
@@ -2751,7 +2751,7 @@ static lbm_value ext_can_get_current_dir(lbm_value *args, lbm_uint argn) {
 	if (stat0) {
 		return lbm_enc_float(stat0->current * SIGN(stat0->duty));
 	} else {
-		return lbm_enc_float(0.0);
+		return lbm_enc_float(0.0F);
 	}
 }
 
@@ -2761,7 +2761,7 @@ static lbm_value ext_can_get_current_in(lbm_value *args, lbm_uint argn) {
 	if (stat4) {
 		return lbm_enc_float((float)stat4->current_in);
 	} else {
-		return lbm_enc_float(0.0);
+		return lbm_enc_float(0.0F);
 	}
 }
 
@@ -2771,7 +2771,7 @@ static lbm_value ext_can_get_duty(lbm_value *args, lbm_uint argn) {
 	if (stat0) {
 		return lbm_enc_float(stat0->duty);
 	} else {
-		return lbm_enc_float(0.0);
+		return lbm_enc_float(0.0F);
 	}
 }
 
@@ -2781,7 +2781,7 @@ static lbm_value ext_can_get_rpm(lbm_value *args, lbm_uint argn) {
 	if (stat0) {
 		return lbm_enc_float(stat0->rpm);
 	} else {
-		return lbm_enc_float(0.0);
+		return lbm_enc_float(0.0F);
 	}
 }
 
@@ -2791,7 +2791,7 @@ static lbm_value ext_can_get_temp_fet(lbm_value *args, lbm_uint argn) {
 	if (stat4) {
 		return lbm_enc_float((float)stat4->temp_fet);
 	} else {
-		return lbm_enc_float(0.0);
+		return lbm_enc_float(0.0F);
 	}
 }
 
@@ -2801,7 +2801,7 @@ static lbm_value ext_can_get_temp_motor(lbm_value *args, lbm_uint argn) {
 	if (stat4) {
 		return lbm_enc_float((float)stat4->temp_motor);
 	} else {
-		return lbm_enc_float(0.0);
+		return lbm_enc_float(0.0F);
 	}
 }
 
@@ -2810,10 +2810,10 @@ static lbm_value ext_can_get_speed(lbm_value *args, lbm_uint argn) {
 	can_status_msg *stat0 = comm_can_get_status_msg_id(lbm_dec_as_i32(args[0]));
 	if (stat0) {
 		const volatile mc_configuration *conf = mc_interface_get_configuration();
-		const float rpm = stat0->rpm / (conf->si_motor_poles / 2.0);
-		return lbm_enc_float((rpm / 60.0) * conf->si_wheel_diameter * M_PI / conf->si_gear_ratio);
+		const float rpm = stat0->rpm / (conf->si_motor_poles / 2.0F);
+		return lbm_enc_float((rpm / 60.0F) * conf->si_wheel_diameter * M_PI / conf->si_gear_ratio);
 	} else {
-		return lbm_enc_float(0.0);
+		return lbm_enc_float(0.0F);
 	}
 }
 
@@ -2822,10 +2822,10 @@ static lbm_value ext_can_get_dist(lbm_value *args, lbm_uint argn) {
 	can_status_msg_5 *stat5 = comm_can_get_status_msg_5_id(lbm_dec_as_i32(args[0]));
 	if (stat5) {
 		const volatile mc_configuration *conf = mc_interface_get_configuration();
-		const float tacho_scale = (conf->si_wheel_diameter * M_PI) / (3.0 * conf->si_motor_poles * conf->si_gear_ratio);
+		const float tacho_scale = (conf->si_wheel_diameter * M_PI) / (3.0F * conf->si_motor_poles * conf->si_gear_ratio);
 		return lbm_enc_float((float)stat5->tacho_value * tacho_scale);
 	} else {
-		return lbm_enc_float(0.0);
+		return lbm_enc_float(0.0F);
 	}
 }
 
@@ -2835,7 +2835,7 @@ static lbm_value ext_can_get_ppm(lbm_value *args, lbm_uint argn) {
 	if (stat6) {
 		return lbm_enc_float((float)stat6->ppm);
 	} else {
-		return lbm_enc_float(0.0);
+		return lbm_enc_float(0.0F);
 	}
 }
 
@@ -2864,7 +2864,7 @@ static lbm_value ext_can_get_adc(lbm_value *args, lbm_uint argn) {
 			return ENC_SYM_EERROR;
 		}
 	} else {
-		return lbm_enc_float(-1.0);
+		return lbm_enc_float(-1.0F);
 	}
 }
 
@@ -2874,7 +2874,7 @@ static lbm_value ext_can_get_vin(lbm_value *args, lbm_uint argn) {
 	if (stat5) {
 		return lbm_enc_float(stat5->v_in);
 	} else {
-		return lbm_enc_float(0.0);
+		return lbm_enc_float(0.0F);
 	}
 }
 
@@ -3005,14 +3005,14 @@ static lbm_value ext_can_recv_sid(lbm_value *args, lbm_uint argn) {
 		lbm_set_error_reason((char*)lbm_error_str_incorrect_arg);
 	}
 
-	float timeout = -1.0;
+	float timeout = -1.0F;
 	if (argn == 1) {
 		timeout = lbm_dec_as_float(args[0]);
 	}
 
 	can_recv_sid_cid = lbm_get_current_cid();
 
-	if (timeout > 0.0) {
+	if (timeout > 0.0F) {
 		lbm_block_ctx_from_extension_timeout(timeout);
 	} else {
 		lbm_block_ctx_from_extension();
@@ -3026,14 +3026,14 @@ static lbm_value ext_can_recv_eid(lbm_value *args, lbm_uint argn) {
 		lbm_set_error_reason((char*)lbm_error_str_incorrect_arg);
 	}
 
-	float timeout = -1.0;
+	float timeout = -1.0F;
 	if (argn == 1) {
 		timeout = lbm_dec_as_float(args[0]);
 	}
 
 	can_recv_eid_cid = lbm_get_current_cid();
 
-	if (timeout > 0.0) {
+	if (timeout > 0.0F) {
 		lbm_block_ctx_from_extension_timeout(timeout);
 	} else {
 		lbm_block_ctx_from_extension();
@@ -3207,10 +3207,10 @@ static lbm_value ext_raw_adc_current(lbm_value *args, lbm_uint argn) {
 	} else {
 		scale1 = FAC_CURRENT1; scale2 = FAC_CURRENT2; scale3 = FAC_CURRENT3;
 	}
-	
+
 	if (argn == 3 && lbm_dec_as_i32(args[2]) != 0) {
-		scale1 = 1.0; scale2 = 1.0; scale3 = 1.0;
-		ofs1 = 0.0; ofs2 = 0.0; ofs3 = 0.0;
+		scale1 = 1.0F; scale2 = 1.0F; scale3 = 1.0F;
+		ofs1 = 0.0F; ofs2 = 0.0F; ofs3 = 0.0F;
 	}
 
 	switch(phase) {
@@ -3241,11 +3241,11 @@ static lbm_value ext_raw_adc_voltage(lbm_value *args, lbm_uint argn) {
 	float scale = ((VIN_R1 + VIN_R2) / VIN_R2) * ADC_VOLTS_PH_FACTOR;
 
 	if (argn == 3 && lbm_dec_as_i32(args[2]) != 0) {
-		scale = 4095.0 / V_REG;
-		ofs1 = 0.0; ofs2 = 0.0; ofs3 = 0.0;
+		scale = 4095.0F / V_REG;
+		ofs1 = 0.0F; ofs2 = 0.0F; ofs3 = 0.0F;
 	}
 
-	float Va = 0.0, Vb = 0.0, Vc = 0.0;
+	float Va = 0.0F, Vb = 0.0F, Vc = 0.0F;
 	if (motor == 2) {
 #ifdef HW_HAS_DUAL_MOTORS
 		Va = (ADC_V_L4_VOLTS - ofs1) * scale;
@@ -3817,7 +3817,7 @@ static lbm_value ext_conf_set(lbm_value *args, lbm_uint argn) {
 	mc_configuration *mcconf = (mc_configuration*)mc_interface_get_configuration();
 	app_configuration *appconf = (app_configuration*)app_get_configuration();
 
-	const float speed_fact = ((mcconf->si_motor_poles / 2.0) * 60.0 *
+	const float speed_fact = ((mcconf->si_motor_poles / 2.0F) * 60.0F *
 			mcconf->si_gear_ratio) / (mcconf->si_wheel_diameter * M_PI);
 
 	// Safe changes that can be done instantly on the pointer. It is not that good to do
@@ -4048,7 +4048,7 @@ static lbm_value ext_conf_set(lbm_value *args, lbm_uint argn) {
 			mcconf->foc_motor_flux_linkage = lbm_dec_as_float(args[1]) * 1e-3;
 			changed_mc = 2;
 		} else if (compare_symbol(name, &syms_vesc.foc_observer_gain)) {
-			mcconf->foc_observer_gain = lbm_dec_as_float(args[1]) * 1e6;
+			mcconf->foc_observer_gain = lbm_dec_as_float(args[1]) * 1e6F;
 			changed_mc = 2;
 		} else if (compare_symbol(name, &syms_vesc.foc_observer_type)) {
 			mcconf->foc_observer_type = lbm_dec_as_i32(args[1]);
@@ -4333,51 +4333,51 @@ static lbm_value ext_conf_get(lbm_value *args, lbm_uint argn) {
 			mcconf->l_current_max = lim_max(HW_LIM_CURRENT);
 			mcconf->l_current_min = lim_min(HW_LIM_CURRENT);
 #else
-			mcconf->l_current_max = 500.0;
-			mcconf->l_current_min = -500.0;
+			mcconf->l_current_max = 500.0F;
+			mcconf->l_current_min = -500.0F;
 #endif
 #ifdef HW_LIM_CURRENT_IN
 			mcconf->l_in_current_max = lim_max(HW_LIM_CURRENT_IN);
 			mcconf->l_in_current_min = lim_min(HW_LIM_CURRENT_IN);
 #else
-			mcconf->l_in_current_max = 500.0;
-			mcconf->l_in_current_min = -500.0;
+			mcconf->l_in_current_max = 500.0F;
+			mcconf->l_in_current_min = -500.0F;
 #endif
 #ifdef HW_LIM_CURRENT_ABS
 			mcconf->l_abs_current_max = lim_max(HW_LIM_CURRENT_ABS);
 #else
-			mcconf->l_abs_current_max = 500.0;
+			mcconf->l_abs_current_max = 500.0F;
 #endif
 #ifdef HW_LIM_VIN
 			mcconf->l_max_vin = lim_max(HW_LIM_CURRENT_ABS);
 			mcconf->l_min_vin = lim_min(HW_LIM_CURRENT_ABS);
 #else
-			mcconf->l_max_vin = 100.0;
-			mcconf->l_min_vin = 3.0;
+			mcconf->l_max_vin = 100.0F;
+			mcconf->l_min_vin = 3.0F;
 #endif
 #ifdef HW_LIM_ERPM
 			mcconf->l_max_erpm = lim_max(HW_LIM_ERPM);
 			mcconf->l_min_erpm = lim_min(HW_LIM_ERPM);
 #else
-			mcconf->l_max_erpm = 500000.0;
-			mcconf->l_min_erpm = -500000.0;
+			mcconf->l_max_erpm = 500000.0F;
+			mcconf->l_min_erpm = -500000.0F;
 #endif
 #ifdef HW_LIM_DUTY_MIN
 			mcconf->l_min_duty = lim_max(HW_LIM_DUTY_MIN);
 #else
-			mcconf->l_min_duty = 0.1;
+			mcconf->l_min_duty = 0.1F;
 #endif
 #ifdef HW_LIM_DUTY_MAX
 			mcconf->l_max_duty = lim_max(HW_LIM_DUTY_MAX);
 #else
-			mcconf->l_max_duty = 0.98;
+			mcconf->l_max_duty = 0.98F;
 #endif
 #ifdef HW_LIM_TEMP_FET
 			mcconf->l_temp_fet_start = lim_max(HW_LIM_TEMP_FET);
 			mcconf->l_temp_fet_end = lim_max(HW_LIM_TEMP_FET);
 #else
-			mcconf->l_temp_fet_start = 120.0;
-			mcconf->l_temp_fet_end = 120.0;
+			mcconf->l_temp_fet_start = 120.0F;
+			mcconf->l_temp_fet_end = 120.0F;
 #endif
 		}
 	} else {
@@ -4385,7 +4385,7 @@ static lbm_value ext_conf_get(lbm_value *args, lbm_uint argn) {
 		appconf = (app_configuration*)app_get_configuration();
 	}
 
-	const float speed_fact = ((mcconf->si_motor_poles / 2.0) * 60.0 *
+	const float speed_fact = ((mcconf->si_motor_poles / 2.0F) * 60.0F *
 			mcconf->si_gear_ratio) / (mcconf->si_wheel_diameter * M_PI);
 
 	if (compare_symbol(name, &syms_vesc.l_current_min)) {
@@ -4473,13 +4473,13 @@ static lbm_value ext_conf_get(lbm_value *args, lbm_uint argn) {
 	} else if (compare_symbol(name, &syms_vesc.foc_f_zv)) {
 		res = lbm_enc_float(mcconf->foc_f_zv);
 	} else if (compare_symbol(name, &syms_vesc.foc_motor_l)) {
-		res = lbm_enc_float(mcconf->foc_motor_l * 1e6);
+		res = lbm_enc_float(mcconf->foc_motor_l * 1e6F);
 	} else if (compare_symbol(name, &syms_vesc.foc_motor_ld_lq_diff)) {
-		res = lbm_enc_float(mcconf->foc_motor_ld_lq_diff * 1e6);
+		res = lbm_enc_float(mcconf->foc_motor_ld_lq_diff * 1e6F);
 	} else if (compare_symbol(name, &syms_vesc.foc_motor_r)) {
-		res = lbm_enc_float(mcconf->foc_motor_r * 1e3);
+		res = lbm_enc_float(mcconf->foc_motor_r * 1e3F);
 	} else if (compare_symbol(name, &syms_vesc.foc_motor_flux_linkage)) {
-		res = lbm_enc_float(mcconf->foc_motor_flux_linkage * 1e3);
+		res = lbm_enc_float(mcconf->foc_motor_flux_linkage * 1e3F);
 	} else if (compare_symbol(name, &syms_vesc.foc_observer_gain)) {
 		res = lbm_enc_float(mcconf->foc_observer_gain * 1e-6);
 	} else if (compare_symbol(name, &syms_vesc.foc_observer_type)) {
@@ -4775,7 +4775,7 @@ static lbm_value ext_conf_set_pid_offset(lbm_value *args, lbm_uint argn) {
 	}
 
 	float angle = lbm_dec_as_float(args[0]);
-	if (angle < -360.0 || angle > 360.0) {
+	if (angle < -360.0F || angle > 360.0F) {
 		return ENC_SYM_TERROR;
 	}
 
@@ -4804,7 +4804,7 @@ static void measure_res_task(void *arg) {
 	bool ok = false;
 
 	if (lbm_start_flatten(&v, 10)) {
-		float res = -1.0;
+		float res = -1.0F;
 		mc_interface_select_motor_thread(a->motor);
 		mcpwm_foc_measure_resistance(a->current, a->samples, true, &res);
 		mc_interface_select_motor_thread(1);
@@ -4864,7 +4864,7 @@ static void measure_inductance_task(void *arg) {
 	int restart_cnt = lispif_get_restart_cnt();
 
 	measure_ind_args *a = (measure_ind_args*)arg;
-	float ld_lq_avg, ld_lq_diff, real_measurement_current = -1.0;
+	float ld_lq_avg, ld_lq_diff, real_measurement_current = -1.0F;
 	int fault;
 
 	lbm_flat_value_t v;
@@ -4889,7 +4889,7 @@ static void measure_inductance_task(void *arg) {
 			f_float(&v, real_measurement_current);
 			f_sym(&v, SYM_NIL);
 		}
-		
+
 		lbm_finish_flatten(&v);
 		if (lbm_unblock_ctx(a->id, &v)) {
 			ok = true;
@@ -5094,7 +5094,7 @@ static void measure_lambda_enc_task(void *arg) {
 	if (lbm_start_flatten(&v, 50)) {
 		mc_interface_select_motor_thread(a->motor);
 
-		float linkage = 0.0, linkage_undriven = 0.0, undriven_samples = 0.0;
+		float linkage = 0.0F, linkage_undriven = 0.0F, undriven_samples = 0.0F;
 		bool result;
 		float enc_offset, enc_ratio;
 		bool enc_inverted;
@@ -5152,8 +5152,8 @@ static lbm_value ext_conf_detect_lambda_enc(lbm_value *args, lbm_uint argn) {
 	float resistance = lbm_dec_as_float(args[3]) * 1.0e-3;
 	float inductance = lbm_dec_as_float(args[4]) * 1.0e-6;
 
-	if (!(current > 0.0 && current <= mc_interface_get_configuration()->l_current_max &&
-			erpm_per_sec > 0.0 && duty > 0.02 && duty <= 0.9 && resistance >= 0.0 && inductance >= 0.0)) {
+	if (!(current > 0.0F && current <= mc_interface_get_configuration()->l_current_max &&
+			erpm_per_sec > 0.0F && duty > 0.02F && duty <= 0.9F && resistance >= 0.0F && inductance >= 0.0F)) {
 		lbm_set_error_reason(lbm_error_str_incorrect_arg);
 		return ENC_SYM_TERROR;
 	}
@@ -5236,7 +5236,7 @@ static lbm_value ext_conf_detect_hall(lbm_value *args, lbm_uint argn) {
 
 	float current = lbm_dec_as_float(args[0]);
 
-	if (!(current > 0.0 && current <= mc_interface_get_configuration()->l_current_max)) {
+	if (!(current > 0.0F && current <= mc_interface_get_configuration()->l_current_max)) {
 		lbm_set_error_reason(lbm_error_str_incorrect_arg);
 		return ENC_SYM_TERROR;
 	}
@@ -5523,7 +5523,7 @@ static lbm_value ext_ioboard_get_adc(lbm_value *args, lbm_uint argn) {
 	if (val) {
 		return lbm_enc_float(val->adc_voltages[channel - 1]);
 	} else {
-		return lbm_enc_float(-1.0);
+		return lbm_enc_float(-1.0F);
 	}
 }
 
@@ -5932,7 +5932,7 @@ static THD_FUNCTION(event_thread, arg) {
 		chMtxLock(&rmsg_mutex);
 		for (int i = 0;i < RMSG_SLOT_NUM;i++) {
 			volatile rmsg_state *s = &rmsg_slots[i];
-			if (s->cid >= 0 && s->timeout_secs > 0.0 && UTILS_AGE_S(s->start_time) > s->timeout_secs) {
+			if (s->cid >= 0 && s->timeout_secs > 0.0F && UTILS_AGE_S(s->start_time) > s->timeout_secs) {
 				lbm_unblock_ctx_unboxed(s->cid, ENC_SYM_TIMEOUT);
 				s->cid = -1;
 			}
@@ -6048,13 +6048,13 @@ static lbm_value ext_crc32(lbm_value *args, lbm_uint argn) {
  * If the new size is smaller than the current size, the array is just shrunk in
  * place without allocating a new buffer. Either delta-size or new-size must not
  * be nil.
- * 
+ *
  * Either way, the passed array is always resized mutably, with the returned
  * reference only for convenience.
  */
 static lbm_value ext_buf_resize(lbm_value *args, lbm_uint argn) {
 	LBM_CHECK_ARGN_RANGE(2, 4);
-	
+
 	bool should_copy = false;
 	if (argn > 2 && lbm_is_symbol(args[argn - 1])) {
 		lbm_uint sym = lbm_dec_sym(args[argn - 1]);
@@ -6073,21 +6073,21 @@ static lbm_value ext_buf_resize(lbm_value *args, lbm_uint argn) {
 		lbm_set_error_suspect(args[0]);
 		return ENC_SYM_TERROR;
 	}
-	
+
 	bool delta_size_passed = !lbm_is_symbol_nil(args[1]);
 	bool new_size_passed   = argn > 2 && lbm_is_number(args[2]);
-	
+
 	if (delta_size_passed && !lbm_is_number(args[1])) {
 		lbm_set_error_suspect(args[1]);
 		return ENC_SYM_TERROR;
 	}
-	
+
 	if (argn == 4 && !lbm_is_number(args[2])) {
 		// The case where argn is 3 is covered by the first check.
 		lbm_set_error_suspect(args[2]);
 		return ENC_SYM_TERROR;
 	}
-	
+
 	if (!delta_size_passed && !new_size_passed) {
 		lbm_set_error_reason(
 			"delta-size (arg 2) was nil while new-size wasn't provided (arg 3)"
@@ -6100,7 +6100,7 @@ static lbm_value ext_buf_resize(lbm_value *args, lbm_uint argn) {
 		// Should be impossible, unless it contained null pointer to header.
 		return ENC_SYM_FATAL_ERROR;
 	}
-	
+
 	uint32_t new_size;
 	{
 		int32_t new_size_signed;
@@ -6109,24 +6109,24 @@ static lbm_value ext_buf_resize(lbm_value *args, lbm_uint argn) {
 		} else {
 			new_size_signed = lbm_dec_as_i32(args[2]);
 		}
-		
+
 		if (new_size_signed < 0) {
 			return ENC_SYM_EERROR;
 		}
 		new_size = (uint32_t)new_size_signed;
 	}
-		
+
 	if (should_copy) {
 		void *buffer = lbm_malloc(new_size);
 		if (!buffer) {
 			return ENC_SYM_MERROR;
 		}
-		
+
 		memcpy(buffer, header->data, MIN(header->size, new_size));
 		if (new_size > header->size) {
 			memset(buffer + header->size, 0, new_size - header->size);
 		}
-		
+
 		lbm_value result;
 		if (!lbm_lift_array(&result, buffer, new_size)) {
 			return ENC_SYM_MERROR;
@@ -6144,7 +6144,7 @@ static lbm_value ext_buf_resize(lbm_value *args, lbm_uint argn) {
 			// We sadly can't trust the return value, as it fails if the allocation
 			// was previously a single word long. So we just throw it away.
 			lbm_memory_shrink_bytes(header->data, allocated_size);
-			
+
 			header->size = new_size;
 
 			return args[0];
@@ -6556,7 +6556,7 @@ void lispif_load_vesc_extensions(bool main_found) {
 		chMtxLock(&rmsg_mutex);
 		for (int i = 0;i < RMSG_SLOT_NUM;i++) {
 			rmsg_slots[i].cid = -1;
-			rmsg_slots[i].timeout_secs = -1.0;
+			rmsg_slots[i].timeout_secs = -1.0F;
 		}
 		chMtxUnlock(&rmsg_mutex);
 

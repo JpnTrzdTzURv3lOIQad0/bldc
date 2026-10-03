@@ -35,11 +35,11 @@
 static volatile uint32_t m_icu_last_width = 0;
 static volatile uint32_t m_icu_last_period = 0;
 static volatile uint32_t m_icu_update_cnt = 0;
-static volatile float m_icu_angle = 0.0;
-static volatile float m_icu_angle_last = 0.0;
+static volatile float m_icu_angle = 0.0F;
+static volatile float m_icu_angle_last = 0.0F;
 static volatile bool m_update_abi = false;
 static volatile uint32_t m_ts_last = 0;
-static volatile float m_speed_now = 0.0;
+static volatile float m_speed_now = 0.0F;
 static volatile bool m_inverted = false;
 
 static void icuwidthcb(ICUDriver *icup) {
@@ -47,10 +47,10 @@ static void icuwidthcb(ICUDriver *icup) {
 	m_icu_last_period = icuGetPeriodX(icup);
 	m_icu_update_cnt++;
 
-	float angle_tmp = fminf(m_icu_last_width, m_icu_last_period) / m_icu_last_period * 360.0;
+	float angle_tmp = fminf(m_icu_last_width, m_icu_last_period) / m_icu_last_period * 360.0F;
 
 	if (m_inverted) {
-		m_icu_angle = 360.0 - angle_tmp;
+		m_icu_angle = 360.0F - angle_tmp;
 	} else {
 		m_icu_angle = angle_tmp;
 	}
@@ -64,7 +64,7 @@ static void icuwidthcb(ICUDriver *icup) {
 	m_icu_angle_last = m_icu_angle;
 
 	if (m_update_abi) {
-		HW_ENC_TIM->CNT = m_icu_angle / 360.0 * (float)(HW_ENC_TIM->ARR);
+		HW_ENC_TIM->CNT = m_icu_angle / 360.0F * (float)(HW_ENC_TIM->ARR);
 	}
 }
 
@@ -82,7 +82,7 @@ static ICUConfig m_icucfg = {
 bool enc_pwm_init(bool update_abi) {
 	m_update_abi = update_abi;
 	m_icu_update_cnt = 0;
-	m_speed_now = 0.0;
+	m_speed_now = 0.0F;
 
 	servodec_stop();
 	pwm_servo_stop();
@@ -112,7 +112,7 @@ void enc_pwm_deinit(void) {
 float enc_pwm_read_deg(void) {
 	float dt = timer_seconds_elapsed_since(m_ts_last);
 	float angle_interpol = m_speed_now * dt;
-	utils_truncate_number(&angle_interpol, -120.0, 120.0);
+	utils_truncate_number(&angle_interpol, -120.0F, 120.0F);
 	return m_icu_angle + angle_interpol;
 }
 

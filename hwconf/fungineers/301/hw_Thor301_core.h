@@ -76,36 +76,36 @@
 
 // Component parameters (can be overridden)
 #ifndef V_REG
-#define V_REG				    3.3
+#define V_REG				    3.3F
 #endif
 #ifndef VIN_R1
-#define VIN_R1				    150000.0
+#define VIN_R1				    150000.0F
 #endif
 #ifndef VIN_R2
-#define VIN_R2				    3300.0
+#define VIN_R2				    3300.0F
 #endif
 #ifndef CURRENT_AMP_GAIN
-#define CURRENT_AMP_GAIN		20.0
+#define CURRENT_AMP_GAIN		20.0F
 #endif
 #ifndef CURRENT_SHUNT_RES
-#define CURRENT_SHUNT_RES		(0.00025)
+#define CURRENT_SHUNT_RES		(0.00025F)
 #endif
 
 // Input voltage
-#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
+#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0F) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
 // NTC Termistors
-#define NTC_RES(adc_val)		(10000.0 / ((4095.0 / (float)adc_val) - 1.0))
+#define NTC_RES(adc_val)		(10000.0F / ((4095.0F / (float)adc_val) - 1.0F))
 #define NTC_TEMP(adc_ind)		hw_Thor_get_temp()
 
-#define NTC_RES_MOTOR(adc_val)		(10000.0 / ((4095.0 / (float)adc_val) - 1.0))
-#define NTC_TEMP_MOTOR(beta)		(1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0) / beta) + (1.0 / 298.15)) - 273.15)
+#define NTC_RES_MOTOR(adc_val)		(10000.0F / ((4095.0F / (float)adc_val) - 1.0F))
+#define NTC_TEMP_MOTOR(beta)		(1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0F) / beta) + (1.0F / 298.15F)) - 273.15F)
 
-#define NTC_TEMP_MOS1()			(1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15)
-#define NTC_TEMP_MOS2()			(1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_2]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15)
-#define NTC_TEMP_MOS3()			(1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_3]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15)
+#define NTC_TEMP_MOS1()			(1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F)
+#define NTC_TEMP_MOS2()			(1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_2]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F)
+#define NTC_TEMP_MOS3()			(1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_3]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F)
 
 // Voltage on ADC channel
-#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4096.0 * V_REG)
+#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4096.0F * V_REG)
 
 // Double samples in beginning and end for positive current measurement.
 // Useful when the shunt sense traces have noise that causes offset.
@@ -236,7 +236,7 @@
 #define READ_HALL3()			palReadPad(HW_HALL_ENC_GPIO3, HW_HALL_ENC_PIN3)
 
 // Override dead time. See the stm32f4 reference manual for calculating this value.
-#define HW_DEAD_TIME_NSEC		500.0
+#define HW_DEAD_TIME_NSEC		500.0F
 
 // Default setting overrides
 #ifndef MCCONF_L_MIN_VOLTAGE
@@ -265,21 +265,21 @@
 #endif
 
 // Setting limits
-#define HW_LIM_CURRENT			-300.0, 300.0
-#define HW_LIM_CURRENT_IN		-150.0, 150.0
-#define HW_LIM_CURRENT_ABS		0.0, 315.0
-#define HW_LIM_VIN			    38.0, 97.0
-#define HW_LIM_ERPM			    -200e3, 200e3
-#define HW_LIM_DUTY_MIN			0.0, 0.1
-#define HW_LIM_DUTY_MAX			0.0, 0.95
-#define HW_LIM_TEMP_FET			-40.0, 100.0
+#define HW_LIM_CURRENT			-300.0F, 300.0F
+#define HW_LIM_CURRENT_IN		-150.0F, 150.0F
+#define HW_LIM_CURRENT_ABS		0.0F, 315.0F
+#define HW_LIM_VIN			    38.0F, 97.0F
+#define HW_LIM_ERPM			    -200e3F, 200e3F
+#define HW_LIM_DUTY_MIN			0.0F, 0.1F
+#define HW_LIM_DUTY_MAX			0.0F, 0.95F
+#define HW_LIM_TEMP_FET			-40.0F, 100.0F
 
 // Buzzer override for packages
 #define HW_OVERRIDE_PIN_PPM_BUZZER()	if (!pwm_servo_is_running()) {\
 											pwm_servo_init((uint32_t)4000, (float)0.5f);\
 										}
-#define HW_BUZZER_ON()    				pwm_servo_set_duty(0.5)
-#define HW_BUZZER_OFF()  				pwm_servo_set_duty(0.0)
+#define HW_BUZZER_ON()    				pwm_servo_set_duty(0.5F)
+#define HW_BUZZER_OFF()  				pwm_servo_set_duty(0.0F)
 
 // Functions
 float hw_Thor_get_temp(void);

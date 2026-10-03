@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-	
+
 #ifndef HW_MKSESC_100_300_HP_H_
 #define HW_MKSESC_100_300_HP_H_
 
@@ -27,7 +27,7 @@
 #define HW_HAS_PHASE_SHUNTS
 #define HW_HAS_PHASE_FILTERS
 
-// Macros  
+// Macros
 #define LED_GREEN_GPIO			GPIOB
 #define LED_GREEN_PIN			5
 #define LED_RED_GPIO			GPIOB
@@ -52,7 +52,7 @@
 
 // Hold shutdown pin early to wake up on short pulses
 #define HW_EARLY_INIT()			palSetPadMode(HW_SHUTDOWN_GPIO, HW_SHUTDOWN_PIN, PAL_MODE_OUTPUT_PUSHPULL); \
-					            HW_SHUTDOWN_HOLD_ON();      
+					            HW_SHUTDOWN_HOLD_ON();
 
 #define AUX_GPIO			    GPIOC
 #define AUX_PIN				    12
@@ -110,36 +110,36 @@
 
 // Component parameters (can be overridden)
 #ifndef V_REG
-#define V_REG				    3.30
+#define V_REG				    3.30F
 #endif
 
 //The voltage dividing acquisition circuit on the Makerbase VESC motherboard is 220K and 4.7K resistors.
 #ifndef VIN_R1
-#define VIN_R1				    220000.0 
+#define VIN_R1				    220000.0F
 #endif
 #ifndef VIN_R2
-#define VIN_R2				    4700.0 
+#define VIN_R2				    4700.0F
 #endif
 
 #ifndef CURRENT_AMP_GAIN
-#define CURRENT_AMP_GAIN		20.0 
+#define CURRENT_AMP_GAIN		20.0F
 #endif
 #ifndef CURRENT_SHUNT_RES
-#define CURRENT_SHUNT_RES		(0.0001) 
+#define CURRENT_SHUNT_RES		(0.0001F)
 #endif
 
 // Input voltage
-#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
+#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0F) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
 
 // NTC Termistors
-#define NTC_RES(adc_val)		((4095.0 * 10000.0) / adc_val - 10000.0)
+#define NTC_RES(adc_val)		((4095.0F * 10000.0F) / adc_val - 10000.0F)
 #define NTC_TEMP(adc_ind)		hw100_300_get_temp()
 
-#define NTC_RES_MOTOR(adc_val)	(10000.0 / ((4095.0 / (float)adc_val) - 1.0)) // Motor temp sensor on low side
-#define NTC_TEMP_MOTOR(beta)	(1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0) / beta) + (1.0 / 298.15)) - 273.15)
+#define NTC_RES_MOTOR(adc_val)	(10000.0F / ((4095.0F / (float)adc_val) - 1.0F)) // Motor temp sensor on low side
+#define NTC_TEMP_MOTOR(beta)	(1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0F) / beta) + (1.0F / 298.15F)) - 273.15F)
 
 // Voltage on ADC channel
-#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4096.0 * V_REG)
+#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4096.0F * V_REG)
 
 // Double samples in beginning and end for positive current measurement.
 // Useful when the shunt sense traces have noise that causes offset.
@@ -244,7 +244,7 @@
 #define READ_HALL3()			palReadPad(HW_HALL_ENC_GPIO3, HW_HALL_ENC_PIN3)
 
 // Override dead time. See the stm32f4 reference manual for calculating this value.
-#define HW_DEAD_TIME_NSEC		1000.0
+#define HW_DEAD_TIME_NSEC		1000.0F
 
 // Default setting overrides
 #ifndef MCCONF_L_MIN_VOLTAGE
@@ -273,14 +273,14 @@
 #endif
 
 // Setting limits
-#define HW_LIM_CURRENT			-500.0, 500.0 
-#define HW_LIM_CURRENT_IN		-500.0, 500.0 
-#define HW_LIM_CURRENT_ABS		0.0, 650 
-#define HW_LIM_VIN			    6.0, 120.0 
-#define HW_LIM_ERPM			    -200e3, 200e3 
-#define HW_LIM_DUTY_MIN			0.0, 0.1
-#define HW_LIM_DUTY_MAX			0.0, 0.99
-#define HW_LIM_TEMP_FET			-40.0, 110.0
+#define HW_LIM_CURRENT			-500.0F, 500.0F
+#define HW_LIM_CURRENT_IN		-500.0F, 500.0F
+#define HW_LIM_CURRENT_ABS		0.0F, 650
+#define HW_LIM_VIN			    6.0F, 120.0F
+#define HW_LIM_ERPM			    -200e3F, 200e3F
+#define HW_LIM_DUTY_MIN			0.0F, 0.1F
+#define HW_LIM_DUTY_MAX			0.0F, 0.99F
+#define HW_LIM_TEMP_FET			-40.0F, 110.0F
 
 // HW-specific functions
 float hw100_300_get_temp(void);

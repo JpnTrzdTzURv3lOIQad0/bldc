@@ -19,7 +19,7 @@
 #define HW_46_0005OHM_H_
 
 #define HW_SOURCE_ALT 		"other/vesc4/hw_46.c"
-#define CURRENT_SHUNT_RES	0.0005
+#define CURRENT_SHUNT_RES	0.0005F
 
 #include "hw_46.h"
 

@@ -357,7 +357,7 @@ static bool lib_io_read(VESC_PIN pin_vesc) {
 }
 
 static float lib_io_read_analog(VESC_PIN pin_vesc) {
-	float res = -1.0;
+	float res = -1.0F;
 
 	if (pin_vesc == VESC_PIN_ADC1) {
 		res = ADC_VOLTS(ADC_IND_EXT);
@@ -437,7 +437,7 @@ static float lib_ts_to_age_s(systime_t ts) {
 }
 
 static float lib_get_cfg_float(CFG_PARAM p) {
-	float res = 0.0;
+	float res = 0.0F;
 
 	const volatile mc_configuration *mcconf = mc_interface_get_configuration();
 	const app_configuration *appconf = app_get_configuration();
@@ -495,7 +495,7 @@ static float lib_get_cfg_float(CFG_PARAM p) {
 }
 
 static int lib_get_cfg_int(CFG_PARAM p) {
-	int res = 0.0;
+	int res = 0.0F;
 
 	const volatile mc_configuration *mcconf = mc_interface_get_configuration();
 	const app_configuration *appconf = app_get_configuration();
@@ -698,7 +698,7 @@ static remote_state lib_get_remote_state(void) {
 }
 
 static float lib_get_ppm_age(void) {
-	return (float)servodec_get_time_since_update() / 1000.0;
+	return (float)servodec_get_time_since_update() / 1000.0F;
 }
 
 static bool lib_add_extension(char *sym_str, extension_fptr ext) {
@@ -1071,11 +1071,11 @@ lbm_value ext_load_native_lib(lbm_value *args, lbm_uint argn) {
 		cif.cif.sem_wait_to = lib_sem_wait_to;
 		cif.cif.sem_reset = lib_sem_reset;
 
-		// 6.06+
+		// 6.06F+
 		cif.cif.thread_set_priority = lib_thread_set_priority;
 		cif.cif.shutdown_disable = lib_shutdown_disable;
 
-		// 7.00
+		// 7.00F
 		cif.cif.foc_set_fw_override = mcpwm_foc_set_fw_override;
 
 		lib_init_done = true;
@@ -1171,13 +1171,13 @@ float lispif_get_ppm(void) {
 	servodec_set_pulse_options(cfg->pulse_start, cfg->pulse_end, cfg->median_filter);
 
 	float servo_val = servodec_get_servo(0);
-	float servo_ms = utils_map(servo_val, -1.0, 1.0, cfg->pulse_start, cfg->pulse_end);
+	float servo_ms = utils_map(servo_val, -1.0F, 1.0F, cfg->pulse_start, cfg->pulse_end);
 
 	// Mapping with respect to center pulsewidth
 	if (servo_ms < cfg->pulse_center) {
-		servo_val = utils_map(servo_ms, cfg->pulse_start, cfg->pulse_center, -1.0, 0.0);
+		servo_val = utils_map(servo_ms, cfg->pulse_start, cfg->pulse_center, -1.0F, 0.0F);
 	} else {
-		servo_val = utils_map(servo_ms, cfg->pulse_center, cfg->pulse_end, 0.0, 1.0);
+		servo_val = utils_map(servo_ms, cfg->pulse_center, cfg->pulse_end, 0.0F, 1.0F);
 	}
 
 	return servo_val;

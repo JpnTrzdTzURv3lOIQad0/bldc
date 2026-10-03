@@ -42,6 +42,11 @@ int utils_stack_left_now(void);
 bool utils_is_func_valid(void *addr);
 
 // Return the age of a timestamp in seconds
-#define UTILS_AGE_S(x)		((float)chVTTimeElapsedSinceX(x) / (float)CH_CFG_ST_FREQUENCY)
+static inline float utils_age_seconds(systime_t timestamp) {
+    const sysinterval_t elapsed = chVTTimeElapsedSinceX(timestamp);
+    return (float)elapsed / (float)CH_CFG_ST_FREQUENCY;
+}
+
+#define UTILS_AGE_S(x)		utils_age_seconds(x)
 
 #endif  /* UTILS_SYS_H_ */

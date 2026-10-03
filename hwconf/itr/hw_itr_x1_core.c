@@ -33,11 +33,11 @@ static THD_WORKING_AREA(sense_thread_wa, 256);
 static THD_FUNCTION(sense_thread, arg);
 static volatile bool sense_thd_running = false;
 
-static volatile float pas_time = 0.0;
+static volatile float pas_time = 0.0F;
 static volatile systime_t pas_update = 0;
-static volatile float speed_time = 0.0;
+static volatile float speed_time = 0.0F;
 static volatile systime_t speed_update = 0;
-static volatile uint32_t pas_pulse_cnt = 0.0;
+static volatile uint32_t pas_pulse_cnt = 0.0F;
 
 // I2C configuration
 static const I2CConfig i2cfg = {
@@ -48,12 +48,12 @@ static const I2CConfig i2cfg = {
 
 static lbm_value ext_read_brake(lbm_value *args, lbm_uint argn) {
 	(void)args; (void)argn;
-	return lbm_enc_i(ADC_VOLTS(ADC_IND_BRAKE) < 0.5 ? 1 : 0);
+	return lbm_enc_i(ADC_VOLTS(ADC_IND_BRAKE) < 0.5F ? 1 : 0);
 }
 
 static lbm_value ext_read_gear(lbm_value *args, lbm_uint argn) {
 	(void)args; (void)argn;
-	return lbm_enc_i(ADC_VOLTS(ADC_IND_GEAR) < 0.5 ? 0 : 1);
+	return lbm_enc_i(ADC_VOLTS(ADC_IND_GEAR) < 0.5F ? 0 : 1);
 }
 
 static lbm_value ext_read_pas1(lbm_value *args, lbm_uint argn) {
@@ -266,7 +266,7 @@ static THD_FUNCTION(sense_thread, arg) {
 
 		if (pas == 1 && pas != pas_last) {
 			float time = UTILS_AGE_S(pas_update);
-			if (time > 0.01) { // Max 120 RPM (30 PPR)
+			if (time > 0.01F) { // Max 120 RPM (30 PPR)
 				pas_pulse_cnt += 1;
 				pas_time = time;
 				pas_update = chVTGetSystemTimeX();
@@ -275,7 +275,7 @@ static THD_FUNCTION(sense_thread, arg) {
 
 		if (speed == 1 && speed != speed_last) {
 			float time = UTILS_AGE_S(speed_update);
-			if (time > 0.05) { // Max 900 RPM
+			if (time > 0.05F) { // Max 900 RPM
 				speed_time = time;
 				speed_update = chVTGetSystemTimeX();
 			}

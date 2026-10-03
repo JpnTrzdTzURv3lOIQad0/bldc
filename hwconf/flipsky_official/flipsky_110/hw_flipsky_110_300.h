@@ -22,7 +22,7 @@
 
 #define HW_FLIPSKY_110_300
 /*20251113*/
-#define CURRENT_AMP_GAIN		18.0
+#define CURRENT_AMP_GAIN		18.0F
 #include "hw_flipsky_110_core.h"
 
 #endif /* HW_FLIPSKY_110_300_H_ */

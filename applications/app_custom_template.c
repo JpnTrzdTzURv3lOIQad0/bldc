@@ -92,7 +92,7 @@ static THD_FUNCTION(my_thread, arg) {
 //	commands_init_plot("Sample", "Voltage");
 //	commands_plot_add_graph("Temp Fet");
 //	commands_plot_add_graph("Input Voltage");
-//	float samp = 0.0;
+//	float samp = 0.0F;
 //
 //	for(;;) {
 //		commands_plot_set_graph(0);

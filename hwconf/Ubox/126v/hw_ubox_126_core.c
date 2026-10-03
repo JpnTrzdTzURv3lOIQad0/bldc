@@ -131,7 +131,7 @@ void hw_init_gpio(void) {
 
 	palSetPadMode(GPIOC, 13, PAL_MODE_OUTPUT_OPENDRAIN | PAL_MODE_INPUT_PULLUP);
 	UBOX_POWER_KEY_IO_RELEASE();
-	
+
 	shutdown_init();
 }
 
@@ -267,10 +267,10 @@ void hw_try_restore_i2c(void) {
 }
 
 float hw100_250_get_temp(void) {
-	float t1 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-	float t2 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_2]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-	float t3 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_3]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-	float res = 0.0;
+	float t1 = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+	float t2 = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_2]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+	float t3 = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_3]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+	float res = 0.0F;
 
 	if (t1 > t2 && t1 > t3) {
 		res = t1;
@@ -286,7 +286,7 @@ float hw100_250_get_temp(void) {
 //Copied and modified from shutdown.c
 // Private variables
 static bool volatile m_button_pressed = false;
-static volatile float m_inactivity_time = 0.0;
+static volatile float m_inactivity_time = 0.0F;
 static THD_WORKING_AREA(shutdown_thread_wa, 256);
 static mutex_t m_sample_mutex;
 static volatile bool m_init_done = false;
@@ -304,7 +304,7 @@ void shutdown_init(void) {
 }
 
 void shutdown_reset_timer(void) {
-	m_inactivity_time = 0.0;
+	m_inactivity_time = 0.0F;
 }
 
 float shutdown_get_inactivity_time(void) {
@@ -437,16 +437,16 @@ static THD_FUNCTION(shutdown_thread, arg) {
 			}
 			if (conf->shutdown_mode >= SHUTDOWN_MODE_OFF_AFTER_10S) {
 				m_inactivity_time += dt;
-					float shutdown_timeout = 0.0;
+					float shutdown_timeout = 0.0F;
 
 				switch (conf->shutdown_mode) {
-				case SHUTDOWN_MODE_OFF_AFTER_10S: shutdown_timeout = 10.0; break;
-				case SHUTDOWN_MODE_OFF_AFTER_1M: shutdown_timeout = 60.0; break;
-				case SHUTDOWN_MODE_OFF_AFTER_5M: shutdown_timeout = 60.0 * 5.0; break;
-				case SHUTDOWN_MODE_OFF_AFTER_10M: shutdown_timeout = 60.0 * 10.0; break;
-				case SHUTDOWN_MODE_OFF_AFTER_30M: shutdown_timeout = 60.0 * 30.0; break;
-				case SHUTDOWN_MODE_OFF_AFTER_1H: shutdown_timeout = 60.0 * 60.0; break;
-				case SHUTDOWN_MODE_OFF_AFTER_5H: shutdown_timeout = 60.0 * 60.0 * 5.0; break;
+				case SHUTDOWN_MODE_OFF_AFTER_10S: shutdown_timeout = 10.0F; break;
+				case SHUTDOWN_MODE_OFF_AFTER_1M: shutdown_timeout = 60.0F; break;
+				case SHUTDOWN_MODE_OFF_AFTER_5M: shutdown_timeout = 60.0F * 5.0F; break;
+				case SHUTDOWN_MODE_OFF_AFTER_10M: shutdown_timeout = 60.0F * 10.0F; break;
+				case SHUTDOWN_MODE_OFF_AFTER_30M: shutdown_timeout = 60.0F * 30.0F; break;
+				case SHUTDOWN_MODE_OFF_AFTER_1H: shutdown_timeout = 60.0F * 60.0F; break;
+				case SHUTDOWN_MODE_OFF_AFTER_5H: shutdown_timeout = 60.0F * 60.0F * 5.0F; break;
 				default: break;
 				}
 				if (m_inactivity_time >= shutdown_timeout) {
@@ -455,7 +455,7 @@ static THD_FUNCTION(shutdown_thread, arg) {
 			} else {
 				//Because SHUTDOWN_MODE_ALWAYS_OFF's implementation will check m_inactivity_time.
 				if(conf->shutdown_mode != SHUTDOWN_MODE_ALWAYS_OFF) {
-					m_inactivity_time = 0.0;
+					m_inactivity_time = 0.0F;
 				}
 			}
 

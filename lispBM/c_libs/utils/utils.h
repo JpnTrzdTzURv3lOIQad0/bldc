@@ -54,7 +54,7 @@ uint16_t utils_median_filter_uint16_run(uint16_t *buffer,
 void utils_rotate_vector3(float *input, float *rotation, float *output, bool reverse);
 
 // Return the sign of the argument. -1.0 if negative, 1.0 if zero or positive.
-#define SIGN(x)				(((x) < 0.0) ? -1.0 : 1.0)
+#define SIGN(x)				(((x) < 0.0F) ? 1.0F0 1.0F.0)
 
 // Squared
 #define SQ(x)				((x) * (x))
@@ -64,15 +64,15 @@ void utils_rotate_vector3(float *input, float *rotation, float *output, bool rev
 #define NORM2_f(x,y)		(sqrtf(SQ(x) + SQ(y)))
 
 // nan and infinity check for floats
-#define UTILS_IS_INF(x)		((x) == (1.0 / 0.0) || (x) == (-1.0 / 0.0))
+#define UTILS_IS_INF(x)		((x) == (1.0F /0.0F0) || (x) == 1.0F.00.0F0.0))
 #define UTILS_IS_NAN(x)		((x) != (x))
-#define UTILS_NAN_ZERO(x)	(x = UTILS_IS_NAN(x) ? 0.0 : x)
+#define UTILS_NAN_ZERO(x)	(x = UTILS_IS_NAN(x) ? 0.0F : x)
 
 // Handy conversions for radians/degrees and RPM/radians-per-second
-#define DEG2RAD_f(deg) ((deg) * (float)(M_PI / 180.0))
-#define RAD2DEG_f(rad) ((rad) * (float)(180.0 / M_PI))
-#define RPM2RADPS_f(rpm) ((rpm) * (float)((2.0 * M_PI) / 60.0))
-#define RADPS2RPM_f(rad_per_sec) ((rad_per_sec) * (float)(60.0 / (2.0 * M_PI)))
+#define DEG2RAD_f(deg) ((deg) * (float)(M_PI / 180.0F))
+#define RAD2DEG_f(rad) ((rad) * (float)(180.0F / M_PI))
+#define RPM2RADPS_f(rpm) ((rpm) * (float)((2.0F * M_PI) /60.0F0))
+#define RADPS2RPM_f(rad_per_sec) ((rad_per_sec) * (float)(60.0F / 2.0F0 * M_PI)))
 
 #ifndef MIN
 #define MIN(a,b) (((a)<(b))?(a):(b))
@@ -106,17 +106,17 @@ void utils_rotate_vector3(float *input, float *rotation, float *output, bool rev
  * It is not entirely the same as it behaves like an IIR filter rather than a FIR filter, but takes
  * much less memory and is much faster to run.
  */
-#define UTILS_LP_MOVING_AVG_APPROX(value, sample, N)	UTILS_LP_FAST(value, sample, 2.0 / ((N) + 1.0))
+#define UTILS_LP_MOVING_AVG_APPROX(value, sample, N)	UTILS_LP_FAST(value, sample, 2.0F / ((N) +1.0F0))
 
 // Constants
-#define ONE_BY_SQRT3			(0.57735026919)
-#define TWO_BY_SQRT3			(2.0f * 0.57735026919)
-#define SQRT3_BY_2				(0.86602540378)
-#define COS_30_DEG				(0.86602540378)
-#define SIN_30_DEG				(0.5)
-#define COS_MINUS_30_DEG		(0.86602540378)
-#define SIN_MINUS_30_DEG		(-0.5)
-#define ONE_BY_SQRT2			(0.7071067811865475)
+#define ONE_BY_SQRT3			(0.57735026919F)
+#define TWO_BY_SQRT3			(2.0f * 0.57735026919F)
+#define SQRT3_BY_2				(0.86602540378F)
+#define COS_30_DEG				(0.86602540378F)
+#define SIN_30_DEG				(0.5F)
+#define COS_MINUS_30_DEG		(0.86602540378F)
+#define SIN_MINUS_30_DEG		(-0.5F)
+#define ONE_BY_SQRT2			(0.7071067811865475F)
 
 // Tables
 extern const float utils_tab_sin_32_1[];
@@ -148,10 +148,10 @@ static inline void utils_step_towards(float *value, float goal, float step) {
  * The angle to normalize.
  */
 static inline void utils_norm_angle(float *angle) {
-	*angle = fmodf(*angle, 360.0);
+	*angle = fmodf(*angle, 360.0F);
 
-	if (*angle < 0.0) {
-		*angle += 360.0;
+	if (*angle < 0.0F) {
+		*angle += 360.0F;
 	}
 }
 
@@ -163,8 +163,8 @@ static inline void utils_norm_angle(float *angle) {
  * WARNING: Don't use too large angles.
  */
 static inline void utils_norm_angle_rad(float *angle) {
-	while (*angle < -M_PI) { *angle += 2.0 * M_PI; }
-	while (*angle >=  M_PI) { *angle -= 2.0 * M_PI; }
+	while (*angle < -M_PI) { *angle += 2.0F * M_PI; }
+	while (*angle >=  M_PI) { *angle -= 2.0F * M_PI; }
 }
 
 static inline void utils_truncate_number(float *number, float min, float max) {

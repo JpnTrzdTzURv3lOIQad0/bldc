@@ -42,16 +42,16 @@ bool enc_amt22_init(AMT22_config_t *cfg) {
 
 void enc_amt22_deinit(AMT22_config_t *cfg) {
 	spi_bb_deinit(&(cfg->sw_spi));
-	cfg->state.last_enc_angle = 0.0;
-	cfg->state.spi_error_rate = 0.0;
+	cfg->state.last_enc_angle = 0.0F;
+	cfg->state.spi_error_rate = 0.0F;
 }
 
 void enc_amt22_routine(AMT22_config_t *cfg) {
 	uint16_t pos;
 
 	float timestep = timer_seconds_elapsed_since(cfg->state.last_update_time);
-	if (timestep > 1.0) {
-		timestep = 1.0;
+	if (timestep > 1.0F) {
+		timestep = 1.0F;
 	}
 	cfg->state.last_update_time = timer_time_now();
 
@@ -68,11 +68,11 @@ void enc_amt22_routine(AMT22_config_t *cfg) {
 
 	if (verify_checksum(pos)) {
 		pos &= 0x3FFF;
-		cfg->state.last_enc_angle = ((float) pos * 360.0) / 16384.0;
-		UTILS_LP_FAST(cfg->state.spi_error_rate, 0.0, timestep);
+		cfg->state.last_enc_angle = ((float) pos * 360.0F) / 16384.0F;
+		UTILS_LP_FAST(cfg->state.spi_error_rate, 0.0F, timestep);
 	} else {
 		++cfg->state.spi_error_cnt;
-		UTILS_LP_FAST(cfg->state.spi_error_rate, 1.0, timestep);
+		UTILS_LP_FAST(cfg->state.spi_error_rate, 1.0F, timestep);
 	}
 }
 

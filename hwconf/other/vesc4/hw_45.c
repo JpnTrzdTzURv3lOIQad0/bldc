@@ -36,7 +36,7 @@ static bool temp_thread_running = false;
 
 // Variables
 static volatile bool i2c_running = false;
-static volatile float temp_now = 30.0;
+static volatile float temp_now = 30.0F;
 
 // I2C configuration
 static const I2CConfig i2cfg = {

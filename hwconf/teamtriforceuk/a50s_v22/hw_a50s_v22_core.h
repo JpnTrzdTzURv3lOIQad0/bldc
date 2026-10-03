@@ -24,9 +24,9 @@
 #define HW_USE_INTERNAL_RC
 #define HW_HAS_PHASE_FILTERS
 
-// Used to remove ground noise from servo input. 
+// Used to remove ground noise from servo input.
 // Which causes VESC Tool PPM wizard to not work.
-#define HW_VALIDATE_SERVO_INPUT 
+#define HW_VALIDATE_SERVO_INPUT
 
 // Macros
 /*
@@ -77,33 +77,33 @@
 
 // Component parameters (can be overridden)
 #ifndef V_REG
-#define V_REG						3.30
+#define V_REG						3.30F
 #endif
 #ifndef VIN_R1
-#define VIN_R1						12000.0
+#define VIN_R1						12000.0F
 #endif
 #ifndef VIN_R2
-#define VIN_R2						620.0
+#define VIN_R2						620.0F
 #endif
 #ifndef CURRENT_AMP_GAIN
-#define CURRENT_AMP_GAIN			50.0
+#define CURRENT_AMP_GAIN			50.0F
 #endif
 #ifndef CURRENT_SHUNT_RES
-#define CURRENT_SHUNT_RES			0.0005
+#define CURRENT_SHUNT_RES			0.0005F
 #endif
 
 // Input voltage
-#define GET_INPUT_VOLTAGE()			((V_REG / 4095.0) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
+#define GET_INPUT_VOLTAGE()			((V_REG / 4095.0F) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
 
 // NTC Termistors
-#define NTC_RES(adc_val)			((4095.0 * 10000.0) / adc_val - 10000.0)
-#define NTC_TEMP(adc_ind)			(1.0 / ((logf(NTC_RES(ADC_Value[adc_ind]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15)
+#define NTC_RES(adc_val)			((4095.0F * 10000.0F) / adc_val - 10000.0F)
+#define NTC_TEMP(adc_ind)			(1.0F / ((logf(NTC_RES(ADC_Value[adc_ind]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F)
 
-#define NTC_RES_MOTOR(adc_val)		(10000.0 / ((4095.0 / (float)adc_val) - 1.0)) // Motor temp sensor on low side
-#define NTC_TEMP_MOTOR(beta)		(1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0) / beta) + (1.0 / 298.15)) - 273.15)
+#define NTC_RES_MOTOR(adc_val)		(10000.0F / ((4095.0F / (float)adc_val) - 1.0F)) // Motor temp sensor on low side
+#define NTC_TEMP_MOTOR(beta)		(1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0F) / beta) + (1.0F / 298.15F)) - 273.15F)
 
 // Voltage on ADC channel
-#define ADC_VOLTS(ch)				((float)ADC_Value[ch] / 4096.0 * V_REG)
+#define ADC_VOLTS(ch)				((float)ADC_Value[ch] / 4096.0F * V_REG)
 
 // Double samples in beginning and end for positive current measurement.
 // Useful when the shunt sense traces have noise that causes offset.
@@ -210,7 +210,7 @@
 #define READ_HALL3()				palReadPad(HW_HALL_ENC_GPIO3, HW_HALL_ENC_PIN3)
 
 // Override dead time. See the stm32f4 reference manual for calculating this value.
-#define HW_DEAD_TIME_NSEC			0.0		// FD6288Q has 200ns built in deadtime
+#define HW_DEAD_TIME_NSEC			0.0F		// FD6288Q has 200ns built in deadtime
 
 // Default setting overrides
 #ifndef MCCONF_L_MIN_VOLTAGE
@@ -222,7 +222,7 @@
 #ifndef MCCONF_FOC_F_ZV
 #define MCCONF_FOC_F_ZV				25000.0F // Switching frequency reduced to allow rise time of low side shunts
 #endif
-#define HW_LIM_FOC_CTRL_LOOP_FREQ	5000.0, 25000.0	//Limit to 50kHz max
+#define HW_LIM_FOC_CTRL_LOOP_FREQ	5000.0F, 25000.0F	//Limit to 50kHz max
 #ifndef MCCONF_L_MAX_ABS_CURRENT
 #define MCCONF_L_MAX_ABS_CURRENT	50.0F	// The maximum absolute current above which a fault is generated
 #endif
@@ -243,19 +243,19 @@
 #endif
 
 // Setting limits
-#define HW_LIM_CURRENT				-40.0, 40.0 
-#define HW_LIM_CURRENT_IN			-40.0, 40.0
-#define HW_LIM_CURRENT_ABS			0.0, 50.0
-#define HW_LIM_ERPM					-200e3, 200e3
-#define HW_LIM_DUTY_MIN				0.0, 0.1
-#define HW_LIM_DUTY_MAX				0.0, 0.98	
-#define HW_LIM_TEMP_FET				-40.0, 100.0
+#define HW_LIM_CURRENT				-40.0F, 40.0F
+#define HW_LIM_CURRENT_IN			-40.0F, 40.0F
+#define HW_LIM_CURRENT_ABS			0.0F, 50.0F
+#define HW_LIM_ERPM					-200e3F, 200e3F
+#define HW_LIM_DUTY_MIN				0.0F, 0.1F
+#define HW_LIM_DUTY_MAX				0.0F, 0.98F
+#define HW_LIM_TEMP_FET				-40.0F, 100.0F
 
 #ifdef HW_A50S_12S
-#define HW_LIM_VIN					4.0, 56.0
+#define HW_LIM_VIN					4.0F, 56.0F
 #define MCCONF_L_MAX_VOLTAGE		55.0F	// Maximum input voltage
 #elif defined (HW_A50S_6S)
-#define HW_LIM_VIN					4.0, 28.0
+#define HW_LIM_VIN					4.0F, 28.0F
 #define MCCONF_L_MAX_VOLTAGE		26.0F	// Maximum input voltage
 #else
 #error "Must define a hardware type"

@@ -146,7 +146,7 @@ extern volatile float ADC_curr_raw[];
 
 // Common fixed parameters
 #ifndef HW_DEAD_TIME_NSEC
-#define HW_DEAD_TIME_NSEC				360.0	// Dead time
+#define HW_DEAD_TIME_NSEC				360.0F	// Dead time
 #endif
 
 

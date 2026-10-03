@@ -18,9 +18,9 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/* 
-  TinyGFX is the portable C part of what was originally the display_extensions 
-  in  LispBM 
+/*
+  TinyGFX is the portable C part of what was originally the display_extensions
+  in  LispBM
 */
 
 #include "tinygfx.h"
@@ -31,7 +31,7 @@
 #include <string.h>
 
 #ifndef M_PI
-#define M_PI 3.14159265358979323846
+#define M_PI 3.14159265358979323846F
 #endif
 
 #ifdef LBM_OPT_DISPLAY_EXTENSIONS_SIZE
@@ -130,12 +130,12 @@ uint32_t image_dims_to_size_bytes(color_format_t fmt, uint16_t width, uint16_t h
 // back to highest intensity.
 //
 // Another issue is that 2 bits (the blue channel) yields steps of 85 (255 / 3)
-// while 3 bits yields steps of 36.4 (255 / 7)
+// while 3 bits yields steps of 36.4F (255 / 7)
 //
-// 36.4 72.8 109.3 145.7 182.1 218.6 254.99
+// 36.4F 72.8F 109.3F 145.7F 182.1F 218.6F 254.99F
 //         85          170               255
 //
-// The multiples of 85 never coincide with the multiples of 36.4 except
+// The multiples of 85 never coincide with the multiples of 36.4F except
 // for at 0 and 255
 static uint8_t rgb888to332(uint32_t rgb) {
   uint8_t r = (uint8_t)(rgb >> (16 + 5));
@@ -168,7 +168,7 @@ static uint32_t rgb332to888(uint8_t rgb) {
   uint32_t b = (uint32_t)(rgb & 0x3);
 
   b = (b > 0) ? (2 * b) + 1 : 0;
-  r = (r == 7) ? 255 : 36 * r; // 36 is an approximation (36.4)
+  r = (r == 7) ? 255 : 36 * r; // 36 is an approximation (36.4F)
   g = (g == 7) ? 255 : 36 * g;
   b = (b == 7) ? 255 : 36 * b;
   uint32_t res_rgb888 = r << 16 | g << 8 | b;
@@ -694,7 +694,7 @@ static inline void norm_angle_0_2pi(float *angle) {
 }
 
 // Advances *cursor monotonically (only ever forward) until it lands on the
-// first x such that pixel-center (x+0.5, row) falls within radius_dbl_sq (a
+// first x such that pixel-center (x+0.5F, row) falls within radius_dbl_sq (a
 // squared radius already doubled: (2r)^2). row_dbl_sq is (2*y+1)^2 for row y.
 static inline void circle_boundary_advance(int *cursor, int row_dbl_sq, int radius_dbl_sq) {
   while (true) {
@@ -1700,7 +1700,7 @@ static void word_blast_bits(uint8_t *dest_data, int32_t dest_bit_start, int32_t 
   int32_t bits_left = copy_bits;
 
   while (bits_left > 0) {
-    int32_t dwb = (dest_cursor >> 3) & ~(int32_t)3; // Word aligned address to write to. 
+    int32_t dwb = (dest_cursor >> 3) & ~(int32_t)3; // Word aligned address to write to.
     int doff = (int)(dest_cursor - dwb * 8); // Bit position where target bits are written
     int32_t swb = (src_cursor >> 3) & ~(int32_t)3; // Word aligned address to read from.
     int soff = (int)(src_cursor - swb * 8); // Where in the first word does actual data begin.
@@ -1716,12 +1716,12 @@ static void word_blast_bits(uint8_t *dest_data, int32_t dest_bit_start, int32_t 
     // Now we have a number of valid bits in the source word, and
     // a number of valid bit positions to write to.
 
-    uint32_t merged = s0 << soff; 
+    uint32_t merged = s0 << soff;
     if (take > avail_from_s0) { // We can get more bits.
       // A bit wasteful here that the s1 load is only partially used,
       // and in the next iteration the same word is loaded again.
       // should keep s1 and use as s0 in next iteration. avail_from_s1 = (32 - soff + doff) bits carry over
-      // The (+ doff bits) are very sneaky (see aligned = merged >> doff)! 
+      // The (+ doff bits) are very sneaky (see aligned = merged >> doff)!
       uint32_t s1 = safe_load_norm_u32(src_data, swb + 4, src_total_bytes);
       merged |= (s1 >> (32 - soff));
     }
@@ -1737,7 +1737,7 @@ static void word_blast_bits(uint8_t *dest_data, int32_t dest_bit_start, int32_t 
       uint32_t old = safe_load_norm_u32(dest_data, dwb, dest_total_bytes);
       result = (old & ~mask) | (aligned & mask);
     }
-    
+
     safe_store_norm_u32(dest_data, dwb, dest_total_bytes, result);
 
     dest_cursor += take;

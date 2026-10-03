@@ -107,7 +107,7 @@ void hw_init_gpio(void) {
 	palSetPadMode(GPIOC, 0, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(GPIOC, 1, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(GPIOC, 2, PAL_MODE_INPUT_ANALOG);
-	palSetPadMode(GPIOC, 3, PAL_MODE_INPUT_ANALOG);	
+	palSetPadMode(GPIOC, 3, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(GPIOC, 4, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(GPIOC, 5, PAL_MODE_INPUT_ANALOG);
 }
@@ -245,10 +245,10 @@ void hw_try_restore_i2c(void) {
 
 
 float hwt12t_get_temp(void) {
-	volatile float t1 = NTC_TEMP_MOS1();//(1.0 / ((logf(NTC_RES((4095-ADC_Value[ADC_IND_TEMP_MOS])) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-	volatile float t2 = NTC_TEMP_MOS2();//(1.0 / ((logf(NTC_RES((4095-ADC_Value[ADC_IND_TEMP_MOS_2])) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-	volatile float t3 = NTC_TEMP_MOS3();//(1.0 / ((logf(NTC_RES((4095-ADC_Value[ADC_IND_TEMP_MOS_3])) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-	volatile float res = 0.0;
+	volatile float t1 = NTC_TEMP_MOS1();//(1.0F / ((logf(NTC_RES((4095-ADC_Value[ADC_IND_TEMP_MOS])) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+	volatile float t2 = NTC_TEMP_MOS2();//(1.0F / ((logf(NTC_RES((4095-ADC_Value[ADC_IND_TEMP_MOS_2])) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+	volatile float t3 = NTC_TEMP_MOS3();//(1.0F / ((logf(NTC_RES((4095-ADC_Value[ADC_IND_TEMP_MOS_3])) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+	volatile float res = 0.0F;
 
 	if (t1 > t2 && t1 > t3) {
 		res = t1;

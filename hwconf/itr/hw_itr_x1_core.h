@@ -97,33 +97,33 @@
 
 // Component parameters (can be overridden)
 #ifndef V_REG
-#define V_REG					3.3
+#define V_REG					3.3F
 #endif
 #ifndef VIN_R1
-#define VIN_R1					39000.0
+#define VIN_R1					39000.0F
 #endif
 #ifndef VIN_R2
-#define VIN_R2					2200.0
+#define VIN_R2					2200.0F
 #endif
 #ifndef CURRENT_AMP_GAIN
-#define CURRENT_AMP_GAIN		20.0
+#define CURRENT_AMP_GAIN		20.0F
 #endif
 #ifndef CURRENT_SHUNT_RES
-#define CURRENT_SHUNT_RES		0.0005
+#define CURRENT_SHUNT_RES		0.0005F
 #endif
 
 // Input voltage
-#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
+#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0F) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
 
 // NTC Termistors
-#define NTC_RES(adc_val)		(10000.0 / ((4095.0 / (float)adc_val) - 1.0)) // MOS temp sensor on low side
-#define NTC_TEMP(adc_ind)		(1.0 / ((logf(NTC_RES(ADC_Value[adc_ind]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15)
+#define NTC_RES(adc_val)		(10000.0F / ((4095.0F / (float)adc_val) - 1.0F)) // MOS temp sensor on low side
+#define NTC_TEMP(adc_ind)		(1.0F / ((logf(NTC_RES(ADC_Value[adc_ind]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F)
 
-#define NTC_RES_MOTOR(adc_val)	(1000.0 / ((4095.0 / (float)adc_val) - 1.0)) // Motor temp sensor on low side
-#define NTC_TEMP_MOTOR(beta)	(1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 1000.0) / beta) + (1.0 / 298.15)) - 273.15)
+#define NTC_RES_MOTOR(adc_val)	(1000.0F / ((4095.0F / (float)adc_val) - 1.0F)) // Motor temp sensor on low side
+#define NTC_TEMP_MOTOR(beta)	(1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 1000.0F) / beta) + (1.0F / 298.15F)) - 273.15F)
 
 // Voltage on ADC channel
-#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4095.0 * V_REG)
+#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4095.0F * V_REG)
 
 // COMM-port ADC GPIOs
 #define HW_ADC_EXT_GPIO			GPIOA
@@ -233,13 +233,13 @@
 #endif
 
 // Setting limits
-#define HW_LIM_CURRENT			-150.0, 150.0
-#define HW_LIM_CURRENT_IN		-130.0, 130.0
-#define HW_LIM_CURRENT_ABS		0.0, 160.0
-#define HW_LIM_VIN				11.0, 58.0
-#define HW_LIM_ERPM				-200e3, 200e3
-#define HW_LIM_DUTY_MIN			0.0, 0.1
-#define HW_LIM_DUTY_MAX			0.0, 0.99
-#define HW_LIM_TEMP_FET			-40.0, 110.0
+#define HW_LIM_CURRENT			-150.0F, 150.0F
+#define HW_LIM_CURRENT_IN		-130.0F, 130.0F
+#define HW_LIM_CURRENT_ABS		0.0F, 160.0F
+#define HW_LIM_VIN				11.0F, 58.0F
+#define HW_LIM_ERPM				-200e3F, 200e3F
+#define HW_LIM_DUTY_MIN			0.0F, 0.1F
+#define HW_LIM_DUTY_MAX			0.0F, 0.99F
+#define HW_LIM_TEMP_FET			-40.0F, 110.0F
 
 #endif /* HW_ITR_X1_CORE_H_ */

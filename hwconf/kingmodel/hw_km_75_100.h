@@ -12,7 +12,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     */
-	
+
 #ifndef HW_KM_75_100_H_
 #define HW_KM_75_100_H_
 
@@ -22,7 +22,7 @@
 #define HW_HAS_3_SHUNTS
 
 
-// Macros  
+// Macros
 #define LED_GREEN_GPIO			GPIOB
 #define LED_GREEN_PIN			5
 #define LED_RED_GPIO			GPIOB
@@ -94,34 +94,34 @@
 
 // Component parameters (can be overridden)
 #ifndef V_REG
-#define V_REG					3.30 
+#define V_REG					3.30F
 #endif
 #ifndef VIN_R1
-#define VIN_R1					560000.0
+#define VIN_R1					560000.0F
 #endif
 #ifndef VIN_R2
-#define VIN_R2					21500.0 
+#define VIN_R2					21500.0F
 #endif
 #ifndef CURRENT_AMP_GAIN
-#define CURRENT_AMP_GAIN		20.0 
+#define CURRENT_AMP_GAIN		20.0F
 #endif
 #ifndef CURRENT_SHUNT_RES
-#define CURRENT_SHUNT_RES		(0.0005 / 3.0) 
+#define CURRENT_SHUNT_RES		(0.0005F / 3.0F)
 #endif
 
 // Input voltage
-#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
+#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0F) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
 
 // NTC Termistors
-#define NTC_RES(adc_val)		((4095.0 * 10000.0) / adc_val - 10000.0)
+#define NTC_RES(adc_val)		((4095.0F * 10000.0F) / adc_val - 10000.0F)
 
-#define NTC_TEMP(adc_ind)		(1.0 / ((logf(NTC_RES(ADC_Value[adc_ind]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15) 
+#define NTC_TEMP(adc_ind)		(1.0F / ((logf(NTC_RES(ADC_Value[adc_ind]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F)
 
-#define NTC_RES_MOTOR(adc_val)	(10000.0 / ((4095.0 / (float)adc_val) - 1.0)) // Motor temp sensor on low side
-#define NTC_TEMP_MOTOR(beta)	(1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0) / beta) + (1.0 / 298.15)) - 273.15)
+#define NTC_RES_MOTOR(adc_val)	(10000.0F / ((4095.0F / (float)adc_val) - 1.0F)) // Motor temp sensor on low side
+#define NTC_TEMP_MOTOR(beta)	(1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0F) / beta) + (1.0F / 298.15F)) - 273.15F)
 
 // Voltage on ADC channel
-#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4096.0 * V_REG)
+#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4096.0F * V_REG)
 
 // Double samples in beginning and end for positive current measurement.
 // Useful when the shunt sense traces have noise that causes offset.
@@ -224,7 +224,7 @@
 #define READ_HALL3()			palReadPad(HW_HALL_ENC_GPIO3, HW_HALL_ENC_PIN3)
 
 // Override dead time. See the stm32f4 reference manual for calculating this value.
-#define HW_DEAD_TIME_NSEC		660.0				// 以MDP10N027TH为例，计算得到实际的值为201
+#define HW_DEAD_TIME_NSEC		660.0F				// 以MDP10N027TH为例，计算得到实际的值为201
 
 // Default setting overrides
 #ifndef MCCONF_L_MIN_VOLTAGE
@@ -270,17 +270,17 @@
 #endif
 
 // Setting limits
-#define HW_LIM_CURRENT			-120.0, 120.0 		// 电机每相的电流值
-#define HW_LIM_CURRENT_IN		-120.0, 120.0 		// 电池的‌电流输出能力‌（即电池的容量）
-#define HW_LIM_CURRENT_ABS		0.0, 200 			// 每相电流的绝对值
-#define HW_LIM_VIN				6.0, 120.0 			// 电压输入限定范围：6-120V
-#define HW_LIM_ERPM				-200e3, 200e3 		// 200e3 即 -200,000，表示允许的最大反向电气转速。200e3 即 200,000，表示允许的最大正向电气转速。
+#define HW_LIM_CURRENT			-120.0F, 120.0F 		// 电机每相的电流值
+#define HW_LIM_CURRENT_IN		-120.0F, 120.0F 		// 电池的‌电流输出能力‌（即电池的容量）
+#define HW_LIM_CURRENT_ABS		0.0F, 200 			// 每相电流的绝对值
+#define HW_LIM_VIN				6.0F, 120.0F 			// 电压输入限定范围：6-120V
+#define HW_LIM_ERPM				-200e3F, 200e3F 		// 200e3F 即 -200,000，表示允许的最大反向电气转速。200e3F 即 200,000，表示允许的最大正向电气转速。
 													// 作用: 防止电机转速过高。高速旋转会带来巨大的离心力，可能导致电机永磁体飞出等危险。
 													// 同时，过高的转速也可能导致控制器无法及时处理反馈信号而失控。
 													// 示例: 一个14极（7对极）电机，其安全最大机械转速为10000 RPM，则 HW_LIM_ERPM 应设置为 7 * 10000 = 70000。
-													// 如果代码里原值是 200e3 (200,000)，对于这个电机来说就过高，必须降低。
-#define HW_LIM_DUTY_MIN			0.0, 0.1
-#define HW_LIM_DUTY_MAX			0.0, 0.99
-#define HW_LIM_TEMP_FET			-40.0, 110.0		// 场效应管温度限制。-40.0 表示最低工作温度为零下40摄氏度。110.0 表示最高工作温度为110摄氏度。
+													// 如果代码里原值是 200e3F (200,000)，对于这个电机来说就过高，必须降低。
+#define HW_LIM_DUTY_MIN			0.0F, 0.1F
+#define HW_LIM_DUTY_MAX			0.0F, 0.99F
+#define HW_LIM_TEMP_FET			-40.0F, 110.0F		// 场效应管温度限制。-40.0F 表示最低工作温度为零下40摄氏度。110.0F 表示最高工作温度为110摄氏度。
 
 #endif /* HW_KM_75_100_H_ */

@@ -73,40 +73,40 @@
 
 // Component parameters (can be overridden)
 #ifndef V_REG
-#define V_REG					3.30
+#define V_REG					3.30F
 #endif
 #ifndef VIN_R1
-#define VIN_R1					66000.0
+#define VIN_R1					66000.0F
 #endif
 #ifndef VIN_R2
-#define VIN_R2					2200.0
+#define VIN_R2					2200.0F
 #endif
 #ifndef CURRENT_AMP_GAIN
-#define CURRENT_AMP_GAIN		20.0
+#define CURRENT_AMP_GAIN		20.0F
 #endif
 #ifndef CURRENT_SHUNT_RES
-#define CURRENT_SHUNT_RES		0.0002
+#define CURRENT_SHUNT_RES		0.0002F
 #endif
 
 // Input voltage
-#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
+#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0F) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
 
 // NTC Termistors
-#define NTC_RES(adc_val)		((4095.0 * 10000.0) / adc_val - 10000.0)
+#define NTC_RES(adc_val)		((4095.0F * 10000.0F) / adc_val - 10000.0F)
 #define NTC_TEMP(adc_ind)		hw_a200s_get_temp()
 
-#define NTC_RES_MOTOR(adc_val)	(10000.0 / ((4095.0 / (float)adc_val) - 1.0)) // Motor temp sensor on low side
-#define NTC_TEMP_MOTOR(beta)	(1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0) / beta) + (1.0 / 298.15)) - 273.15)
+#define NTC_RES_MOTOR(adc_val)	(10000.0F / ((4095.0F / (float)adc_val) - 1.0F)) // Motor temp sensor on low side
+#define NTC_TEMP_MOTOR(beta)	(1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0F) / beta) + (1.0F / 298.15F)) - 273.15F)
 
-#define NTC_TEMP_MOS1()			(1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15)
+#define NTC_TEMP_MOS1()			(1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F)
 #define NTC_TEMP_MOS2()			hw_a200s_get_temp_mos()
 #define NTC_TEMP_MOS3()			hw_a200s_get_temp_shunt()
 
 // Voltage on ADC channel
-#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4096.0 * V_REG)
+#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4096.0F * V_REG)
 
 // 5V Supply output current
-#define GET_5V_OUTPUT_CURRENT()	((float)(ADC_VOLTS(ADC_IND_5V_CURR)))//((float)(ADC_VOLTS(ADC_IND_5V_CURR)-0.4)*2.778)
+#define GET_5V_OUTPUT_CURRENT()	((float)(ADC_VOLTS(ADC_IND_5V_CURR)))//((float)(ADC_VOLTS(ADC_IND_5V_CURR)-0.4F)*2.778F)
 
 // Double samples in beginning and end for positive current measurement.
 // Useful when the shunt sense traces have noise that causes offset.
@@ -250,7 +250,7 @@
 #ifndef MCCONF_FOC_F_ZV
 #define MCCONF_FOC_F_ZV					30000.0F
 #endif
-#define HW_LIM_FOC_CTRL_LOOP_FREQ		5000.0, 25000.0	//Limit to 50kHz max
+#define HW_LIM_FOC_CTRL_LOOP_FREQ		5000.0F, 25000.0F	//Limit to 50kHz max
 #ifndef MCCONF_L_MAX_ABS_CURRENT
 #define MCCONF_L_MAX_ABS_CURRENT		220.0F	// The maximum absolute current above which a fault is generated
 #endif
@@ -281,17 +281,17 @@
 #define HW_TEMP_SHUNT_KW			25.0f			// Kelvin/Watt of shunts
 #define HW_TEMP_NUM_PHASES			3.0f			// How many phases
 // Setting limits
-#define HW_LIM_CURRENT			-250.0, 250.0	
-#define HW_LIM_CURRENT_IN		-200.0, 200.0		// 200A for 10 AWG inputs (2x 100A)
-#define HW_LIM_CURRENT_ABS		0.0, 350.0
-#define HW_LIM_VIN				6.0, 75.0			  
-#define HW_LIM_ERPM				-200e3, 200e3
-#define HW_LIM_DUTY_MIN			0.0, 0.1
-#define HW_LIM_DUTY_MAX			0.0, 0.98
-#define HW_LIM_TEMP_FET			-40.0, 100.0	  
+#define HW_LIM_CURRENT			-250.0F, 250.0F
+#define HW_LIM_CURRENT_IN		-200.0F, 200.0F		// 200A for 10 AWG inputs (2x 100A)
+#define HW_LIM_CURRENT_ABS		0.0F, 350.0F
+#define HW_LIM_VIN				6.0F, 75.0F
+#define HW_LIM_ERPM				-200e3F, 200e3F
+#define HW_LIM_DUTY_MIN			0.0F, 0.1F
+#define HW_LIM_DUTY_MAX			0.0F, 0.98F
+#define HW_LIM_TEMP_FET			-40.0F, 100.0F
 
 #ifndef MCCONF_L_MAX_VOLTAGE
-#define MCCONF_L_MAX_VOLTAGE			16.0 * 4.2 + 5.0	// Maximum input voltage
+#define MCCONF_L_MAX_VOLTAGE			16.0F * 4.2F + 5.0F	// Maximum input voltage
 #endif
 
 #ifndef MCCONF_FOC_DT_US
@@ -299,7 +299,7 @@
 #endif
 
 // Override dead time. See the stm32f4 reference manual for calculating this value.
-#define HW_DEAD_TIME_NSEC		800.0  // FD6288Q has 170ns built in deadtime
+#define HW_DEAD_TIME_NSEC		800.0F  // FD6288Q has 170ns built in deadtime
 
 // HW-specific functions
 float hw_a200s_get_temp_mos(void);

@@ -205,14 +205,14 @@ void lispif_process_cmd(unsigned char *data, unsigned int len,
 
 
 	case COMM_LISP_GET_STATS: {
-		float cpu_use = 0.0;
-		float heap_use = 0.0;
-		float mem_use = 0.0;
+		float cpu_use = 0.0F;
+		float heap_use = 0.0F;
+		float mem_use = 0.0F;
 
 		static systime_t time_last = 0;
 		utils_sys_lock_cnt();
 		if (eval_tp) {
-			cpu_use = 100.0 * (float)eval_tp->time / (float)(chVTGetSystemTimeX() - time_last);
+			cpu_use = 100.0F * (float)eval_tp->time / (float)(chVTGetSystemTimeX() - time_last);
 			time_last = chVTGetSystemTimeX();
 			eval_tp->time = 0;
 		} else {
@@ -227,21 +227,21 @@ void lispif_process_cmd(unsigned char *data, unsigned int len,
 		}
 
 		if (lbm_heap_state.gc_num > 0) {
-			heap_use = 100.0 * (float)(HEAP_SIZE - lbm_heap_state.gc_last_free) / (float)HEAP_SIZE;
+			heap_use = 100.0F * (float)(HEAP_SIZE - lbm_heap_state.gc_last_free) / (float)HEAP_SIZE;
 		}
 
-		mem_use = 100.0 * (float)(lbm_memory_num_words() - lbm_memory_num_free()) / (float)lbm_memory_num_words();
+		mem_use = 100.0F * (float)(lbm_memory_num_words() - lbm_memory_num_free()) / (float)lbm_memory_num_words();
 
 		uint8_t *send_buffer_global = mempools_get_packet_buffer();
 		int32_t ind = 0;
 
 		send_buffer_global[ind++] = packet_id;
-		buffer_append_float16(send_buffer_global, cpu_use, 1e2, &ind);
-		buffer_append_float16(send_buffer_global, heap_use, 1e2, &ind);
-		buffer_append_float16(send_buffer_global, mem_use, 1e2, &ind);
+		buffer_append_float16(send_buffer_global, cpu_use, 1e2F, &ind);
+		buffer_append_float16(send_buffer_global, heap_use, 1e2F, &ind);
+		buffer_append_float16(send_buffer_global, mem_use, 1e2F, &ind);
 
 		// Stack. Currently unused
-		buffer_append_float16(send_buffer_global, 0, 1e2, &ind);
+		buffer_append_float16(send_buffer_global, 0, 1e2F, &ind);
 
 		// Result. Currently unused
 		send_buffer_global[ind++] = '\0';
@@ -284,7 +284,7 @@ void lispif_process_cmd(unsigned char *data, unsigned int len,
 	} break;
 
 	case COMM_LISP_REPL_CMD: {
-		if (UTILS_AGE_S(repl_time) <= 0.5) {
+		if (UTILS_AGE_S(repl_time) <= 0.5F) {
 			return;
 		}
 
@@ -399,13 +399,13 @@ void lispif_process_cmd(unsigned char *data, unsigned int len,
 							prof_data[i].cid,
 							prof_data[i].name,
 							prof_data[i].count,
-							(double)(100.0 * ((float)prof_data[i].count) / (float) tot_samples),
-							(double)(100.0 * ((float)prof_data[i].gc_count) / (float)prof_data[i].count));
+							(double)(100.0F * ((float)prof_data[i].count) / (float) tot_samples),
+							(double)(100.0F * ((float)prof_data[i].gc_count) / (float)prof_data[i].count));
 				}
 				commands_printf_lisp(" ");
-				commands_printf_lisp("GC:\t%u\t%f%%\n", tot_gc, (double)(100.0 * ((float)tot_gc / (float)tot_samples)));
-				commands_printf_lisp("System:\t%u\t%f%%\n", num_system, (double)(100.0 * ((float)num_system / (float)tot_samples)));
-				commands_printf_lisp("Sleep:\t%u\t%f%%\n", num_sleep, (double)(100.0 * ((float)num_sleep / (float)tot_samples)));
+				commands_printf_lisp("GC:\t%u\t%f%%\n", tot_gc, (double)(100.0F * ((float)tot_gc / (float)tot_samples)));
+				commands_printf_lisp("System:\t%u\t%f%%\n", num_system, (double)(100.0F * ((float)num_system / (float)tot_samples)));
+				commands_printf_lisp("Sleep:\t%u\t%f%%\n", num_sleep, (double)(100.0F * ((float)num_sleep / (float)tot_samples)));
 				commands_printf_lisp("Total:\t%u samples\n", tot_samples);
 			} else if (strncmp(str, ":env", 4) == 0) {
 				if (pause_eval(0, 1000)) {
@@ -653,7 +653,7 @@ static void done_callback(eval_context_t *ctx) {
 	lbm_value t = ctx->r;
 
 	if (cid == repl_cid) {
-		if (UTILS_AGE_S(repl_time) < 0.5) {
+		if (UTILS_AGE_S(repl_time) < 0.5F) {
 			char output[128];
 			lbm_print_value(output, sizeof(output), t);
 			commands_printf_lisp("> %s", output);

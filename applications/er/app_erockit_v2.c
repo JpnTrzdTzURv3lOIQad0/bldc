@@ -60,7 +60,7 @@ static THD_WORKING_AREA(my_thread_wa, 2048);
 static volatile bool stop_now = true;
 static volatile bool is_running = false;
 static volatile bool plot_state = false;
-static volatile float plot_sample = 0.0;
+static volatile float plot_sample = 0.0F;
 static volatile adc_config app_adc_config;
 
 static volatile bool m_brake_rear = false;
@@ -146,35 +146,35 @@ void load_lisp_extensions(void) {
 }
 
 static void restore_settings(void) {
-	m_set_eco.p_throttle_hyst = 0.04;
-	m_set_eco.p_pedal_current = 25.0;
-	m_set_eco.p_start_gain = 2.9;
-	m_set_eco.p_start_gain_end_speed = 7.8;
-	m_set_eco.p_output_power = 0.7;
+	m_set_eco.p_throttle_hyst = 0.04F;
+	m_set_eco.p_pedal_current = 25.0F;
+	m_set_eco.p_start_gain = 2.9F;
+	m_set_eco.p_start_gain_end_speed = 7.8F;
+	m_set_eco.p_output_power = 0.7F;
 	m_set_eco.p_top_speed_erpm = 2000;
-	m_set_eco.p_brake_current_front = 0.5;
-	m_set_eco.p_brake_current_rear = 0.5;
-	m_set_eco.p_brake_current_both = 1.0;
+	m_set_eco.p_brake_current_front = 0.5F;
+	m_set_eco.p_brake_current_rear = 0.5F;
+	m_set_eco.p_brake_current_both = 1.0F;
 
-	m_set_normal.p_throttle_hyst = 0.04;
-	m_set_normal.p_pedal_current = 20.0;
-	m_set_normal.p_start_gain = 3.4;
-	m_set_normal.p_start_gain_end_speed = 9.0;
-	m_set_normal.p_output_power = 0.85;
+	m_set_normal.p_throttle_hyst = 0.04F;
+	m_set_normal.p_pedal_current = 20.0F;
+	m_set_normal.p_start_gain = 3.4F;
+	m_set_normal.p_start_gain_end_speed = 9.0F;
+	m_set_normal.p_output_power = 0.85F;
 	m_set_normal.p_top_speed_erpm = 2000;
-	m_set_normal.p_brake_current_front = 0.5;
-	m_set_normal.p_brake_current_rear = 0.5;
-	m_set_normal.p_brake_current_both = 1.0;
+	m_set_normal.p_brake_current_front = 0.5F;
+	m_set_normal.p_brake_current_rear = 0.5F;
+	m_set_normal.p_brake_current_both = 1.0F;
 
-	m_set_sport.p_throttle_hyst = 0.04;
-	m_set_sport.p_pedal_current = 15.0;
-	m_set_sport.p_start_gain = 4.0;
-	m_set_sport.p_start_gain_end_speed = 15.0;
-	m_set_sport.p_output_power = 1.0;
+	m_set_sport.p_throttle_hyst = 0.04F;
+	m_set_sport.p_pedal_current = 15.0F;
+	m_set_sport.p_start_gain = 4.0F;
+	m_set_sport.p_start_gain_end_speed = 15.0F;
+	m_set_sport.p_output_power = 1.0F;
 	m_set_sport.p_top_speed_erpm = 2000;
-	m_set_sport.p_brake_current_front = 0.5;
-	m_set_sport.p_brake_current_rear = 0.5;
-	m_set_sport.p_brake_current_both = 1.0;
+	m_set_sport.p_brake_current_front = 0.5F;
+	m_set_sport.p_brake_current_rear = 0.5F;
+	m_set_sport.p_brake_current_both = 1.0F;
 }
 
 static void load_settings(volatile SETTINGS_T *set, int offset) {
@@ -328,23 +328,23 @@ static THD_FUNCTION(my_thread, arg) {
 	chThdSleepMilliseconds(500);
 
 	const float poles = 8;
-	const float gearing = 112.0 / 18.0;
-	const float wheel_d = 0.585;
-	const float output_filter = 0.3;
+	const float gearing = 112.0F / 18.0F;
+	const float wheel_d = 0.585F;
+	const float output_filter = 0.3F;
 	bool was_mode_button_pressed = false;
 #else
 	m_pedal_test_mode = true;
 #endif
 
-	const float stop_timer_max = 50.0;
-	const float S_min = 200.0;
-	const float S_ramp_step_up = 10.0;
-	const float S_ramp_step_down = 0.1;
+	const float stop_timer_max = 50.0F;
+	const float S_min = 200.0F;
+	const float S_ramp_step_up = 10.0F;
+	const float S_ramp_step_down = 0.1F;
 
-	float erpm_now = 0.0;
+	float erpm_now = 0.0F;
 	bool running = false;
 	float stop_timer = stop_timer_max;
-	float S_f = 0.0;
+	float S_f = 0.0F;
 
 	for(;;) {
 
@@ -352,12 +352,12 @@ static THD_FUNCTION(my_thread, arg) {
 		io_board_adc_values *io_v1 = comm_can_get_io_board_adc_1_4_index(0);
 		io_board_adc_values *io_v2 = comm_can_get_io_board_adc_5_8_index(0);
 
-		if (io_v1 && io_v2 && UTILS_AGE_S(io_v1->rx_time) < 1.0 && UTILS_AGE_S(io_v2->rx_time) < 1.0) {
-			m_brake_rear = io_v2->adc_voltages[3] > 6.0;
-			m_brake_front = io_v2->adc_voltages[2] > 6.0;
-			m_kill_sw = io_v1->adc_voltages[0] > 6.0;
-			m_mode_btn_down = io_v1->adc_voltages[1] > 6.0;
-			m_stand = io_v1->adc_voltages[2] > 6.0;
+		if (io_v1 && io_v2 && UTILS_AGE_S(io_v1->rx_time) < 1.0F && UTILS_AGE_S(io_v2->rx_time) < 1.0F) {
+			m_brake_rear = io_v2->adc_voltages[3] > 6.0F;
+			m_brake_front = io_v2->adc_voltages[2] > 6.0F;
+			m_kill_sw = io_v1->adc_voltages[0] > 6.0F;
+			m_mode_btn_down = io_v1->adc_voltages[1] > 6.0F;
+			m_stand = io_v1->adc_voltages[2] > 6.0F;
 		} else {
 			m_brake_rear = false;
 			m_brake_front = false;
@@ -366,38 +366,38 @@ static THD_FUNCTION(my_thread, arg) {
 			m_stand = false;
 		}
 
-		float kmh_now = -1.0;
+		float kmh_now = -1.0F;
 		can_status_msg *msg = comm_can_get_status_msg_index(0);
-		if (msg->id >= 0 && UTILS_AGE_S(msg->rx_time) < 0.5) {
-			float rpm = fabsf(msg->rpm / (poles / 2.0));
-			kmh_now = ((rpm / 60.0) * wheel_d * M_PI / gearing) * 3.6;
+		if (msg->id >= 0 && UTILS_AGE_S(msg->rx_time) < 0.5F) {
+			float rpm = fabsf(msg->rpm / (poles / 2.0F));
+			kmh_now = ((rpm / 60.0F) * wheel_d * M_PI / gearing) * 3.6F;
 		}
 #endif
 
 		// Hook hand throttle up to ADC app
-		float app_adc_pwr = 0.0;
+		float app_adc_pwr = 0.0F;
 		{
 			app_disable_output(100);
 			app_adc_pwr = app_adc_get_decoded_level();
-			utils_deadband(&app_adc_pwr, app_adc_config.hyst, 1.0);
+			utils_deadband(&app_adc_pwr, app_adc_config.hyst, 1.0F);
 			app_adc_pwr = utils_throttle_curve(
 					app_adc_pwr,
 					app_adc_config.throttle_exp,
 					app_adc_config.throttle_exp_brake,
 					app_adc_config.throttle_exp_mode);
 			static systime_t last_time = 0;
-			static float pwr_ramp = 0.0;
+			static float pwr_ramp = 0.0F;
 			float ramp_time = fabsf(app_adc_pwr) > fabsf(pwr_ramp) ? app_adc_config.ramp_time_pos : app_adc_config.ramp_time_neg;
 
-			if (ramp_time > 0.01) {
-				const float ramp_step = (float)ST2MS(chVTTimeElapsedSinceX(last_time)) / (ramp_time * 1000.0);
+			if (ramp_time > 0.01F) {
+				const float ramp_step = (float)ST2MS(chVTTimeElapsedSinceX(last_time)) / (ramp_time * 1000.0F);
 				utils_step_towards(&pwr_ramp, app_adc_pwr, ramp_step);
 				last_time = chVTGetSystemTimeX();
 				app_adc_pwr = pwr_ramp;
 			}
 
 			if (app_adc_config.ctrl_type == ADC_CTRL_TYPE_NONE) {
-				app_adc_pwr = 0.0;
+				app_adc_pwr = 0.0F;
 			}
 		}
 
@@ -414,15 +414,15 @@ static THD_FUNCTION(my_thread, arg) {
 			return;
 		}
 
-		UTILS_LP_FAST(S_f, mc_interface_get_rpm(), 0.2);
+		UTILS_LP_FAST(S_f, mc_interface_get_rpm(), 0.2F);
 		float I = mc_interface_get_tot_current_directional_filtered();
 
 		// Ramp up target current on low pedal speeds
-		float erpm_ramp_in = 1500.0;
+		float erpm_ramp_in = 1500.0F;
 		float erpm_motor = fabsf(mc_interface_get_rpm());
 		float pedal_current_target = m_set_now->p_pedal_current;
 		if (erpm_motor < erpm_ramp_in) {
-			pedal_current_target = utils_map(erpm_motor, 0.0, erpm_ramp_in, 0.0, pedal_current_target);
+			pedal_current_target = utils_map(erpm_motor, 0.0F, erpm_ramp_in, 0.0F, pedal_current_target);
 		}
 
 		if ((!m_kill_sw || m_brake_front || m_brake_rear || m_stand) && !m_pedal_test_mode) {
@@ -433,15 +433,15 @@ static THD_FUNCTION(my_thread, arg) {
 			mc_interface_set_pid_speed(erpm_now);
 
 			float error = (-pedal_current_target - I);
-			erpm_now += error * (error > 0.0 ? S_ramp_step_up : S_ramp_step_down);
-			utils_truncate_number(&erpm_now, S_min, 4000.0);
+			erpm_now += error * (error > 0.0F ? S_ramp_step_up : S_ramp_step_down);
+			utils_truncate_number(&erpm_now, S_min, 4000.0F);
 
-			if (I < -1.0) {
+			if (I < -1.0F) {
 				if (stop_timer < stop_timer_max) {
 					stop_timer++;
 				}
 			} else {
-				stop_timer -= (I + 1.0) * 0.5;
+				stop_timer -= (I + 1.0F) * 0.5F;
 				if (stop_timer <= 0) {
 					running = false;
 				}
@@ -450,7 +450,7 @@ static THD_FUNCTION(my_thread, arg) {
 			mc_interface_set_current(0);
 
 			if (S_f > S_min) {
-				stop_timer += 1.0;
+				stop_timer += 1.0F;
 				if (stop_timer >= (stop_timer_max / 2)) {
 					running = true;
 					erpm_now = S_f;
@@ -466,8 +466,8 @@ static THD_FUNCTION(my_thread, arg) {
 
 #if !IS_STANDALONE
 
-		static float plot_pwr = 0.0;
-		static float plot_pwr_nofilter = 0.0;
+		static float plot_pwr = 0.0F;
+		static float plot_pwr_nofilter = 0.0F;
 
 		// Logic and output at 200 Hz
 		static int can_div = 0;
@@ -504,8 +504,8 @@ static THD_FUNCTION(my_thread, arg) {
 			}
 
 			can_status_msg_4 *msg4 = comm_can_get_status_msg_4_index(0);
-			if (msg4->id >= 0 && UTILS_AGE_S(msg4->rx_time) < 0.5) {
-				if (msg4->temp_fet > 88.0 || msg4->temp_motor > 100.0) {
+			if (msg4->id >= 0 && UTILS_AGE_S(msg4->rx_time) < 0.5F) {
+				if (msg4->temp_fet > 88.0F || msg4->temp_motor > 100.0F) {
 					LED_FAULT_ON();
 				} else {
 					LED_FAULT_OFF();
@@ -513,22 +513,22 @@ static THD_FUNCTION(my_thread, arg) {
 			}
 
 			can_status_msg_5 *msg5 = comm_can_get_status_msg_5_index(0);
-			if (msg5->id >= 0 && UTILS_AGE_S(msg5->rx_time) < 0.5) {
-				static float v_batt_filter = 0.0;
-				UTILS_LP_FAST(v_batt_filter, msg5->v_in, 0.01);
+			if (msg5->id >= 0 && UTILS_AGE_S(msg5->rx_time) < 0.5F) {
+				static float v_batt_filter = 0.0F;
+				UTILS_LP_FAST(v_batt_filter, msg5->v_in, 0.01F);
 
-				if ((v_batt_filter / 14) < 3.3) {
+				if ((v_batt_filter / 14) < 3.3F) {
 					LED_LOW_BATT_ON();
-				} else if ((v_batt_filter / 14) > 3.6) {
+				} else if ((v_batt_filter / 14) > 3.6F) {
 					LED_LOW_BATT_OFF();
 				}
 			}
 
-			static float pwr = 0.0;
-			static float pwr_hyst = 0.0;
+			static float pwr = 0.0F;
+			static float pwr_hyst = 0.0F;
 			static bool hyst_stepping = false;
 
-			float brake = 0.0;
+			float brake = 0.0F;
 			if (m_brake_front && !m_brake_rear) {
 				brake = fabsf(m_set_now->p_brake_current_front);
 			} else if (!m_brake_front && m_brake_rear) {
@@ -539,45 +539,45 @@ static THD_FUNCTION(my_thread, arg) {
 
 			if (running) {
 				UTILS_LP_FAST(pwr, utils_map(fabsf(mc_interface_get_rpm()), S_min,
-						m_set_now->p_top_speed_erpm, 0.0, 1.0), output_filter);
+						m_set_now->p_top_speed_erpm, 0.0F, 1.0F), output_filter);
 
-				utils_truncate_number(&pwr, 0.0, 1.0);
+				utils_truncate_number(&pwr, 0.0F, 1.0F);
 			} else {
-				utils_step_towards(&pwr, 0.0, 0.01);
+				utils_step_towards(&pwr, 0.0F, 0.01F);
 			}
 
 			float diff = fabsf(pwr - pwr_hyst);
 
-			if (diff < (m_set_now->p_throttle_hyst / 2.0)) {
+			if (diff < (m_set_now->p_throttle_hyst / 2.0F)) {
 				hyst_stepping = false;
 			}
 
 			if (diff > m_set_now->p_throttle_hyst ||
-					pwr < (m_set_now->p_throttle_hyst * 1.2) ||
-					pwr > (1.0 - m_set_now->p_throttle_hyst * 1.2)) {
+					pwr < (m_set_now->p_throttle_hyst * 1.2F) ||
+					pwr > (1.0F - m_set_now->p_throttle_hyst * 1.2F)) {
 				hyst_stepping = true;
 			}
 
 			if (hyst_stepping) {
-				utils_step_towards(&pwr_hyst, pwr, 0.02);
+				utils_step_towards(&pwr_hyst, pwr, 0.02F);
 			}
 
 			// Apply low speed boost
 			float pwr_out = pwr_hyst;
-			if (kmh_now >= 0.0 && kmh_now < m_set_now->p_start_gain_end_speed) {
-				pwr_out *= utils_map(kmh_now, 0.0, m_set_now->p_start_gain_end_speed,
-						m_set_now->p_start_gain, 1.0);
-				if (pwr_out > 1.0) {
-					pwr_out = 1.0;
+			if (kmh_now >= 0.0F && kmh_now < m_set_now->p_start_gain_end_speed) {
+				pwr_out *= utils_map(kmh_now, 0.0F, m_set_now->p_start_gain_end_speed,
+						m_set_now->p_start_gain, 1.0F);
+				if (pwr_out > 1.0F) {
+					pwr_out = 1.0F;
 				}
 			}
 
 			if (!m_kill_sw || m_pedal_test_mode || m_stand) {
-				comm_can_set_current_brake_rel(255, 0.0);
-			} else if (brake > 0.0001) {
+				comm_can_set_current_brake_rel(255, 0.0F);
+			} else if (brake > 0.0001F) {
 				comm_can_set_current_brake_rel(255, brake);
 			} else {
-				if (app_adc_pwr > 0.001) {
+				if (app_adc_pwr > 0.001F) {
 					comm_can_set_current_rel(255, app_adc_pwr * m_set_now->p_output_power);
 				} else {
 					comm_can_set_current_rel(255, pwr_out * m_set_now->p_output_power);
@@ -720,7 +720,7 @@ static void terminal_plot(int argc, const char **argv) {
 		if (d == 0 || d == 1) {
 			plot_state = d;
 			if (plot_state) {
-				plot_sample = 0.0;
+				plot_sample = 0.0F;
 				commands_init_plot("Sample", "Value");
 				commands_plot_add_graph("Timer");
 				commands_plot_add_graph("I out");

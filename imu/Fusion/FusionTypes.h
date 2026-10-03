@@ -108,7 +108,7 @@ typedef union {
  * @brief Definition of M_PI.  Some compilers may not define this in math.h.
  */
 #ifndef M_PI
-#define M_PI 3.14159265358979323846
+#define M_PI 3.14159265358979323846F
 #endif
 
 //------------------------------------------------------------------------------
@@ -120,7 +120,7 @@ typedef union {
  * @return Radians.
  */
 static inline __attribute__((always_inline)) float FusionDegreesToRadians(const float degrees) {
-    return degrees * ((float) M_PI / 180.0f);
+    return degrees * (3.14159265358979323846f / 180.0f);
 }
 
 /**
@@ -129,7 +129,7 @@ static inline __attribute__((always_inline)) float FusionDegreesToRadians(const 
  * @return Degrees.
  */
 static inline __attribute__((always_inline)) float FusionRadiansToDegrees(const float radians) {
-    return radians * (180.0f / (float) M_PI);
+    return radians * (180.0f / 3.14159265358979323846f);
 }
 
 //------------------------------------------------------------------------------
@@ -142,10 +142,10 @@ static inline __attribute__((always_inline)) float FusionRadiansToDegrees(const 
  * @return Reciprocal of the square root of x.
  */
 static inline __attribute__((always_inline)) float FusionFastInverseSqrt(const float x) {
-	if (x == 0.0) {
-		return 1.0;
+	if (x == 0.0F) {
+		return 1.0F;
 	}
-    return 1.0 / sqrtf(x);
+    return 1.0F / sqrtf(x);
 }
 
 //------------------------------------------------------------------------------

@@ -1519,7 +1519,7 @@ __attribute__((section(".text2"))) void conf_general_calc_apply_foc_cc_kp_ki_gai
 	float kp = l * bw;
 	float ki = r * bw;
 	float gain = 1.0e-3F / SQ(lambda);
-	//	float gain = (0.00001 / r) / SQ(lambda); // Old method
+	//	float gain = (0.00001F / r) / SQ(lambda); // Old method
 
 	mcconf->foc_current_kp = kp;
 	mcconf->foc_current_ki = ki;
@@ -1685,7 +1685,7 @@ static void measure_flux_linkage_task(void *arg) {
 
 	if (undriven_samples > 60) {
 		args->linkage = linkage_undriven;
-		if (args->linkage <= 0.0){
+		if (args->linkage <= 0.0F){
 			args->result = false;
 		}
 	} else {

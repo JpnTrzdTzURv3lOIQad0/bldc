@@ -90,7 +90,7 @@ bool lbm_memory_init(lbm_uint *data, lbm_uint data_size,
       memory_size = data_size;
       memory_min_free = data_size;
       memory_num_free = data_size;
-      memory_reserve_level = (lbm_uint)(0.1 * (lbm_float)data_size);
+      memory_reserve_level = (lbm_uint)(0.1F * (lbm_float)data_size);
       res = true;
     }
   }

@@ -67,7 +67,7 @@
 #define APPCONF_PPM_PID_MAX_ERPM 15000
 
 // Input Deadband
-#define APPCONF_PPM_HYST 0.15
+#define APPCONF_PPM_HYST 0.15F
 
 // Pulselength Start
 #define APPCONF_PPM_PULSE_START 1
@@ -76,7 +76,7 @@
 #define APPCONF_PPM_PULSE_END 2
 
 // Pulselength Center
-#define APPCONF_PPM_PULSE_CENTER 1.5
+#define APPCONF_PPM_PULSE_CENTER 1.5F
 
 // Median Filter
 #define APPCONF_PPM_MEDIAN_FILTER 1
@@ -94,10 +94,10 @@
 #define APPCONF_PPM_THROTTLE_EXP_MODE 2
 
 // Positive Ramping Time
-#define APPCONF_PPM_RAMP_TIME_POS 0.4
+#define APPCONF_PPM_RAMP_TIME_POS 0.4F
 
 // Negative Ramping Time
-#define APPCONF_PPM_RAMP_TIME_NEG 0.2
+#define APPCONF_PPM_RAMP_TIME_NEG 0.2F
 
 // Multiple VESCs Over CAN
 #define APPCONF_PPM_MULTI_ESC 1
@@ -112,7 +112,7 @@
 #define APPCONF_PPM_MAX_ERPM_FOR_DIR 4000
 
 // Smart Reverse Max Duty Cycle
-#define APPCONF_PPM_SMART_REV_MAX_DUTY 0.07
+#define APPCONF_PPM_SMART_REV_MAX_DUTY 0.07F
 
 // Smart Reverse Ramp Time
 #define APPCONF_PPM_SMART_REV_RAMP_TIME 3
@@ -121,22 +121,22 @@
 #define APPCONF_ADC_CTRL_TYPE 8
 
 // Input Deadband
-#define APPCONF_ADC_HYST 0.05
+#define APPCONF_ADC_HYST 0.05F
 
 // ADC1 Start Voltage
-#define APPCONF_ADC_VOLTAGE_START 0.6
+#define APPCONF_ADC_VOLTAGE_START 0.6F
 
 // ADC1 End Voltage
-#define APPCONF_ADC_VOLTAGE_END 2.54
+#define APPCONF_ADC_VOLTAGE_END 2.54F
 
 // ADC1 Abs Min Voltage
-#define APPCONF_ADC_VOLTAGE_MIN 0.0
+#define APPCONF_ADC_VOLTAGE_MIN 0.0F
 
 // ADC1 Abs Max Voltage
 #define APPCONF_ADC_VOLTAGE_MAX 3
 
 // ADC1 Center Voltage
-#define APPCONF_ADC_VOLTAGE_CENTER 0.6
+#define APPCONF_ADC_VOLTAGE_CENTER 0.6F
 
 // ADC2 Start Voltage
 #define APPCONF_ADC_VOLTAGE2_START 0
@@ -160,7 +160,7 @@
 #define APPCONF_ADC_VOLTAGE2_INVERTED 1
 
 // Throttle Expo
-#define APPCONF_ADC_THROTTLE_EXP -0.5
+#define APPCONF_ADC_THROTTLE_EXP -0.5F
 
 // Throttle Expo Brake
 #define APPCONF_ADC_THROTTLE_EXP_BRAKE 0
@@ -169,10 +169,10 @@
 #define APPCONF_ADC_THROTTLE_EXP_MODE 2
 
 // Positive Ramping Time
-#define APPCONF_ADC_RAMP_TIME_POS 0.3
+#define APPCONF_ADC_RAMP_TIME_POS 0.3F
 
 // Negative Ramping Time
-#define APPCONF_ADC_RAMP_TIME_NEG 0.1
+#define APPCONF_ADC_RAMP_TIME_NEG 0.1F
 
 // Multiple VESCs Over CAN
 #define APPCONF_ADC_MULTI_ESC 1
@@ -193,13 +193,13 @@
 #define APPCONF_CHUK_CTRL_TYPE 1
 
 // Input Deadband
-#define APPCONF_CHUK_HYST 0.15
+#define APPCONF_CHUK_HYST 0.15F
 
 // Positive Ramping Time
-#define APPCONF_CHUK_RAMP_TIME_POS 0.4
+#define APPCONF_CHUK_RAMP_TIME_POS 0.4F
 
 // Negative Ramping Time
-#define APPCONF_CHUK_RAMP_TIME_NEG 0.2
+#define APPCONF_CHUK_RAMP_TIME_NEG 0.2F
 
 // ERPM Per Second Cruise Control
 #define APPCONF_STICK_ERPM_PER_S_IN_CC 3000
@@ -226,7 +226,7 @@
 #define APPCONF_CHUK_USE_SMART_REV 1
 
 // Smart Reverse Max Duty Cycle
-#define APPCONF_CHUK_SMART_REV_MAX_DUTY 0.07
+#define APPCONF_CHUK_SMART_REV_MAX_DUTY 0.07F
 
 // Smart Reverse Ramp Time
 #define APPCONF_CHUK_SMART_REV_RAMP_TIME 3
@@ -268,7 +268,7 @@
 #define APPCONF_PAS_SENSOR_TYPE 0
 
 // PAS Max Current
-#define APPCONF_PAS_CURRENT_SCALING 0.35
+#define APPCONF_PAS_CURRENT_SCALING 0.35F
 
 // Pedal RPM Start
 #define APPCONF_PAS_PEDAL_RPM_START 10
@@ -286,10 +286,10 @@
 #define APPCONF_PAS_USE_FILTER 1
 
 // Positive Ramping Time
-#define APPCONF_PAS_RAMP_TIME_POS 1.25
+#define APPCONF_PAS_RAMP_TIME_POS 1.25F
 
 // Negative Ramping Time
-#define APPCONF_PAS_RAMP_TIME_NEG 1.25
+#define APPCONF_PAS_RAMP_TIME_NEG 1.25F
 
 // Update Rate
 #define APPCONF_PAS_UPDATE_RATE_HZ 500
@@ -325,13 +325,13 @@
 #define APPCONF_IMU_ACCEL_CONFIDENCE_DECAY 1
 
 // Mahony KP
-#define APPCONF_IMU_MAHONY_KP 0.3
+#define APPCONF_IMU_MAHONY_KP 0.3F
 
 // Mahony KI
 #define APPCONF_IMU_MAHONY_KI 0
 
 // Madgwick Beta
-#define APPCONF_IMU_MADGWICK_BETA 0.1
+#define APPCONF_IMU_MADGWICK_BETA 0.1F
 
 // Imu Rotation Roll
 #define APPCONF_IMU_ROT_ROLL 0

@@ -120,11 +120,11 @@ void enc_as5x47u_spi_callback(SPIDriver *pspi) {
 	if (pspi != NULL && pspi->app_arg != NULL) {
 		AS5x47U_config_t *cfg = (AS5x47U_config_t*)pspi->app_arg;
 		spiUnselectI(cfg->spi_dev);
-	
+
 		// Determine time step for error rate calculation
 		float timestep = timer_seconds_elapsed_since(cfg->state.last_update_time);
-		if (timestep > 1.0) {
-			timestep = 1.0;
+		if (timestep > 1.0F) {
+			timestep = 1.0F;
 		}
 		cfg->state.last_update_time = timer_time_now();
 
@@ -137,7 +137,7 @@ void enc_as5x47u_spi_callback(SPIDriver *pspi) {
 				(uint8_t)((rx_data & AS5x47U_SPI_ERROR_FLAG_MASK) != 0);
 
 			if (!cfg->state.sensor_diag.is_error) {
-				UTILS_LP_FAST(cfg->state.spi_error_rate, 0.0, timestep);
+				UTILS_LP_FAST(cfg->state.spi_error_rate, 0.0F, timestep);
 
 				switch(cfg->state.spi_seq) {
 				case SPI_SEQ_TX_MAG_RX_POS:
@@ -224,7 +224,7 @@ void enc_as5x47u_spi_callback(SPIDriver *pspi) {
 			} else {
 				// Error flag is set
 				AS5x47U_determinate_if_connected(cfg, true); // Encoder is connected...
-				UTILS_LP_FAST(cfg->state.spi_error_rate, 1.0, timestep); // But there is an error
+				UTILS_LP_FAST(cfg->state.spi_error_rate, 1.0F, timestep); // But there is an error
 				++cfg->state.spi_error_cnt;
 				// Error flag is set so need to read error register next
 				cfg->state.spi_seq = SPI_SEQ_PREV_ERR;
@@ -232,7 +232,7 @@ void enc_as5x47u_spi_callback(SPIDriver *pspi) {
 		} else {
 			// CRC error
 			AS5x47U_determinate_if_connected(cfg, false);
-			UTILS_LP_FAST(cfg->state.spi_error_rate, 1.0, timestep);
+			UTILS_LP_FAST(cfg->state.spi_error_rate, 1.0F, timestep);
 			++cfg->state.spi_error_cnt;
 			cfg->state.spi_seq = SPI_SEQ_PREV_ERR;
 		}
@@ -271,7 +271,7 @@ bool enc_as5x47u_init(AS5x47U_config_t *cfg) {
 
 	spiStart(cfg->spi_dev, &(cfg->hw_spi_cfg));
 
-	cfg->state.spi_error_rate = 0.0;
+	cfg->state.spi_error_rate = 0.0F;
 
 	return true;
 }
@@ -285,8 +285,8 @@ void enc_as5x47u_deinit(AS5x47U_config_t *cfg) {
 
 		spiStop(cfg->spi_dev);
 
-		cfg->state.last_enc_angle = 0.0;
-		cfg->state.spi_error_rate = 0.0;
+		cfg->state.last_enc_angle = 0.0F;
+		cfg->state.spi_error_rate = 0.0F;
 	}
 }
 

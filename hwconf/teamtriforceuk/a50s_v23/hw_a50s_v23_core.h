@@ -43,7 +43,7 @@
 #define ADC_IND_CURR2			0
 // Define CURR3 so the half transfer complete interrupt is not used
 // When taking 6 current samples need to wait till they are all there
-#define ADC_IND_CURR3			100 
+#define ADC_IND_CURR3			100
 #define ADC_IND_CURR1_2			7
 #define ADC_IND_CURR2_2			6
 #define ADC_IND_CURR1_3			10
@@ -66,43 +66,43 @@
 
 // Component parameters (can be overridden)
 #ifndef V_REG
-#define V_REG						3.30
+#define V_REG						3.30F
 #endif
 #ifndef VIN_R1
-#define VIN_R1						68000.0
+#define VIN_R1						68000.0F
 #endif
 #ifndef VIN_R2
-#define VIN_R2						2200.0
+#define VIN_R2						2200.0F
 #endif
 #ifndef CURRENT_AMP_GAIN
-#define CURRENT_AMP_GAIN			20.0
+#define CURRENT_AMP_GAIN			20.0F
 #endif
 #ifndef CURRENT_SHUNT_RES
-#define CURRENT_SHUNT_RES			0.0005    
+#define CURRENT_SHUNT_RES			0.0005F
 #endif
 
-#define CURRENT_CAL1				0.91
-#define CURRENT_CAL2				0.875
+#define CURRENT_CAL1				0.91F
+#define CURRENT_CAL2				0.875F
 
 // Current is sampled 6 times and averaged to reduce noise
-#define GET_CURRENT1()		(((float)(ADC_Value[ADC_IND_CURR1] + ADC_Value[ADC_IND_CURR1_2] + ADC_Value[ADC_IND_CURR1_3] + ADC_Value[ADC_IND_CURR1_4] + ADC_Value[ADC_IND_CURR1_5] + ADC_Value[ADC_IND_CURR1_6]))/6.0)
-#define GET_CURRENT2()		(((float)(ADC_Value[ADC_IND_CURR2] + ADC_Value[ADC_IND_CURR2_2] + ADC_Value[ADC_IND_CURR2_3] + ADC_Value[ADC_IND_CURR2_4] + ADC_Value[ADC_IND_CURR2_5] + ADC_Value[ADC_IND_CURR2_6]))/6.0)
+#define GET_CURRENT1()		(((float)(ADC_Value[ADC_IND_CURR1] + ADC_Value[ADC_IND_CURR1_2] + ADC_Value[ADC_IND_CURR1_3] + ADC_Value[ADC_IND_CURR1_4] + ADC_Value[ADC_IND_CURR1_5] + ADC_Value[ADC_IND_CURR1_6]))/6.0F)
+#define GET_CURRENT2()		(((float)(ADC_Value[ADC_IND_CURR2] + ADC_Value[ADC_IND_CURR2_2] + ADC_Value[ADC_IND_CURR2_3] + ADC_Value[ADC_IND_CURR2_4] + ADC_Value[ADC_IND_CURR2_5] + ADC_Value[ADC_IND_CURR2_6]))/6.0F)
 #define GET_CURRENT3()		0
 //#define GET_CURRENT1()		(float)(ADC_Value[ADC_IND_CURR1])
 //#define GET_CURRENT2()		(float)(ADC_Value[ADC_IND_CURR2])
 
 // Input voltage
-#define GET_INPUT_VOLTAGE()			((V_REG / 4095.0) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
+#define GET_INPUT_VOLTAGE()			((V_REG / 4095.0F) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
 
 // NTC Termistors
-#define NTC_RES(adc_val)			((4095.0 * 10000.0) / adc_val - 10000.0)
-#define NTC_TEMP(adc_ind)			(1.0 / ((logf(NTC_RES(ADC_Value[adc_ind]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15)
+#define NTC_RES(adc_val)			((4095.0F * 10000.0F) / adc_val - 10000.0F)
+#define NTC_TEMP(adc_ind)			(1.0F / ((logf(NTC_RES(ADC_Value[adc_ind]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F)
 
-#define NTC_RES_MOTOR(adc_val)		(10000.0 / ((4095.0 / (float)adc_val) - 1.0)) // Motor temp sensor on low side
-#define NTC_TEMP_MOTOR(beta)		(1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0) / beta) + (1.0 / 298.15)) - 273.15)
+#define NTC_RES_MOTOR(adc_val)		(10000.0F / ((4095.0F / (float)adc_val) - 1.0F)) // Motor temp sensor on low side
+#define NTC_TEMP_MOTOR(beta)		(1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0F) / beta) + (1.0F / 298.15F)) - 273.15F)
 
 // Voltage on ADC channel
-#define ADC_VOLTS(ch)				((float)ADC_Value[ch] / 4096.0 * V_REG)
+#define ADC_VOLTS(ch)				((float)ADC_Value[ch] / 4096.0F * V_REG)
 
 // LEDs
 #define LED_GREEN_GPIO				GPIOB
@@ -191,7 +191,7 @@
 #define READ_HALL3()				palReadPad(HW_HALL_ENC_GPIO3, HW_HALL_ENC_PIN3)
 
 // Override dead time. See the stm32f4 reference manual for calculating this value.
-#define HW_DEAD_TIME_NSEC			0.0		// FD6288Q has 200ns built in deadtime
+#define HW_DEAD_TIME_NSEC			0.0F		// FD6288Q has 200ns built in deadtime
 
 // Default setting overrides
 #ifndef MCCONF_L_MIN_VOLTAGE
@@ -203,11 +203,11 @@
 #ifndef MCCONF_FOC_F_ZV
 #define MCCONF_FOC_F_ZV				25000.0F // Switching frequency reduced to allow rise time of low side shunts
 #endif
-#define HW_LIM_FOC_CTRL_LOOP_FREQ	5000.0, 22500.0	//Limit to 45kHz max 
+#define HW_LIM_FOC_CTRL_LOOP_FREQ	5000.0F, 22500.0F	//Limit to 45kHz max
 #ifndef MCCONF_FOC_DT_US
 #define MCCONF_FOC_DT_US			0.0F // Microseconds for dead time compensation
 #endif
-// Only use phase filters for detection by default to get good resistance measurement. 
+// Only use phase filters for detection by default to get good resistance measurement.
 // In testing I found that phase filters gave worse startup
 #ifndef MCCONF_FOC_PHASE_FILTER_MAX_ERPM
 #define MCCONF_FOC_PHASE_FILTER_MAX_ERPM	10.0F
@@ -243,30 +243,30 @@
 // Don't call on boot, cal during motor config instead.
 // This significatly speeds up boot time, which is important for combat robots
 #ifndef MCCONF_FOC_OFFSETS_CAL_ON_BOOT
-#define MCCONF_FOC_OFFSETS_CAL_ON_BOOT	false 
+#define MCCONF_FOC_OFFSETS_CAL_ON_BOOT	false
 #endif
 
 // Setting limits
-#define HW_LIM_CURRENT				-85.0, 85.0 
-#define HW_LIM_CURRENT_IN			-40.0, 40.0
-#define HW_LIM_CURRENT_ABS			0.0, 150.0
-#define HW_LIM_ERPM					-200e3, 200e3
-#define HW_LIM_DUTY_MIN				0.0, 0.1
-#define HW_LIM_DUTY_MAX				0.0, 0.98	
-#define HW_LIM_TEMP_FET				-40.0, 100.0
+#define HW_LIM_CURRENT				-85.0F, 85.0F
+#define HW_LIM_CURRENT_IN			-40.0F, 40.0F
+#define HW_LIM_CURRENT_ABS			0.0F, 150.0F
+#define HW_LIM_ERPM					-200e3F, 200e3F
+#define HW_LIM_DUTY_MIN				0.0F, 0.1F
+#define HW_LIM_DUTY_MAX				0.0F, 0.98F
+#define HW_LIM_TEMP_FET				-40.0F, 100.0F
 
 
 #ifdef HW_A50S_20S
-#define HW_LIM_VIN					4.0, 90.0
+#define HW_LIM_VIN					4.0F, 90.0F
 #define MCCONF_L_MAX_VOLTAGE		86.0F	// Maximum input voltage
 #elif defined (HW_A50S_12S)
-#define HW_LIM_VIN					4.0, 56.0
+#define HW_LIM_VIN					4.0F, 56.0F
 #define MCCONF_L_MAX_VOLTAGE		55.0F	// Maximum input voltage
 #elif defined (HW_A50S_8S)
-#define HW_LIM_VIN					4.0, 37.0
+#define HW_LIM_VIN					4.0F, 37.0F
 #define MCCONF_L_MAX_VOLTAGE		36.0F	// Maximum input voltage
 #elif defined (HW_A50S_6S)
-#define HW_LIM_VIN					4.0, 28.0
+#define HW_LIM_VIN					4.0F, 28.0F
 #define MCCONF_L_MAX_VOLTAGE		26.0F	// Maximum input voltage
 #else
 #error "Must define a hardware type"

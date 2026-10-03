@@ -55,7 +55,7 @@ void si8900_init(void) {
 }
 
 float si8900_get_voltage(int channel) {
-	float res = -1.0;
+	float res = -1.0F;
 
 	if (channel >= 0 && channel < 3) {
 		res = m_voltages[channel];
@@ -65,7 +65,7 @@ float si8900_get_voltage(int channel) {
 }
 
 float si8900_get_val_rel(int channel) {
-	return si8900_get_voltage(channel) / 3.3;
+	return si8900_get_voltage(channel) / 3.3F;
 }
 
 static void terminal_read(int argc, const char **argv) {
@@ -129,7 +129,7 @@ static THD_FUNCTION(si_read_thread, arg) {
 			size_t res = sdReadTimeout(&HW_SI8900_DEV, rxb, rx_len, MS2ST(10));
 			if (res == rx_len) {
 				m_voltages[i] = (float)((((uint16_t)rxb[0] & 0b00001111) << 6) |
-						(((uint16_t)rxb[1] >> 1) & 0b00111111)) / 1023.0 * 3.3;
+						(((uint16_t)rxb[1] >> 1) & 0b00111111)) / 1023.0F * 3.3F;
 			}
 		}
 

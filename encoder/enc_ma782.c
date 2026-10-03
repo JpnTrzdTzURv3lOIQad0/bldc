@@ -177,12 +177,12 @@ void enc_ma782_routine(ma782_config_t *cfg) {
 		if(state->start > 0) {
 			ma782_read_angle(cfg);
 		}
-		UTILS_LP_FAST(state->spi_comm_error_rate, 0.0, 0.0001);
+		UTILS_LP_FAST(state->spi_comm_error_rate, 0.0F, 0.0001F);
 	} else {
 		++state->spi_comm_error_cnt;
 		ma782_error(state, MA782_SPI_NOT_READY);
-		// compute rate with factor 0.0001 for 10000hz
-		UTILS_LP_FAST(state->spi_comm_error_rate, 1.0, 0.0001);
+		// compute rate with factor 0.0001F for 10000hz
+		UTILS_LP_FAST(state->spi_comm_error_rate, 1.0F, 0.0001F);
 	}
 }
 

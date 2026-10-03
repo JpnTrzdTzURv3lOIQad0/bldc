@@ -262,9 +262,9 @@ int main(void) {
   lbm_set_usleep_callback(sleep_callback);
 
   lbm_set_verbose(true);
-  
+
   lbm_image_init(image_storage,
-                 IMAGE_SIZE, 
+                 IMAGE_SIZE,
                  image_write);
 
   image_clear();                // all benchies on a fresh image.
@@ -272,7 +272,7 @@ int main(void) {
   if (!lbm_image_exists()) chprintf(chp, "Error creating image\n");
   if (!lbm_image_boot()) chprintf(chp, "Error booting image\n");
   lbm_add_eval_symbols();
-  
+
   res = lbm_add_extension("print", ext_print);
   if (res)
     chprintf(chp,"Extension added.\r\n");
@@ -333,7 +333,7 @@ int main(void) {
                  (uint32_t)tp,
                  (uint32_t)tp->prio, (uint32_t)(tp->refs - 1),
                  states[tp->state], tp->name, (uint32_t)(tp->time - tp->time_last),
-                 (double)(100.0 * (float)(tp->time - tp->time_last) / (float)(chVTGetSystemTimeX() - tp->time_last)));
+                 (double)(100.0F * (float)(tp->time - tp->time_last) / (float)(chVTGetSystemTimeX() - tp->time_last)));
         tp->time_last = tp->time;
         tp = chRegNextThread(tp);
       } while (tp != NULL);
@@ -368,9 +368,9 @@ int main(void) {
                PRINT_STACK_SIZE,
                extensions,
                EXTENSION_STORAGE_SIZE);
-      
+
       lbm_image_init(image_storage,
-                     IMAGE_SIZE, 
+                     IMAGE_SIZE,
                      image_write);
 
       image_clear();                // all benchies on a fresh image.
@@ -440,7 +440,7 @@ int main(void) {
         lbm_get_heap_state(&heap_state);
 
         chprintf(chp, "gc invocations: %d\r\n", heap_state.gc_num);
-        chprintf(chp, "gc time avg: %f\r\n", 0.0);
+        chprintf(chp, "gc time avg: %f\r\n", 0.0F);
         chprintf(chp, "gc min time: %u\r\n", 0);
         chprintf(chp, "gc max time: %u\r\n", 0);
         chprintf(chp, "gc least free: %u\r\n", heap_state.gc_least_free);

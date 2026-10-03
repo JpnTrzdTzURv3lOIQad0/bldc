@@ -12,10 +12,10 @@
 #include "isr_vector_table.h"
 #include "stdlib.h"
 
-#define SPEED_STEP	0.05
-#define SPEED_MAX	1.00
-#define SPEED_MIN	0.10
-#define SPEED_OFF	0.00
+#define SPEED_STEP	0.05F
+#define SPEED_MAX	1.00F
+#define SPEED_MIN	0.10F
+#define SPEED_OFF	0.00F
 
 //private variables
 static volatile bool stop_now = true;
@@ -36,7 +36,7 @@ void app_custom_configure(app_configuration *conf)
 	(void)conf;
 }
 
-void app_custom_stop(void) 
+void app_custom_stop(void)
 {
         stop_now = true;
 
@@ -123,19 +123,19 @@ static THD_FUNCTION(dpv_thread, arg) {
         // Apply ramping
 
         static systime_t last_time = 0;
-        static float motorSpeed_val_ramp = 0.0;
-	float ramp_time; 
+        static float motorSpeed_val_ramp = 0.0F;
+	float ramp_time;
 	if ( ! palReadPad(HW_HALL_TRIGGER_GPIO, HW_HALL_TRIGGER_PIN)) {
 		motorSpeed=targetSpeed;
 	} else {
 		motorSpeed=SPEED_OFF;
 	}
-  	ramp_time = fabsf(motorSpeed) > fabsf(motorSpeed_val_ramp) ? 5.0 : 0.5;
-    	if (fabsf(motorSpeed) > 0.01) {
-        	ramp_time = fminf(3.0, 3.0);
+  	ramp_time = fabsf(motorSpeed) > fabsf(motorSpeed_val_ramp) ? 5.0F : 0.5F;
+    	if (fabsf(motorSpeed) > 0.01F) {
+        	ramp_time = fminf(3.0F, 3.0F);
         }
-   	if (ramp_time > 0.01) {
-		const float ramp_step = (float)ST2MS(chVTTimeElapsedSinceX(last_time)) / (ramp_time * 1000.0);
+   	if (ramp_time > 0.01F) {
+		const float ramp_step = (float)ST2MS(chVTTimeElapsedSinceX(last_time)) / (ramp_time * 1000.0F);
         	utils_step_towards(&motorSpeed_val_ramp, motorSpeed, ramp_step);
         	last_time = chVTGetSystemTimeX();
 		motorSpeed = motorSpeed_val_ramp;

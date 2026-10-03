@@ -116,17 +116,17 @@ static bool read_sample(imu_device_t *dev, float accel[3], float gyro[3], float 
 		return false;
 	}
 
-	accel[0] = (float)a.x * 16.0 / 32768.0;
-	accel[1] = (float)a.y * 16.0 / 32768.0;
-	accel[2] = (float)a.z * 16.0 / 32768.0;
+	accel[0] = (float)a.x * 16.0F / 32768.0F;
+	accel[1] = (float)a.y * 16.0F / 32768.0F;
+	accel[2] = (float)a.z * 16.0F / 32768.0F;
 
-	gyro[0] = (float)g.x * 2000.0 / 32768.0;
-	gyro[1] = (float)g.y * 2000.0 / 32768.0;
-	gyro[2] = (float)g.z * 2000.0 / 32768.0;
+	gyro[0] = (float)g.x * 2000.0F / 32768.0F;
+	gyro[1] = (float)g.y * 2000.0F / 32768.0F;
+	gyro[2] = (float)g.z * 2000.0F / 32768.0F;
 
-	mag[0] = 0.0;
-	mag[1] = 0.0;
-	mag[2] = 0.0;
+	mag[0] = 0.0F;
+	mag[1] = 0.0F;
+	mag[2] = 0.0F;
 
 	return true;
 }

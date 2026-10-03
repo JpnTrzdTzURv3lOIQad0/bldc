@@ -31,7 +31,7 @@
  *
  * LSM6DS3TR-C (most controllers)
  *   poll:
- *     ODR: both 6.66 kHz
+ *     ODR: both 6.66F kHz
  *
  *     filter   accel               gyro
  *     LOW      400 Hz (analog)     351 Hz
@@ -48,7 +48,7 @@
  *
  * LSM6DS3 (legacy, not used on current hardware)
  *   poll:
- *     ODR: accel 6.66 kHz, gyro fs (<=1.66 kHz)
+ *     ODR: accel 6.66F kHz, gyro fs (<=1.66F kHz)
  *
  *     filter   accel                        gyro
  *     LOW      fs/2 (<=400 Hz)              ODR default (~fs)
@@ -56,7 +56,7 @@
  *     HIGH     fs/8                         ODR default (~fs)
  *
  *   DRDY:
- *     ODR: both fs (<=1.66 kHz)
+ *     ODR: both fs (<=1.66F kHz)
  *
  *     filter   accel                        gyro
  *     LOW      fs/2 (<=400 Hz)              ODR default (~fs)
@@ -78,9 +78,9 @@ static bool read_gyro_accel(imu_device_t *dev, uint8_t *res) {
 
 // Output sensitivities for the configured full scales (CTRL1_XL = ±16 g, CTRL2_G = ±2000 dps).
 #define GYRO_DPS_PER_LSB	(70.0f / 1000.0f)   // 70 mdps/LSB
-#define ACCEL_G_PER_LSB		(0.488f / 1000.0f)  // 0.488 mg/LSB
+#define ACCEL_G_PER_LSB		(0.488f / 1000.0f)  // 0.488F mg/LSB
 
-// The accelerometer and gyroscope share the CTRL1_XL / CTRL2_G ODR encoding (12.5..6660 Hz).
+// The accelerometer and gyroscope share the CTRL1_XL / CTRL2_G ODR encoding (12.5F..6660 Hz).
 static const struct { uint16_t hz; uint8_t code; } odr_ladder[] = {
 	{13,   LSM6DS3_ACC_GYRO_ODR_XL_13Hz},
 	{26,   LSM6DS3_ACC_GYRO_ODR_XL_26Hz},
@@ -164,7 +164,7 @@ static bool configure(imu_device_t *dev, IMU_FILTER filter, bool use_mag) {
 		}
 	} else {
 		// Standard LSM6DS3: absolute analog anti-alias (BW_XL) targeting rate/2 (LOW), rate/4
-		// (MEDIUM) or rate/8 (HIGH). At the 6.66 kHz poll ODR the automatic ODR-tied bandwidth is
+		// (MEDIUM) or rate/8 (HIGH). At the 6.66F kHz poll ODR the automatic ODR-tied bandwidth is
 		// "not used" (datasheet table 48), so the anti-alias has to be set manually (also enabled
 		// in CTRL4_C below). BW_XL is an absolute {400,200,100,50} Hz cutoff, picked as
 		// ~scaled_rate/4 and clamped at 400 Hz.
@@ -236,7 +236,7 @@ static bool configure(imu_device_t *dev, IMU_FILTER filter, bool use_mag) {
 		regv = LSM6DS3_ACC_GYRO_LPF1_SEL_G_ENABLED;
 	} else {
 		// Standard LSM6DS3: use the manually-set BW_XL anti-alias (CTRL1_XL above) instead of the
-		// ODR-tied automatic bandwidth, which is disabled at the 6.66 kHz poll ODR (table 48).
+		// ODR-tied automatic bandwidth, which is disabled at the 6.66F kHz poll ODR (table 48).
 		regv = LSM6DS3_ACC_GYRO_BW_SCAL_ODR_ENABLED;
 	}
 	#define LSM6DS3_ACC_GYRO_DRDY_MASK 0x08 // CTRL4_C: hold DRDY off until the filters settle

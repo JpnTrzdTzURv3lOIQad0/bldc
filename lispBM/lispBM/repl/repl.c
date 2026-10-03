@@ -1863,12 +1863,12 @@ void repl_process_cmd(unsigned char *data, unsigned int len,
     int32_t ind = 0;
 
     send_buffer_global[ind++] = (uint8_t)packet_id;
-    buffer_append_float16(send_buffer_global, cpu_use, 1e2, &ind);
-    buffer_append_float16(send_buffer_global, heap_use, 1e2, &ind);
-    buffer_append_float16(send_buffer_global, mem_use, 1e2, &ind);
+    buffer_append_float16(send_buffer_global, cpu_use, 1e2F, &ind);
+    buffer_append_float16(send_buffer_global, heap_use, 1e2F, &ind);
+    buffer_append_float16(send_buffer_global, mem_use, 1e2F, &ind);
 
     // Stack. Currently unused
-    buffer_append_float16(send_buffer_global, 0, 1e2, &ind);
+    buffer_append_float16(send_buffer_global, 0, 1e2F, &ind);
 
     // Result. Currently unused.
     send_buffer_global[ind++] = '\0';
@@ -1977,7 +1977,7 @@ void repl_process_cmd(unsigned char *data, unsigned int len,
         commands_printf_lisp("Memory size: %u bytes\n", lbm_memory_num_words() * 4);
         commands_printf_lisp("Memory free: %u bytes\n", lbm_memory_num_free() * 4);
         commands_printf_lisp("Longest block free: %u bytes\n", lbm_memory_longest_free() * 4);
-        commands_printf_lisp("Maximum usage %f%%\n", 100.0  * ((float)lbm_memory_maximum_used() / (float)lbm_memory_num_words()));
+        commands_printf_lisp("Maximum usage %f%%\n", 100.0F  * ((float)lbm_memory_maximum_used() / (float)lbm_memory_num_words()));
         commands_printf_lisp("Allocated arrays: %u\n", lbm_heap_state.num_alloc_arrays);
         commands_printf_lisp("Symbol table size: %u Bytes\n", lbm_get_symbol_table_size());
         commands_printf_lisp("Symbol table size flash: %u Bytes\n", lbm_get_symbol_table_size_flash());
@@ -2025,13 +2025,13 @@ void repl_process_cmd(unsigned char *data, unsigned int len,
                                prof_data[i].cid,
                                prof_data[i].name,
                                prof_data[i].count,
-                               (double)(100.0 * ((float)prof_data[i].count) / (float) tot_samples),
-                               (double)(100.0 * ((float)prof_data[i].gc_count) / (float)prof_data[i].count));
+                               (double)(100.0F * ((float)prof_data[i].count) / (float) tot_samples),
+                               (double)(100.0F * ((float)prof_data[i].gc_count) / (float)prof_data[i].count));
         }
         commands_printf_lisp(" ");
-        commands_printf_lisp("GC:\t%u\t%f%%\n", tot_gc, (double)(100.0 * ((float)tot_gc / (float)tot_samples)));
-        commands_printf_lisp("System:\t%u\t%f%%\n", num_system, (double)(100.0 * ((float)num_system / (float)tot_samples)));
-        commands_printf_lisp("Sleep:\t%u\t%f%%\n", num_sleep, (double)(100.0 * ((float)num_sleep / (float)tot_samples)));
+        commands_printf_lisp("GC:\t%u\t%f%%\n", tot_gc, (double)(100.0F * ((float)tot_gc / (float)tot_samples)));
+        commands_printf_lisp("System:\t%u\t%f%%\n", num_system, (double)(100.0F * ((float)num_system / (float)tot_samples)));
+        commands_printf_lisp("Sleep:\t%u\t%f%%\n", num_sleep, (double)(100.0F * ((float)num_sleep / (float)tot_samples)));
         commands_printf_lisp("Total:\t%u samples\n", tot_samples);
       } else if (strncmp(str, ":env", 4) == 0) {
         lbm_value *glob_env = lbm_get_global_env();
@@ -2664,7 +2664,7 @@ static void repl_loop(void *arg) {
         printf("--(Symbol and Array memory)---------------------------------\n");
         printf("Memory size: %"PRI_UINT" Words\n", lbm_memory_num_words());
         printf("Memory free: %"PRI_UINT" Words\n", lbm_memory_num_free());
-        printf("Maximum usage %f%%\n", 100.0  * ((float)lbm_memory_maximum_used() / (float)lbm_memory_num_words()));
+        printf("Maximum usage %f%%\n", 100.0F  * ((float)lbm_memory_maximum_used() / (float)lbm_memory_num_words()));
         printf("Allocated arrays: %"PRI_UINT"\n", heap_state.num_alloc_arrays);
         printf("Symbol table size RAM: %"PRI_UINT" Bytes\n", lbm_get_symbol_table_size());
         printf("Symbol names size RAM: %"PRI_UINT" Bytes\n", lbm_get_symbol_table_size_names());
@@ -2701,13 +2701,13 @@ static void repl_loop(void *arg) {
                  prof_data[i].cid,
                  prof_data[i].name,
                  prof_data[i].count,
-                 100.0 * ((float)prof_data[i].count) / (float) tot_samples,
-                 100.0 * ((float)prof_data[i].gc_count) / (float)prof_data[i].count);
+                 100.0F * ((float)prof_data[i].count) / (float) tot_samples,
+                 100.0F * ((float)prof_data[i].gc_count) / (float)prof_data[i].count);
         }
         printf("\n");
-        printf("GC:\t%"PRI_UINT"\t%f%%\n", tot_gc, 100.0 * ((float)tot_gc / (float)tot_samples));
-        printf("System:\t%"PRI_UINT"\t%f%%\n", num_system, 100.0 * ((float)num_system / (float)tot_samples));
-        printf("Sleep:\t%"PRI_UINT"\t%f%%\n", num_sleep, 100.0 * ((float)num_sleep / (float)tot_samples));
+        printf("GC:\t%"PRI_UINT"\t%f%%\n", tot_gc, 100.0F * ((float)tot_gc / (float)tot_samples));
+        printf("System:\t%"PRI_UINT"\t%f%%\n", num_system, 100.0F * ((float)num_system / (float)tot_samples));
+        printf("Sleep:\t%"PRI_UINT"\t%f%%\n", num_sleep, 100.0F * ((float)num_sleep / (float)tot_samples));
         printf("Total:\t%"PRI_UINT" samples\n", tot_samples);
       } else if (strncmp(str, ":env", 4) == 0) {
         for (int i = 0; i < GLOBAL_ENV_ROOTS; i ++) {
@@ -2886,7 +2886,7 @@ int main(int argc, char **argv) {
 
 
 #if defined(TEST_FT4232H_NAND_DRIVER) || defined(TEST_FT232H_NAND_DRIVER)
-  
+
 
 #ifdef TEST_FT4232H_NAND_DRIVER
   printf("NAND: opening FT4232H port A...\n");
@@ -2895,12 +2895,12 @@ int main(int argc, char **argv) {
 #ifdef TEST_FT232H_NAND_DRIVER
     printf("NAND: opening FT232H...\n");
   if (!nand_open()) {
-#endif    
+#endif
     printf("NAND: open failed\n");
   } else {
     printf("NAND: open OK\n");
-    
-    
+
+
     nand_reset();
 
     uint8_t id[3] = {0};
@@ -2979,13 +2979,13 @@ int main(int argc, char **argv) {
       }
     }
 
-    
+
     nand_close();
   }
 #endif
 
 
-  
+
   // ////////////////////////////////////////////////////////////
   // start timestamp cacher
   lbm_thread_create(&timestamp_thread, "timestamp", lbm_timestamp_cacher, NULL, LBM_THREAD_PRIO_NORMAL, 0);

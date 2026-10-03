@@ -41,7 +41,7 @@
  */
 void FusionBiasInitialise(FusionBias * const fusionBias, const float threshold, const float samplePeriod) {
     fusionBias->threshold = threshold;
-    fusionBias->filterCoefficient = (2.0f * M_PI * CORNER_FREQUENCY) * samplePeriod;
+    fusionBias->filterCoefficient = (2.0f * 3.14159265358979323846f * CORNER_FREQUENCY) * samplePeriod;
     fusionBias->stationaryTimer = 0.0f;
     fusionBias->gyroscopeBias = FUSION_VECTOR3_ZERO;
 }

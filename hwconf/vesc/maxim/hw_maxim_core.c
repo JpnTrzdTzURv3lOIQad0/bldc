@@ -44,14 +44,14 @@ static lbm_value ext_reg_v(lbm_value *args, lbm_uint argn) {
 	(void)args; (void)argn;
 	float adc = (float)ADC_Value[ADC_IND_12V_SENSE_V];
 	// V-div 22k - 2.2k
-	return lbm_enc_float(adc * (V_REG / 4095.0) * ((22.0 + 2.2) / 2.2));
+	return lbm_enc_float(adc * (V_REG / 4095.0F) * ((22.0F + 2.2F) / 2.2F));
 }
 
 static lbm_value ext_reg_i(lbm_value *args, lbm_uint argn) {
 	(void)args; (void)argn;
 	float adc = (float)ADC_Value[ADC_IND_12V_SENSE_I];
 	// 0.01 ohm, shunt amp same as rest of hw
-	return lbm_enc_float((adc * (V_REG / 4095.0) - (V_REG / 2.0)) / (CURRENT_AMP_GAIN * 0.01));
+	return lbm_enc_float((adc * (V_REG / 4095.0F) - (V_REG / 2.0F)) / (CURRENT_AMP_GAIN * 0.01F));
 }
 
 static lbm_value ext_reg_t(lbm_value *args, lbm_uint argn) {
@@ -63,7 +63,7 @@ static lbm_value ext_reg5_v(lbm_value *args, lbm_uint argn) {
 	(void)args; (void)argn;
 	float adc = (float)ADC_Value[ADC_IND_5V_SENSE_V];
 	// V-div 10k - 10k
-	return lbm_enc_float(adc * (V_REG / 4095.0) * ((10.0 + 10.0) / 10.0));
+	return lbm_enc_float(adc * (V_REG / 4095.0F) * ((10.0F + 10.0F) / 10.0F));
 }
 
 static void load_extensions(bool main_found) {
@@ -80,9 +80,9 @@ static void terminal_hw_diag(int argc, const char **argv) {
 	(void)argv;
 
 	for (int i = 0;i < 40;i++) {
-		float t1 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-		float t2 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_2]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-		float t3 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_3]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
+		float t1 = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+		float t2 = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_2]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+		float t3 = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_3]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
 
 		commands_printf("BT: %.2f", (double)ADC_VOLTS(ADC_IND_SHUTDOWN));
 		commands_printf("T1: %.2f", (double)t1);
@@ -408,14 +408,14 @@ static THD_FUNCTION(mux_thread, arg) {
 }
 
 bool hw_sample_shutdown_button(void) {
-	return ADC_VOLTS(ADC_IND_SHUTDOWN) > 0.8;
+	return ADC_VOLTS(ADC_IND_SHUTDOWN) > 0.8F;
 }
 
 float hw100_400_get_temp(void) {
-	float t1 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-	float t2 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_2]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-	float t3 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_3]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-	float res = 0.0;
+	float t1 = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+	float t2 = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_2]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+	float t3 = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_3]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+	float res = 0.0F;
 
 	if (t1 > t2 && t1 > t3) {
 		res = t1;

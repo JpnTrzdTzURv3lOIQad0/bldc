@@ -448,8 +448,8 @@ static void synth_thd(void *arg) {
     memset(buffer, 0, BUFFER_FRAMES * CHANNELS * sizeof(int16_t));
 
     for (int i = 0; i < BUFFER_FRAMES; i ++) {
-      float s_left = 0.0;
-      float s_right = 0.0;
+      float s_left = 0.0F;
+      float s_right = 0.0F;
 
       for (int v = 0; v < MAX_VOICES; v ++) {
         if (voices[v].active) {
@@ -464,7 +464,7 @@ static void synth_thd(void *arg) {
 
           // Modulation oscillators
           for (int lfo = 0; lfo < NUM_LFO; lfo ++) {
-            lfo_val[lfo] = 0.0;
+            lfo_val[lfo] = 0.0F;
             oscillator_t *w = &patches[patch].lfo[lfo];
             float phase = voices[v].lfo_phase[lfo] + w->phase_offset;
             WRAP1(phase);
@@ -481,7 +481,7 @@ static void synth_thd(void *arg) {
               osc = sinf(2.0f * M_PI * phase);
               break;
             case OSC_SQUARE:
-              osc = phase > 0.5 ? -1.0f : 1.0f;
+              osc = phase > 0.5F ? -1.0f : 1.0f;
               break;
             case OSC_TRIANGLE:
               osc = 1.0f - 4.0f * fabsf(phase - 0.5f);
@@ -498,8 +498,8 @@ static void synth_thd(void *arg) {
             lfo_val[lfo] = osc;
           }
           // Tone oscillators
-          float voice_r = 0.0;
-          float voice_l = 0.0;
+          float voice_r = 0.0F;
+          float voice_l = 0.0F;
           for (int o = 0; o < NUM_OSC; o ++) {
 
             oscillator_t *w = &patches[patch].osc[o];
@@ -541,7 +541,7 @@ static void synth_thd(void *arg) {
             float osc = 0.0f;
             switch (w->type) {
             case OSC_SAW:
-              // The saw wave jumps from 1.0 to -1.0
+              // The saw wave jumps from 1.0 to -1.0F
               // instantaneoulsy => lots of harmonics => aliasing
               osc = 2.0f * phase - 1.0f;
               break;
@@ -549,7 +549,7 @@ static void synth_thd(void *arg) {
               osc = sinf(2.0f * M_PI * phase);
               break;
             case OSC_SQUARE:
-              osc = phase > 0.5 ? -1.0f : 1.0f;
+              osc = phase > 0.5F ? -1.0f : 1.0f;
               break;
             case OSC_TRIANGLE:
               osc = 1.0f - 4.0f * fabsf(phase - 0.5f);
@@ -594,8 +594,8 @@ static void synth_thd(void *arg) {
       float mixed_l = tanhf(s_left / 30000.0f);
       float mixed_r = tanhf(s_right / 30000.0f);
 
-      buffer[i*2]   = (int16_t)(mixed_l * 32767.0);
-      buffer[i*2+1] = (int16_t)(mixed_r * 32767.0);
+      buffer[i*2]   = (int16_t)(mixed_l * 32767.0F);
+      buffer[i*2+1] = (int16_t)(mixed_r * 32767.0F);
     }
 
     // snd_pcm_writei blocks when the internal ALSA buffer is full
@@ -814,8 +814,8 @@ lbm_value ext_patch_lfo_set(lbm_value *args, lbm_uint argn) {
       patch_t *p = &patches[patch];
       p->lfo[lfo].freq_source = FREQ_FIXED;
       p->lfo[lfo].parameter[OSC_PARAMETER_FREQ] = freq;
-      p->lfo[lfo].phase_offset = 0.0;
-      p->lfo[lfo].vol = 0.0;
+      p->lfo[lfo].phase_offset = 0.0F;
+      p->lfo[lfo].vol = 0.0F;
       p->lfo[lfo].type = o;
       r = ENC_SYM_TRUE;
     } else {

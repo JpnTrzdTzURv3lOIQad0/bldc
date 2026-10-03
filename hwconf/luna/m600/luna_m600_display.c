@@ -38,7 +38,7 @@
 
 #define LUNA_TORQUE_SENSOR_MINIMUM_RANGE	0x02EE
 #define LUNA_TORQUE_SENSOR_MAXIMUM_RANGE	0x0600
-#define LUNA_TORQUE_SENSOR_DEADBAND			0.03
+#define LUNA_TORQUE_SENSOR_DEADBAND			0.03F
 
 typedef enum {
 	PAS_LEVEL_0 = 0x00,
@@ -129,7 +129,7 @@ static volatile luna_settings_t luna_settings =	{	.light_mode = LUNA_LIGHT_MODE_
 													.torque_sensor_upper_range = LUNA_TORQUE_SENSOR_MAXIMUM_RANGE,
 													.torque_sensor_lower_range = LUNA_TORQUE_SENSOR_MINIMUM_RANGE,
 													.torque_sensor_deadband = LUNA_TORQUE_SENSOR_DEADBAND,
-													.torque_sensor_output_filtered = 0.0
+													.torque_sensor_output_filtered = 0.0F
 												};
 static volatile bool display_thread_is_running = false;
 static volatile bool display_uart_is_running = false;
@@ -160,7 +160,7 @@ void luna_canbus_start(void) {
  * Get torque applied to the crank arms
  *
  * @return
- * 0.0 for no torque applied, 1.0 for maximum torque applied
+ * 0.0F for no torque applied, 1.0F for maximum torque applied
  */
 float luna_canbus_get_PAS_torque(void){
 	return luna_settings.torque_sensor_output_filtered;
@@ -211,13 +211,13 @@ int32_t get_torque_sensor_upper_range(void) {
 // calibration procedure: make sure that the user is not pressing the pedals, then
 // sample the TS for 3 full second and use that as as the new lower range baseline
 int32_t measure_torque_sensor_offset(void) {
-	float average = 0.0;
+	float average = 0.0F;
 
 	for(uint32_t samples = 0; samples < 100 ; samples++) {
 		average += luna_settings.torque_sensor_output;
 		chThdSleep(MS2ST(30));
 	}
-	average /= 100.0;
+	average /= 100.0F;
 	return (int32_t)average;
 }
 
@@ -225,7 +225,7 @@ int32_t measure_torque_sensor_offset(void) {
  * Get the current Pedal Assist level
  *
  * @return
- * Assist level from 0 (min) to 9 (max power). 
+ * Assist level from 0 (min) to 9 (max power).
  */
 LUNA_PAS_LEVEL luna_canbus_get_pas_level(void){
 	return luna_settings.pas_level;
@@ -302,29 +302,29 @@ static void set_assist_level(uint8_t assist_code) {
 	luna_settings.assist_code = assist_code;
 
 	switch (assist_code) {
-		case PAS_LEVEL_0: current_scale = 0.0; break;
-		case PAS_LEVEL_1: current_scale = 1.0 / 9.0; break;
-		case PAS_LEVEL_2: current_scale = 2.0 / 9.0; break;
-		case PAS_LEVEL_3: current_scale = 3.0 / 9.0; break;
-		case PAS_LEVEL_4: current_scale = 4.0 / 9.0; break;
-		case PAS_LEVEL_5: current_scale = 5.0 / 9.0; break;
-		case PAS_LEVEL_6: current_scale = 6.0 / 9.0; break;
-		case PAS_LEVEL_7: current_scale = 7.0 / 9.0; break;
-		case PAS_LEVEL_8: current_scale = 8.0 / 9.0; break;
-		case PAS_LEVEL_9: current_scale = 1.0; break;
-		case PAS_LEVEL_WALK: current_scale = 1.0; break;
+		case PAS_LEVEL_0: current_scale = 0.0F; break;
+		case PAS_LEVEL_1: current_scale = 1.0F / 9.0F; break;
+		case PAS_LEVEL_2: current_scale = 2.0F / 9.0F; break;
+		case PAS_LEVEL_3: current_scale = 3.0F / 9.0F; break;
+		case PAS_LEVEL_4: current_scale = 4.0F / 9.0F; break;
+		case PAS_LEVEL_5: current_scale = 5.0F / 9.0F; break;
+		case PAS_LEVEL_6: current_scale = 6.0F / 9.0F; break;
+		case PAS_LEVEL_7: current_scale = 7.0F / 9.0F; break;
+		case PAS_LEVEL_8: current_scale = 8.0F / 9.0F; break;
+		case PAS_LEVEL_9: current_scale = 1.0F; break;
+		case PAS_LEVEL_WALK: current_scale = 1.0F; break;
 		default: return;
 	}
 
 	if( hw_m600_has_fixed_throttle_level() ) {
-		mcconf->l_current_max_scale = 1.0;
+		mcconf->l_current_max_scale = 1.0F;
 		app_pas_set_current_sub_scaling(current_scale);
 	} else {
 		mcconf->l_current_max_scale = current_scale;
 	}
 
 	// In level 0, both PAS and throttle should be disabled
-	if(current_scale == 0.0) {
+	if(current_scale == 0.0F) {
 		mcconf->l_current_max_scale = current_scale;
 	}
 }
@@ -333,9 +333,9 @@ static void set_assist_level(uint8_t assist_code) {
 			float distance;
 			float time_since_display_change=0;
 			uint16_t distance_display;
-			
+
 /**
- * State machine for display functions and error handling  
+ * State machine for display functions and error handling
  *
  * @param dt_ms
  * Time since last call to this function
@@ -358,7 +358,7 @@ static void can_bus_display_process(uint32_t dt_ms){
 		//fault if sensor data stops for >500ms, but also allow 3sec for sensor to boot
 		delay_between_torque_sensor_message += dt_ms;
 		float uptime = (float)chVTGetSystemTimeX() / (float)CH_CFG_ST_FREQUENCY;
-		if(delay_between_torque_sensor_message > 500 && uptime > 3.0){
+		if(delay_between_torque_sensor_message > 500 && uptime > 3.0F){
 			delay_between_torque_sensor_message = 0;
 			//luna_settings.error_code = LUNA_ERROR_TORQUE_SENSOR;
 		}
@@ -404,7 +404,7 @@ static void can_bus_display_process(uint32_t dt_ms){
 		}
 	}
 
-	if(mc_interface_get_configuration()->foc_encoder_offset == 400.0) {
+	if(mc_interface_get_configuration()->foc_encoder_offset == 400.0F) {
 		luna_settings.error_code = LUNA_ERROR_ENCODER;
 	}
 
@@ -422,15 +422,15 @@ static void can_bus_display_process(uint32_t dt_ms){
 		case SEND_BATTERY_RANGE_STATE:{
 			// This packet is sent every 250ms
 			float wh_left;
-			float battery_level = mc_interface_get_battery_level(&wh_left) * 100.0;
-			utils_truncate_number((float*)&battery_level, 0.0, 100.0);
+			float battery_level = mc_interface_get_battery_level(&wh_left) * 100.0F;
+			utils_truncate_number((float*)&battery_level, 0.0F, 100.0F);
 
-			static float last_distance = 0.0;
+			static float last_distance = 0.0F;
 			float distance_abs = mc_interface_get_distance_abs();
 			distance = distance_abs - last_distance;
-			
+
 			// what is sent is 1 / 10 of the value in meters
-			distance_display = (uint16_t) (distance / 10.0);
+			distance_display = (uint16_t) (distance / 10.0F);
 
 			static uint16_t time_at_last_distance_change = 0;
 			static uint16_t last_display_distance = 0;
@@ -442,7 +442,7 @@ static void can_bus_display_process(uint32_t dt_ms){
 				float current_time = (float)chVTGetSystemTimeX() / (float)CH_CFG_ST_FREQUENCY;
 
 				time_since_display_change = current_time - time_at_last_distance_change;//for debug
-				if(current_time - time_at_last_distance_change > 5.0){
+				if(current_time - time_at_last_distance_change > 5.0F){
 					time_at_last_distance_change = (float)chVTGetSystemTimeX() / (float)CH_CFG_ST_FREQUENCY;
 					last_distance = distance_abs;
 					distance = 0;
@@ -466,8 +466,8 @@ static void can_bus_display_process(uint32_t dt_ms){
 			//	commands_printf("odometer: %.2f\n", (double)distance_abs);
 				distance_old = distance_abs;
 			}
-			
-			
+
+
 			memset(can_tx_buffer, 0, 8);
 			can_tx_buffer[0] = (uint8_t) battery_level;
 			can_tx_buffer[1] = (uint8_t)(distance_display & 0x00ff);
@@ -482,8 +482,8 @@ static void can_bus_display_process(uint32_t dt_ms){
 			if(distance > 1020) {
 				last_distance += distance;
 			}
-			
-			//TODO: support RANGE parameter. 0x1FF = 511 sets RANGE as 5.11 km or 3 miles.
+
+			//TODO: support RANGE parameter. 0x1FF = 511 sets RANGE as 5.11F km or 3 miles.
 
 			//can_tx_buffer[6] = RANGE LSB
 			//can_tx_buffer[7] = RANGE MSB
@@ -498,18 +498,18 @@ static void can_bus_display_process(uint32_t dt_ms){
 			memset(can_tx_buffer, 0, 8);
 #ifdef HW_HAS_WHEEL_SPEED_SENSOR
 			//float wheel_rpm = hw_get_wheel_rpm();
-			//float wheelsize_in_meters = mcconf->si_wheel_diameter / 1000.0;
-			//float speed_km_h = (uint16_t)(wheel_rpm * wheelsize_in_meters * 60.0 / 1000.0);
+			//float wheelsize_in_meters = mcconf->si_wheel_diameter / 1000.0F;
+			//float speed_km_h = (uint16_t)(wheel_rpm * wheelsize_in_meters * 60.0F / 1000.0F);
 
-			//uint16_t speed_display = (uint16_t)(speed_km_h * 100.0);//the display needs [km_h * 100]
-			uint16_t speed_display = (uint16_t)(mc_interface_get_speed() * 3600.0 / 1000.0 * 100.0 );	//the display needs [km_h * 100]
+			//uint16_t speed_display = (uint16_t)(speed_km_h * 100.0F);//the display needs [km_h * 100]
+			uint16_t speed_display = (uint16_t)(mc_interface_get_speed() * 3600.0F / 1000.0F * 100.0F );	//the display needs [km_h * 100]
 
 			can_tx_buffer[0] = (uint8_t)(speed_display & 0x00ff);
 			can_tx_buffer[1] = (uint8_t)((speed_display >> 8 ) & 0x00ff);
 #endif
 			float current = mc_interface_get_tot_current_in_filtered();
 
-			uint16_t current_display = (uint16_t)(current * 100.0);
+			uint16_t current_display = (uint16_t)(current * 100.0F);
 
 			can_tx_buffer[2] = (uint8_t)(current_display & 0x00ff);
 			can_tx_buffer[3] = (uint8_t)((current_display >> 8 ) & 0x00ff);
@@ -520,8 +520,8 @@ static void can_bus_display_process(uint32_t dt_ms){
 			can_tx_buffer[4] = (uint8_t)(voltage_display & 0x00ff);
 			can_tx_buffer[5] = (uint8_t)((voltage_display >> 8 ) & 0x00ff);
 
-			can_tx_buffer[6] = (uint8_t) (mc_interface_temp_fet_filtered() - 40.0);		// 10°C = 10+40=50(32Hex) = 32
-			can_tx_buffer[7] = (uint8_t) (mc_interface_temp_motor_filtered() - 40.0);	// 20°C = 20+40=60(3CHex) = 3C
+			can_tx_buffer[6] = (uint8_t) (mc_interface_temp_fet_filtered() - 40.0F);		// 10°C = 10+40=50(32Hex) = 32
+			can_tx_buffer[7] = (uint8_t) (mc_interface_temp_motor_filtered() - 40.0F);	// 20°C = 20+40=60(3CHex) = 3C
 
 			comm_can_transmit_eid(0x02F83201, can_tx_buffer, 8);
 			can_display_process_state = SEND_SPEED_LIMIT_WHEEL_SIZE_STATE;
@@ -531,20 +531,20 @@ static void can_bus_display_process(uint32_t dt_ms){
 			memset(can_tx_buffer, 0, 8);
 
 			//"speed limit" parameter [kmh *100]
-			float speed_limit = 32.2;// dummy 32.2km/h (20mph)
+			float speed_limit = 32.2F;// dummy 32.2km/h (20mph)
 			uint16_t speed_limit_display = speed_limit * 100;
 			can_tx_buffer[0] = (uint8_t)(speed_limit_display & 0x00ff);
 			can_tx_buffer[1] = (uint8_t)((speed_limit_display >> 8 ) & 0x00ff);
 
 			// Arbitrary wheel size definitions from the display
 			uint16_t wheelsize_display;
-			if(mcconf->si_wheel_diameter <= 0.7){
+			if(mcconf->si_wheel_diameter <= 0.7F){
 				wheelsize_display = 416; //26"
 			}
-			if(mcconf->si_wheel_diameter >= 0.7){
-				wheelsize_display = 437; //27.5"
+			if(mcconf->si_wheel_diameter >= 0.7F){
+				wheelsize_display = 437; //27.5F"
 			}
-			if(mcconf->si_wheel_diameter >= 0.75){
+			if(mcconf->si_wheel_diameter >= 0.75F){
 				wheelsize_display = 464; //29"
 			}
 
@@ -563,7 +563,7 @@ static void can_bus_display_process(uint32_t dt_ms){
 			// this packet is sent every 300msec
 			memset(can_tx_buffer, 0, 8);
 			//TODO: support "KCAL" parameter in [kmh *100]
-			//conversion rate: KCAL = value * 0.621368.
+			//conversion rate: KCAL = value * 0.621368F.
 			//For example: 0xFFFF = 65535 sets KCAL as 40722
 			comm_can_transmit_eid(0x02F83205, can_tx_buffer, 2);
 			can_display_process_state = SEND_ERROR_STATE;
@@ -635,10 +635,10 @@ static bool can_bus_rx_callback(uint32_t id, uint8_t *data, uint8_t len) {
 
 				luna_settings.torque_sensor_output = torque_sensor_output;
 
-				float normalized_torque_sensor_output = utils_map((float)torque_sensor_output, (float)luna_settings.torque_sensor_lower_range, (float)luna_settings.torque_sensor_upper_range, 0.0, 1.0);
-				utils_truncate_number(&normalized_torque_sensor_output, 0.0, 1.0);
-				utils_deadband(&normalized_torque_sensor_output, luna_settings.torque_sensor_deadband, 1.0);
-				UTILS_LP_FAST(luna_settings.torque_sensor_output_filtered, normalized_torque_sensor_output, 0.1);
+				float normalized_torque_sensor_output = utils_map((float)torque_sensor_output, (float)luna_settings.torque_sensor_lower_range, (float)luna_settings.torque_sensor_upper_range, 0.0F, 1.0F);
+				utils_truncate_number(&normalized_torque_sensor_output, 0.0F, 1.0F);
+				utils_deadband(&normalized_torque_sensor_output, luna_settings.torque_sensor_deadband, 1.0F);
+				UTILS_LP_FAST(luna_settings.torque_sensor_output_filtered, normalized_torque_sensor_output, 0.1F);
 			}
 		}
 		break;
@@ -681,7 +681,7 @@ bool luna_display_shutdown_request(void) {
 // The speed control must have a slow ramp, the allowed current is TBD.
 bool luna_display_walk_mode_long_pressed(void) {
 	static systime_t time_last_button_down = 0;
-	const float long_press_time_seconds = 0.5;	// bafang uses 2 sec, lets make it more responsive
+	const float long_press_time_seconds = 0.5F;	// bafang uses 2 sec, lets make it more responsive
 
 	if( time_last_button_down == 0) {
 		time_last_button_down = chVTGetSystemTimeX();
@@ -697,17 +697,17 @@ bool luna_display_walk_mode_long_pressed(void) {
 // lets try using the sensorless observer to check if the encoder
 // offset has been set correctly.
 float encoder_error(void) {
-	static float angle_diff_filtered = 0.0;
-	float angle_diff = 0.0;
-	
+	static float angle_diff_filtered = 0.0F;
+	float angle_diff = 0.0F;
+
 	// some batches have only 2 current sensors, so better rely only in
 	// the phase voltage tracker which runs with no modulation and is
 	// accurate at mid-high rpm
-	if(/*mc_interface_get_state() != MC_STATE_OFF &&*/ mc_interface_get_duty_cycle_now() > 0.4) {
+	if(/*mc_interface_get_state() != MC_STATE_OFF &&*/ mc_interface_get_duty_cycle_now() > 0.4F) {
 		angle_diff = utils_angle_difference(mcpwm_foc_get_phase_encoder(), mcpwm_foc_get_phase_observer());
 	}
 
-	UTILS_LP_FAST(angle_diff_filtered, angle_diff, 0.01);
+	UTILS_LP_FAST(angle_diff_filtered, angle_diff, 0.01F);
 	return angle_diff_filtered;
 }
 
@@ -722,7 +722,7 @@ static THD_FUNCTION(display_process_thread, arg) {
 	set_assist_level(PAS_LEVEL_1);
 
 	comm_can_set_eid_rx_callback( can_bus_rx_callback );
-    
+
 	for(;;) {
 		float uptime = (float)chVTGetSystemTimeX() / (float)CH_CFG_ST_FREQUENCY;
 		chThdSleep(MS2ST(5));
@@ -732,11 +732,11 @@ static THD_FUNCTION(display_process_thread, arg) {
 		if(encoder_recovery_done) {
 			// default motor config is set to an invalid 400° encoder offset. Make clear
 			// to the users that they need to run the encoder offset detection
-			if(mc_interface_get_configuration()->foc_encoder_offset == 400.0 /*|| fabsf(hw_get_encoder_error()) > 10.0*/) {
+			if(mc_interface_get_configuration()->foc_encoder_offset == 400.0F /*|| fabsf(hw_get_encoder_error()) > 10.0F*/) {
 				;//mc_interface_fault_stop(FAULT_CODE_ENCODER_SPI, false, false);
 			}
 		} else {
-			if (uptime > 1.0 && !encoder_recovery_done) {
+			if (uptime > 1.0F && !encoder_recovery_done) {
 				// recover encoder offset across fw updates
 				hw_recover_encoder_offset();
 				encoder_recovery_done = true;
@@ -744,7 +744,7 @@ static THD_FUNCTION(display_process_thread, arg) {
 		}
 		// when PAS level set to 0, the system would shut down after 10 minutes of non-assisted pedaling
 		// so we force it to stay ON if there is pedal activity
-		if(luna_canbus_get_PAS_torque() > 0.25) {
+		if(luna_canbus_get_PAS_torque() > 0.25F) {
 			shutdown_reset_timer();
 		}
 
@@ -768,7 +768,7 @@ static THD_FUNCTION(display_process_thread, arg) {
 
 			if(luna_display_walk_mode_long_pressed()) {
 				//send speed command. Sloow 500rpm/sec ramp
-				mc_interface_set_pid_speed(2500.0);
+				mc_interface_set_pid_speed(2500.0F);
 				timeout_reset();
 			} else {
 				//quickly release the motor

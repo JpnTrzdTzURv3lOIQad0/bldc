@@ -21,7 +21,7 @@
 #ifndef HW_LUNA_M600_H_
 #define HW_LUNA_M600_H_
 
-#define FW_NAME					"2025.09.02"
+#define FW_NAME					"2025.09F.02"
 
 #ifdef M600_60V_BATTERY
 #include "mcconf_luna_m600_60V.h"
@@ -69,7 +69,7 @@
 // Some batches had the phase C shunt amplifier DNP, so this fills the gap
 // Ia + Ib + Ic = 0   so Ic = -Ia - Ib
 #define HW_HAS_3_SHUNTS
-#define GET_CURRENT3()			(-(GET_CURRENT1() - 2048.0 + GET_CURRENT2() -2048.0) + 2048.0)
+#define GET_CURRENT3()			(-(GET_CURRENT1() - 2048.0F + GET_CURRENT2() -2048.0F) + 2048.0F)
 #endif
 
 // Macros
@@ -148,43 +148,43 @@
 
 // Component parameters (can be overridden)
 #ifndef V_REG
-#define V_REG					3.3
+#define V_REG					3.3F
 #endif
 #ifndef VIN_R1
-#define VIN_R1					66500.0
+#define VIN_R1					66500.0F
 #endif
 #ifndef VIN_R2
-#define VIN_R2					2000.0
+#define VIN_R2					2000.0F
 #endif
 #ifndef CURRENT_AMP_GAIN
-#define CURRENT_AMP_GAIN		20.0
+#define CURRENT_AMP_GAIN		20.0F
 #endif
 #ifndef CURRENT_SHUNT_RES
-#define CURRENT_SHUNT_RES		(0.0005 / 2.0)
+#define CURRENT_SHUNT_RES		(0.0005F / 2.0F)
 #endif
 
 // Input voltage
-#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
+#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0F) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
 
 // 12V supply voltage
-#define GET_GATE_DRIVER_SUPPLY_VOLTAGE()	((float)ADC_VOLTS(ADC_IND_VOUT_GATE_DRV) * 11.0)
+#define GET_GATE_DRIVER_SUPPLY_VOLTAGE()	((float)ADC_VOLTS(ADC_IND_VOUT_GATE_DRV) * 11.0F)
 
 // ON-OFF button sense
-#define GET_ON_OFF_BUTTON_VOLTAGE()			((float)ADC_VOLTS(ADC_IND_ON_OFF_BUTTON) * 4.57)
+#define GET_ON_OFF_BUTTON_VOLTAGE()			((float)ADC_VOLTS(ADC_IND_ON_OFF_BUTTON) * 4.57F)
 
 // NTC Termistors
-#define NTC_RES(adc_val)		(10000.0 * adc_val / ( 4095.0 - adc_val))
+#define NTC_RES(adc_val)		(10000.0F * adc_val / ( 4095.0F - adc_val))
 #define NTC_TEMP(adc_ind)		hw_get_mosfet_temp_filtered()
-#define NTC_TEMP_MOTOR(beta)	(1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0) / beta) + (1.0 / 298.15)) - 273.15)
-#define PTC_TEMP_MOTOR(res, con, tbase)			(((NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) - res) / NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR])) * 100.0 / con - 10.0)
-#define PTC_TEMP_MOTOR_2(res, con, tbase)		0.0
-#define MOTOR_TEMP_LPF	0.001
+#define NTC_TEMP_MOTOR(beta)	(1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0F) / beta) + (1.0F / 298.15F)) - 273.15F)
+#define PTC_TEMP_MOTOR(res, con, tbase)			(((NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) - res) / NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR])) * 100.0F / con - 10.0F)
+#define PTC_TEMP_MOTOR_2(res, con, tbase)		0.0F
+#define MOTOR_TEMP_LPF	0.001F
 
-#define NTC_RES_MOTOR(adc_val)	(1000.0 / ((4095.0 / (float)adc_val) - 1.0))
+#define NTC_RES_MOTOR(adc_val)	(1000.0F / ((4095.0F / (float)adc_val) - 1.0F))
 
 // Voltage on ADC channel
 #define ADC_VOLTS(ch)			hw_get_ADC_value(ch)
-                                
+
 // Use these temperature channels for extra logging insight
 //log torque sensor data
 #define NTC_TEMP_MOS1()         hw_get_PAS_torque()
@@ -312,7 +312,7 @@
 #define READ_HALL3()			palReadPad(HW_HALL_ENC_GPIO3, HW_HALL_ENC_PIN3)
 
 // Override dead time.
-#define HW_DEAD_TIME_NSEC		460.0
+#define HW_DEAD_TIME_NSEC		460.0F
 
 // Default setting overrides
 #ifndef MCCONF_L_MAX_VOLTAGE
@@ -322,7 +322,7 @@
 #define MCCONF_DEFAULT_MOTOR_TYPE		MOTOR_TYPE_FOC
 #endif
 #ifndef MCCONF_FOC_F_SW
-#define MCCONF_FOC_F_SW					30000.0
+#define MCCONF_FOC_F_SW					30000.0F
 #endif
 #ifndef MCCONF_L_MAX_ABS_CURRENT
 #define MCCONF_L_MAX_ABS_CURRENT		250.0F	// The maximum absolute current above which a fault is generated
@@ -338,17 +338,17 @@
 #endif
 
 // Setting limits
-#define HW_LIM_CURRENT			-100.0, 100.0
-#define HW_LIM_CURRENT_IN		-60.0, 60.0
-#define HW_LIM_CURRENT_ABS		0.0, 200.0
-#define HW_LIM_VIN				6.0, 86.0
-#define HW_LIM_ERPM				-200e3, 200e3
-#define HW_LIM_DUTY_MIN			0.0, 0.1
-#define HW_LIM_DUTY_MAX			0.0, 0.99
-#define HW_LIM_TEMP_FET			-40.0, 95.0
+#define HW_LIM_CURRENT			-100.0F, 100.0F
+#define HW_LIM_CURRENT_IN		-60.0F, 60.0F
+#define HW_LIM_CURRENT_ABS		0.0F, 200.0F
+#define HW_LIM_VIN				6.0F, 86.0F
+#define HW_LIM_ERPM				-200e3F, 200e3F
+#define HW_LIM_DUTY_MIN			0.0F, 0.1F
+#define HW_LIM_DUTY_MAX			0.0F, 0.99F
+#define HW_LIM_TEMP_FET			-40.0F, 95.0F
 
-#define HW_GATE_DRIVER_SUPPLY_MIN_VOLTAGE	11.0
-#define HW_GATE_DRIVER_SUPPLY_MAX_VOLTAGE	13.6
+#define HW_GATE_DRIVER_SUPPLY_MIN_VOLTAGE	11.0F
+#define HW_GATE_DRIVER_SUPPLY_MAX_VOLTAGE	13.6F
 
 // HW-specific functions
 void hw_update_speed_sensor(void);

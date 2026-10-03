@@ -147,46 +147,46 @@
 
 // Component parameters (can be overridden)
 #ifndef V_REG
-#define V_REG					3.3
+#define V_REG					3.3F
 #endif
 #ifndef VIN_R1
-#define VIN_R1					150000.0
+#define VIN_R1					150000.0F
 #endif
 #ifndef VIN_R2
 #ifdef HWSTR365_150
-#define VIN_R2					3300.0
+#define VIN_R2					3300.0F
 #else
-#define VIN_R2					4700.0
+#define VIN_R2					4700.0F
 #endif
 #endif
 #ifndef CURRENT_AMP_GAIN
-#define CURRENT_AMP_GAIN		20.0
+#define CURRENT_AMP_GAIN		20.0F
 #endif
 #ifndef CURRENT_SHUNT_RES
-#define CURRENT_SHUNT_RES		(0.00025 / 3.0)//990A range
+#define CURRENT_SHUNT_RES		(0.00025F / 3.0F)//990A range
 #endif
 
 #define ENCODER_SIN_VOLTS		ADC_VOLTS(ADC_IND_EXT3)
 #define ENCODER_COS_VOLTS		ADC_VOLTS(ADC_IND_EXT4)
 
 // Input voltage
-#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
+#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0F) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
 
 // NTC Termistors
-#define NTC_RES(adc_val)		(10000.0 / ((4095.0 / (float)adc_val) - 1.0))
+#define NTC_RES(adc_val)		(10000.0F / ((4095.0F / (float)adc_val) - 1.0F))
 #define NTC_TEMP(adc_ind)		hw100_400_get_temp()
 
-#define NTC_RES_MOTOR(adc_val)	(10000.0 / ((4095.0 / (float)adc_val) - 1.0)) // Motor temp sensor on low side
-#define NTC_TEMP_MOTOR(beta)	(1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0) / beta) + (1.0 / 298.15)) - 273.15)
+#define NTC_RES_MOTOR(adc_val)	(10000.0F / ((4095.0F / (float)adc_val) - 1.0F)) // Motor temp sensor on low side
+#define NTC_TEMP_MOTOR(beta)	(1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0F) / beta) + (1.0F / 298.15F)) - 273.15F)
 
-#define NTC_TEMP_MOS1()			(1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15)
-#define NTC_TEMP_MOS2()			(1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_2]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15)
-#define NTC_TEMP_MOS3()			(1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_3]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15)
+#define NTC_TEMP_MOS1()			(1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F)
+#define NTC_TEMP_MOS2()			(1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_2]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F)
+#define NTC_TEMP_MOS3()			(1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_3]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F)
 
-#define NTC_TEMP_DCDC()			(1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_DCDC]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15)
+#define NTC_TEMP_DCDC()			(1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_DCDC]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F)
 
 // Voltage on ADC channel
-#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4096.0 * V_REG)
+#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4096.0F * V_REG)
 
 // COMM-port ADC GPIOs
 #define HW_ADC_EXT_GPIO			GPIOA
@@ -295,7 +295,7 @@
 #define READ_HALL3()			palReadPad(HW_HALL_ENC_GPIO3, HW_HALL_ENC_PIN3)
 
 // Override dead time. See the stm32f4 reference manual for calculating this value.
-#define HW_DEAD_TIME_NSEC		600.0
+#define HW_DEAD_TIME_NSEC		600.0F
 
 // Default setting overrides
 #ifdef HWSTR365_150
@@ -340,14 +340,14 @@
 #define HW_LIM_CURRENT_IN		-600.0, 600.0
 #define HW_LIM_CURRENT_ABS		0.0, 820.0
 #ifdef HWSTR365_150
-#define HW_LIM_VIN				20.0, 145.0
+#define HW_LIM_VIN				20.0F, 145.0F
 #else
-#define HW_LIM_VIN				11.0, 97.0
+#define HW_LIM_VIN				11.0F, 97.0F
 #endif
-#define HW_LIM_ERPM				-200e3, 200e3
-#define HW_LIM_DUTY_MIN			0.0, 0.1
-#define HW_LIM_DUTY_MAX			0.0, 1.0
-#define HW_LIM_TEMP_FET			-40.0, 110.0
+#define HW_LIM_ERPM				-200e3F, 200e3F
+#define HW_LIM_DUTY_MIN			0.0F, 0.1F
+#define HW_LIM_DUTY_MAX			0.0F, 1.0F
+#define HW_LIM_TEMP_FET			-40.0F, 110.0F
 
 // HW-specific functions
 bool hw_sample_shutdown_button(void);

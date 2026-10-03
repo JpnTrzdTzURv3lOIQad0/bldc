@@ -36,7 +36,7 @@
 // Variables
 static volatile bool i2c_running = false;
 static mutex_t shutdown_mutex;
-static float bt_diff = 0.0;
+static float bt_diff = 0.0F;
 
 //private functions
 static void terminal_cmd_doublepulse(int argc, const char **argv);
@@ -143,7 +143,7 @@ void hw_init_gpio(void) {
 		"Try sampling the shutdown button",
 		0,
 		terminal_button_test);
-		
+
 	terminal_register_command_callback(
 		"double_pulse",
 		"Double pulse test",
@@ -286,7 +286,7 @@ bool hw_sample_shutdown_button(void) {
 
 	chMtxLock(&shutdown_mutex);
 
-	bt_diff = 0.0;
+	bt_diff = 0.0F;
 
 	for (int i = 0;i < 3;i++) {
 		palSetPadMode(HW_SHUTDOWN_GPIO, HW_SHUTDOWN_PIN, PAL_MODE_INPUT_ANALOG);
@@ -302,7 +302,7 @@ bool hw_sample_shutdown_button(void) {
 
 	chMtxUnlock(&shutdown_mutex);
 	//return lonpress;
-	return (bt_diff > 0.5);
+	return (bt_diff > 0.5F);
 
 
 }
@@ -325,10 +325,10 @@ static void terminal_button_test(int argc, const char **argv) {
 }
 /*
 float hw_ENNOID_100_125_get_temp(void) {
-	float t1 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-	float t2 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_2]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-	float t3 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_3]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-	float res = 0.0;
+	float t1 = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+	float t2 = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_2]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+	float t3 = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_3]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+	float res = 0.0F;
 
 	if (t1 > t2 && t1 > t3) {
 		res = t1;

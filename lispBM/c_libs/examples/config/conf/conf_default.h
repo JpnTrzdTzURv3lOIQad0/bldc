@@ -60,7 +60,7 @@
 
 // Duty Cycle Fault Cutoff
 #ifndef APPCONF_BALANCE_FAULT_DUTY
-#define APPCONF_BALANCE_FAULT_DUTY 0.9
+#define APPCONF_BALANCE_FAULT_DUTY 0.9F
 #endif
 
 // ADC1 Switch Voltage
@@ -120,7 +120,7 @@
 
 // Duty Cycle
 #ifndef APPCONF_BALANCE_TILTBACK_DUTY
-#define APPCONF_BALANCE_TILTBACK_DUTY 0.75
+#define APPCONF_BALANCE_TILTBACK_DUTY 0.75F
 #endif
 
 // Angle

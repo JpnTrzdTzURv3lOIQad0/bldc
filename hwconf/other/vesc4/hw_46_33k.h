@@ -19,7 +19,7 @@
 #define HW_46_33K_H_
 
 #define HW_SOURCE_ALT "other/vesc4/hw_46.c"
-#define VIN_R1	33000.0
+#define VIN_R1	33000.0F
 
 #include "hw_46.h"
 

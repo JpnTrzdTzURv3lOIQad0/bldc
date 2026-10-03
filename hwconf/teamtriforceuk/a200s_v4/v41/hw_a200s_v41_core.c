@@ -54,31 +54,31 @@ void hw_init_gpio(void) {
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
 
-	// LEDs	
+	// LEDs
 	palSetPadMode(GPIOB, 5,
 			PAL_MODE_OUTPUT_PUSHPULL |
 			PAL_STM32_OSPEED_HIGHEST);
 	palSetPadMode(GPIOB, 7,
 			PAL_MODE_OUTPUT_PUSHPULL |
 			PAL_STM32_OSPEED_HIGHEST);
-	
-	// HW protection pins	
-	// Disable	  
+
+	// HW protection pins
+	// Disable
 	palSetPadMode(GPIOC, 5,
 			PAL_MODE_OUTPUT_PUSHPULL |
-			PAL_STM32_OSPEED_HIGHEST); 
+			PAL_STM32_OSPEED_HIGHEST);
 	ENABLE_GATE();
 	 // Lockout
     palSetPadMode(GPIOB, 12, PAL_MODE_INPUT);
-	
+
 #ifdef HW_USE_BRK
 	// BRK Fault pin
 	palSetPadMode(BRK_GPIO, BRK_PIN, PAL_MODE_ALTERNATE(GPIO_AF_TIM1));
-#else	
+#else
 	// Soft Lockout
 	palSetPadMode(BRK_GPIO, BRK_PIN, PAL_MODE_INPUT);
 #endif
-	
+
 	// GPIOA Configuration: Channel 1 to 3 as alternate function push-pull
 	palSetPadMode(GPIOA, 8, PAL_MODE_ALTERNATE(GPIO_AF_TIM1) |
 			PAL_STM32_OSPEED_HIGHEST |
@@ -100,7 +100,7 @@ void hw_init_gpio(void) {
 			PAL_STM32_OSPEED_HIGHEST |
 			PAL_STM32_PUDR_FLOATING);
 
-	// Hall sensors	
+	// Hall sensors
 	palSetPadMode(HW_HALL_ENC_GPIO1, HW_HALL_ENC_PIN1, PAL_MODE_INPUT_PULLUP);
 	palSetPadMode(HW_HALL_ENC_GPIO2, HW_HALL_ENC_PIN2, PAL_MODE_INPUT_PULLUP);
 	palSetPadMode(HW_HALL_ENC_GPIO3, HW_HALL_ENC_PIN3, PAL_MODE_INPUT_PULLUP);
@@ -110,7 +110,7 @@ void hw_init_gpio(void) {
 	palSetPadMode(GPIOC, 13, PAL_MODE_OUTPUT_OPENDRAIN);
 	palSetPadMode(GPIOC, 14, PAL_MODE_OUTPUT_OPENDRAIN);
 	PHASE_FILTER_OFF();
-	
+
 	// ADC Pins
 	palSetPadMode(GPIOA, 0, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(GPIOA, 1, PAL_MODE_INPUT_ANALOG);
@@ -127,44 +127,44 @@ void hw_init_gpio(void) {
 	palSetPadMode(GPIOC, 2, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(GPIOC, 3, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(GPIOC, 4, PAL_MODE_INPUT_ANALOG);
-	
-	
-	//register terminal callbacks	
+
+
+	//register terminal callbacks
 	terminal_register_command_callback(
 		"double_pulse",
 		"Start a double pulse test",
 		0,
-		terminal_cmd_doublepulse);			
-		
-		
+		terminal_cmd_doublepulse);
+
+
 	hw_a200s_reset_faults(); // Handshake with hardware protection
 }
 
 void hw_setup_adc_channels(void) {
-		
+
 	// ADC1 regular channels
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_10, 		1, ADC_SampleTime_15Cycles);	// 0 - ADC_IND_CURR1
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_0,  		2, ADC_SampleTime_15Cycles);	// 3 - ADC_IND_SENS1	
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_0,  		2, ADC_SampleTime_15Cycles);	// 3 - ADC_IND_SENS1
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_5,  		3, ADC_SampleTime_15Cycles);	// 6 - ADC_IND_EXT
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_Vrefint, 4, ADC_SampleTime_15Cycles);	// 9 - ADC_IND_VREFINT
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_8, 		5, ADC_SampleTime_15Cycles);	// 12 - ADC_IND_TEMP_MOS_2
 
-	// ADC2 regular channels																
+	// ADC2 regular channels
 	ADC_RegularChannelConfig(ADC2, ADC_Channel_11, 		1, ADC_SampleTime_15Cycles);	// 1 - ADC_IND_CURR2
-	ADC_RegularChannelConfig(ADC2, ADC_Channel_1, 		2, ADC_SampleTime_15Cycles);	// 4 - ADC_IND_SENS2	
+	ADC_RegularChannelConfig(ADC2, ADC_Channel_1, 		2, ADC_SampleTime_15Cycles);	// 4 - ADC_IND_SENS2
 	ADC_RegularChannelConfig(ADC2, ADC_Channel_6, 		3, ADC_SampleTime_15Cycles);	// 7 - ADC_IND_EXT2
 	ADC_RegularChannelConfig(ADC2, ADC_Channel_14, 		4, ADC_SampleTime_15Cycles);	// 10 - ADC_IND_TEMP_MOTOR
 	ADC_RegularChannelConfig(ADC2, ADC_Channel_9, 		5, ADC_SampleTime_15Cycles);	// 13 - ADC_IND_TEMP_MOS_3
 
-	// ADC3 regular channels - only a subset of channels avaliable											
+	// ADC3 regular channels - only a subset of channels avaliable
 	ADC_RegularChannelConfig(ADC3, ADC_Channel_12, 		1, ADC_SampleTime_15Cycles);	// 2 - ADC_IND_CURR3
-	ADC_RegularChannelConfig(ADC3, ADC_Channel_2, 		2, ADC_SampleTime_15Cycles);	// 5 - ADC_IND_SENS3	
+	ADC_RegularChannelConfig(ADC3, ADC_Channel_2, 		2, ADC_SampleTime_15Cycles);	// 5 - ADC_IND_SENS3
 	ADC_RegularChannelConfig(ADC3, ADC_Channel_13, 		3, ADC_SampleTime_15Cycles);	// 8 - ADC_IND_VIN_SENS
-	ADC_RegularChannelConfig(ADC3, ADC_Channel_3, 		4, ADC_SampleTime_15Cycles);	// 11 - ADC_IND_TEMP_MOS		
+	ADC_RegularChannelConfig(ADC3, ADC_Channel_3, 		4, ADC_SampleTime_15Cycles);	// 11 - ADC_IND_TEMP_MOS
 	ADC_RegularChannelConfig(ADC3, ADC_Channel_14, 		5, ADC_SampleTime_15Cycles);	// 14 - UNUSED
 
 
-	// Injected channels																	
+	// Injected channels
 	ADC_InjectedChannelConfig(ADC1, ADC_Channel_10, 1, ADC_SampleTime_15Cycles);			// ADC_IND_CURR1
 	ADC_InjectedChannelConfig(ADC2, ADC_Channel_11, 1, ADC_SampleTime_15Cycles);			// ADC_IND_CURR2
 	ADC_InjectedChannelConfig(ADC3, ADC_Channel_12, 1, ADC_SampleTime_15Cycles);			// ADC_IND_CURR3
@@ -174,7 +174,7 @@ void hw_setup_adc_channels(void) {
 	ADC_InjectedChannelConfig(ADC1, ADC_Channel_10, 3, ADC_SampleTime_15Cycles);			// ADC_IND_CURR1
 	ADC_InjectedChannelConfig(ADC2, ADC_Channel_11, 3, ADC_SampleTime_15Cycles);			// ADC_IND_CURR2
 	ADC_InjectedChannelConfig(ADC3, ADC_Channel_12, 3, ADC_SampleTime_15Cycles);			// ADC_IND_CURR3
-	
+
 }
 
 
@@ -273,10 +273,10 @@ void hw_try_restore_i2c(void) {
 }
 
 float hw_a200s_get_temp(void) {
-	float t1 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-	float t2 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_2]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-	float t3 = (1.0 / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_3]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15);
-	float res = 0.0;
+	float t1 = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+	float t2 = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_2]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+	float t3 = (1.0F / ((logf(NTC_RES(ADC_Value[ADC_IND_TEMP_MOS_3]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F);
+	float res = 0.0F;
 
 	if (t1 > t2 && t1 > t3) {
 		res = t1;
@@ -289,26 +289,26 @@ float hw_a200s_get_temp(void) {
 	return res;
 }
 
-bool hw_a200s_hardware_handshake(void) {	  	
-	uint8_t rxb[1];	
-		
+bool hw_a200s_hardware_handshake(void) {
+	uint8_t rxb[1];
+
 	// Request handshake code, needs to wait for the i2c to be setup by the imu driver
-	
-	if(imu_startup_done()) {			
-		if(i2c_bb_tx_rx(imu_get_i2c(), ATTINY3216_ADDR, NULL, 0, rxb, 1)) {		
+
+	if(imu_startup_done()) {
+		if(i2c_bb_tx_rx(imu_get_i2c(), ATTINY3216_ADDR, NULL, 0, rxb, 1)) {
 			if(rxb[0] == ATTINY3216_HANDSHAKE_REPLY) {
 				// OK
 			} else {
 				return false;
 			}
 		} else {
-			return false;				
+			return false;
 		}
-		
-		chThdSleep(10); // Small delay 
-		
-		
-		if(i2c_bb_tx_rx(imu_get_i2c(), ATTINY1616_ADDR, NULL, 0, rxb, 1)) {		
+
+		chThdSleep(10); // Small delay
+
+
+		if(i2c_bb_tx_rx(imu_get_i2c(), ATTINY1616_ADDR, NULL, 0, rxb, 1)) {
 			if(rxb[0] == ATTINY1616_HANDSHAKE_REPLY) {
 				// OK
 			} else {
@@ -316,35 +316,35 @@ bool hw_a200s_hardware_handshake(void) {
 			}
 		} else {
 			return false;
-		}		
+		}
 	} else {
 		return false;
 	}
-	
-	return true;		
+
+	return true;
 }
 
 bool hw_a200s_drv_fault_check(void) {
-	return (palReadPad(GPIOB, 12) || !drv_handshake_complete);	
+	return (palReadPad(GPIOB, 12) || !drv_handshake_complete);
 }
 
-void hw_a200s_reset_faults(void) {		
-	// Send reset command to logger, needs to wait for the i2c to be setup by the imu driver	
+void hw_a200s_reset_faults(void) {
+	// Send reset command to logger, needs to wait for the i2c to be setup by the imu driver
 	if(imu_startup_done()) {
 		// Only reset the fault if the hardware protections are working.
-		if(hw_a200s_hardware_handshake()) {	
-			uint8_t txb[1];	
-			
+		if(hw_a200s_hardware_handshake()) {
+			uint8_t txb[1];
+
 			// Setup current limit digipots at startup they will default to 0A
-			hw_a200s_set_hardware_current_limits();			
-			
-			// Clear latches					
+			hw_a200s_set_hardware_current_limits();
+
+			// Clear latches
 			txb[0] = 0x53;
 			i2c_bb_tx_rx(imu_get_i2c(), ATTINY3216_ADDR, txb, 1, NULL, 0);
-			
+
 			txb[0] = 0x54;
 			i2c_bb_tx_rx(imu_get_i2c(), ATTINY1616_ADDR, txb, 1, NULL, 0);
-			
+
 			// ATTiny should now have released the gate drivers for us to use
 			drv_handshake_complete = true;
 		}
@@ -353,57 +353,57 @@ void hw_a200s_reset_faults(void) {
 
 void hw_a200s_aux(bool enable){
 	static int state = false; // only send changes to attiny1616 to avoid hogging the bus
-	
+
 	if(state != enable)
 	{
-		uint8_t txb[1];		
-		
+		uint8_t txb[1];
+
 		if(imu_startup_done()) // needs to wait for the i2c to be setup by the imu driver
-		{	
+		{
 			if(enable)
 			{
 				txb[0] = 0x21;
 			} else {
 				txb[0] = 0x20;
-			}	
-			
+			}
+
 			if(i2c_bb_tx_rx(imu_get_i2c(), ATTINY1616_ADDR, txb, 1, NULL, 0))
-			{		
+			{
 				state = enable;
-			}						
-		}	
-	}			
+			}
+		}
+	}
 }
 
-static void hw_a200s_set_hardware_current_limits(void){	
-	
-	uint8_t txb[2];	
-		
+static void hw_a200s_set_hardware_current_limits(void){
+
+	uint8_t txb[2];
+
 	if(imu_startup_done()) // needs to wait for the i2c to be setup by the imu driver
-	{	
+	{
 		// Digipots have 128 positions, default is midpoint
-		// Each position is 3.3 / ((0.0002 / 3) * 20) = 2475 / 128 = 19.34A			
-		// So current / 19.34  = trip value position
-		// Midpoint is 64 
+		// Each position is 3.3F / ((0.0002F / 3) * 20) = 2475 / 128 = 19.34A
+		// So current / 19.34F  = trip value position
+		// Midpoint is 64
 		int channel_digipot_position = 64.0f + ceilf(HW_PROTECTION_CURR_TRIP_CHANNEL / 19.34f);
 		int diode_digipot_position = 64.0f - ceilf(HW_PROTECTION_CURR_TRIP_DIODE / 19.34f);
-		
+
 		utils_truncate_number_int(&channel_digipot_position, 64, 127);
-		utils_truncate_number_int(&diode_digipot_position, 0, 64);		
-		
+		utils_truncate_number_int(&diode_digipot_position, 0, 64);
+
 		txb[0] = 0x00; // Wiper Position register
 		txb[1] = (unsigned)channel_digipot_position;
 		if(i2c_bb_tx_rx(imu_get_i2c(), TPL0401A_10DCKR_ADDR, txb, 2, NULL, 0))
-		{	
+		{
 			// Success
 		}
-		
+
 		txb[1] = (unsigned)diode_digipot_position;
 		if(i2c_bb_tx_rx(imu_get_i2c(), TPL0401B_10DCKR_ADDR, txb, 2, NULL, 0))
-		{	
+		{
 			// Success
-		}			
-	}		
+		}
+	}
 }
 
 

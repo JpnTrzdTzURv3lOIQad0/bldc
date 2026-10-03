@@ -20,7 +20,7 @@
 
 #define DISABLE_HW_LIMITS
 #define HW_SOURCE_ALT 		"kingmodel/hw_km_75_100.c"
-#define CURRENT_SHUNT_RES	0.0005
+#define CURRENT_SHUNT_RES	0.0005F
 
 #include "hw_km_75_100.h"
 

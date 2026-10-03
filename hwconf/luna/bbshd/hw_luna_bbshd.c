@@ -114,20 +114,20 @@ void hw_init_gpio(void) {
 	palSetPadMode(GPIOC, 3, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(GPIOC, 4, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(GPIOC, 5, PAL_MODE_INPUT_ANALOG);
-    
-	
+
+
 	terminal_register_command_callback(
 			"set_initial_assist_level",
 			"Set initial assist level [0 - 9].",
 			0,
 			terminal_cmd_set_initial_assist_level);
-    
+
     terminal_register_command_callback(
 			"read_initial_assist_level",
 			"Read initial assist level.",
 			0,
 			terminal_cmd_read_initial_assist_level);
-        
+
 	terminal_register_command_callback(
 			"set_motor_temp_sensor",
 			"Usage: set_motor_temp_sensor [NTC or PTC]",
@@ -293,20 +293,20 @@ void hw_update_speed_sensor(void) {
 	if(sensor_state == 0 && sensor_state_old == 1 ) {
 		float revolution_duration = current_time - last_sensor_event_time;
 
-		if (revolution_duration > 0.05) {	//ignore periods <50ms
+		if (revolution_duration > 0.05F) {	//ignore periods <50ms
 			last_sensor_event_time = current_time;
-			wheel_rpm = 60.0 / revolution_duration;
-			UTILS_LP_FAST(wheel_rpm_filtered, (float)wheel_rpm, 0.5);
+			wheel_rpm = 60.0F / revolution_duration;
+			UTILS_LP_FAST(wheel_rpm_filtered, (float)wheel_rpm, 0.5F);
 
-			
+
 			const volatile mc_configuration *conf = mc_interface_get_configuration();
 			trip_odometer += conf->si_wheel_diameter * M_PI;
 			//trip_odometer += mc_interface_get_configuration()->si_wheel_diameter * M_PI; test this
 		}
 	} else {
 		// After 3 seconds without sensor signal, set RPM as zero
-		if ( (current_time - last_sensor_event_time) > 3.0) {
-			wheel_rpm_filtered = 0.0;
+		if ( (current_time - last_sensor_event_time) > 3.0F) {
+			wheel_rpm_filtered = 0.0F;
 		}
 	}
 	sensor_state_old = sensor_state;
@@ -315,7 +315,7 @@ void hw_update_speed_sensor(void) {
 /* Get speed in m/s */
 float hw_get_speed(void) {
 	const volatile mc_configuration *conf = mc_interface_get_configuration();
-	float speed = wheel_rpm_filtered * conf->si_wheel_diameter * M_PI / 60.0;
+	float speed = wheel_rpm_filtered * conf->si_wheel_diameter * M_PI / 60.0F;
 	return speed;
 }
 
@@ -328,27 +328,27 @@ float hw_get_distance_abs(void) {
 	return trip_odometer;
 }
 /* Gear Shift sensor support
- * Read the gear sensor and use it to override the brake adc signal to reduce motor 
+ * Read the gear sensor and use it to override the brake adc signal to reduce motor
  * power during shifting to extend gearing life.
  */
 void hw_brake_override(float *brake_ptr) {
 	float brake = *brake_ptr;
 
 	// Track an independent gearshift sensor ramping to be multiplied by the brake signal
-	static float gear = 0.0;
+	static float gear = 0.0F;
 	gear = (float)palReadPad(HW_GEAR_SENSOR_PORT, HW_GEAR_SENSOR_PIN);
 
 	// hardcoded ramps for now
-	const float ramp_time_neg = 0.1;
-	const float ramp_time_pos = 0.3;
+	const float ramp_time_neg = 0.1F;
+	const float ramp_time_pos = 0.3F;
 
 	// Apply ramping
 	static systime_t last_time = 0;
-	static float gear_ramp = 0.0;
+	static float gear_ramp = 0.0F;
 	float ramp_time = fabsf(gear) > fabsf(gear_ramp) ? ramp_time_pos : ramp_time_neg;
 
-	if (ramp_time > 0.01) {
-		const float ramp_step = (float)ST2MS(chVTTimeElapsedSinceX(last_time)) / (ramp_time * 1000.0);
+	if (ramp_time > 0.01F) {
+		const float ramp_step = (float)ST2MS(chVTTimeElapsedSinceX(last_time)) / (ramp_time * 1000.0F);
 		utils_step_towards(&gear_ramp, gear, ramp_step);
 		last_time = chVTGetSystemTimeX();
 		*brake_ptr = brake * gear_ramp;
@@ -368,28 +368,28 @@ void hw_brake_override(float *brake_ptr) {
 #define PTC_LUT_SIZE	20
 typedef struct { float x; float y; } coord_t;
 
-coord_t ptc_lut[PTC_LUT_SIZE] = 
+coord_t ptc_lut[PTC_LUT_SIZE] =
 {
-    {933.0, -15.0},
-	{940.0, -11.0},
-    {1090.0, 25.0},
-    {1107.0, 30.0},
-    {1124.0, 35.0}, 
-    {1140.0, 40.0}, 
-	{1155.0, 45.0},
-	{1170.0, 50.0},
-	{1181.0, 55.0},
-	{1191.0, 60.0},
-	{1198.0, 65.0},
-	{1202.0, 70.0},
-	{1211.0, 75.0},
-	{1217.0, 80.0},
-	{1224.0, 85.0},
-	{1231.0, 90.0},
-	{1274.0, 95.0},
-	{1385.0, 100.0},
-	{1390.0, 110.0},//made up
-	{1400.0, 200.0}//made up
+    {933.0F, -15.0F},
+	{940.0F, -11.0F},
+    {1090.0F, 25.0F},
+    {1107.0F, 30.0F},
+    {1124.0F, 35.0F},
+    {1140.0F, 40.0F},
+	{1155.0F, 45.0F},
+	{1170.0F, 50.0F},
+	{1181.0F, 55.0F},
+	{1191.0F, 60.0F},
+	{1198.0F, 65.0F},
+	{1202.0F, 70.0F},
+	{1211.0F, 75.0F},
+	{1217.0F, 80.0F},
+	{1224.0F, 85.0F},
+	{1231.0F, 90.0F},
+	{1274.0F, 95.0F},
+	{1385.0F, 100.0F},
+	{1390.0F, 110.0F},//made up
+	{1400.0F, 200.0F}//made up
 };
 
 float interp( coord_t* c, float x)
@@ -405,11 +405,11 @@ float interp( coord_t* c, float x)
             float diffx = x - c[i].x;
             float diffn = c[i+1].x - c[i].x;
 
-            return c[i].y + ( c[i+1].y - c[i].y ) * diffx / diffn; 
+            return c[i].y + ( c[i+1].y - c[i].y ) * diffx / diffn;
         }
     }
 
-    return 200.0; // Not in range, trip a fault
+    return 200.0F; // Not in range, trip a fault
 }
 
 
@@ -467,7 +467,7 @@ int8_t hw_read_initial_assist_level(void) {
 
 float hw_read_motor_temp(float beta) {
 	static float sensor_resistance = 1000;
-	UTILS_LP_FAST(sensor_resistance, NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]), 0.1);
+	UTILS_LP_FAST(sensor_resistance, NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]), 0.1F);
 
 	// the ptc sensor has 1.3kOhm at 100°C and 930 Ohm at -15°C. If resistance is outside this
 	// range there is no way this is a PTC sensor
@@ -479,7 +479,7 @@ float hw_read_motor_temp(float beta) {
 		return interp(ptc_lut, sensor_resistance);
 	} else {
 		// NTC
-		return (1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0) / beta) + (1.0 / 298.15)) - 273.15);
+		return (1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0F) / beta) + (1.0F / 298.15F)) - 273.15F);
 	}
 }
 
@@ -505,7 +505,7 @@ static void terminal_cmd_set_bbshd_has_PTC_sensor(int argc, const char **argv) {
 
 		//read back written data
 		motor_has_PTC_sensor = hw_bbshd_has_PTC_sensor();
-		
+
 		if( motor_has_PTC_sensor ) {
 			commands_printf("Set as PTC\n");
 		} else {
@@ -581,7 +581,7 @@ static void hw_override_pairing_done(void) {
 float hw_get_ADC_value(uint8_t channel){
 	float adc_volts;
 
-	adc_volts = ((float)ADC_Value[channel] / 4096.0 * V_REG);
+	adc_volts = ((float)ADC_Value[channel] / 4096.0F * V_REG);
 	if(channel == ADC_IND_EXT){
 		float min_voltage = app_get_configuration()->app_adc_conf.voltage_min;
 		float max_voltage = app_get_configuration()->app_adc_conf.voltage_max;

@@ -59,9 +59,9 @@
  */
 
 // Settings
-#define FILTER_CONST			0.02 // Range: 0 - 1. Higher values make the control more aggressive.
-#define BUTTON_RATE				5.0 // How fast the home adjustment buttons move the pod. Unit: Deg/s
-#define START_DELAY				10.0 // Start delay in seconds
+#define FILTER_CONST			0.02F // Range: 0 - 1. Higher values make the control more aggressive.
+#define BUTTON_RATE				5.0F // How fast the home adjustment buttons move the pod. Unit: Deg/s
+#define START_DELAY				10.0F // Start delay in seconds
 
 /**
  * Homing procedure
@@ -71,10 +71,10 @@
  * HOMING_ANGLE_MAX an error is thrown and the pod will rotate back to the initial
  * position. If a homing error occurs, no new commands are accepted.
  */
-#define HOMING_RATE				20.0 // Deg/s
-#define HOMING_ANGLE_BACK		-30.0
-#define HOMING_ANGLE_MAX		270.0
-#define HOMING_BACK_TIME		3.0 // Seconds
+#define HOMING_RATE				20.0F // Deg/s
+#define HOMING_ANGLE_BACK		-30.0F
+#define HOMING_ANGLE_MAX		270.0F
+#define HOMING_BACK_TIME		3.0F // Seconds
 
 #define P_ADDR_OFFSET			0
 
@@ -123,7 +123,7 @@ static lbm_value ext_pod_get_angle(lbm_value *args, lbm_uint argn) {
 static lbm_value ext_pod_home(lbm_value *args, lbm_uint argn) {
 	(void)args; (void)argn;
 	m_pod_state.homing_angle_now = HOMING_ANGLE_BACK + m_pod_state.req_angle + m_pod_state.angle_home + m_pod_state.angle_offset;
-	m_pod_state.homing_back_time = 0.0;
+	m_pod_state.homing_back_time = 0.0F;
 	m_pod_state.homing_done = false;
 	m_pod_state.homing_error = false;
 	return lbm_enc_sym(SYM_TRUE);
@@ -237,7 +237,7 @@ static void process_custom_app_data(unsigned char *data, unsigned int len) {
 
 	case FINN_MSG_HOME: {
 		m_pod_state.homing_angle_now = HOMING_ANGLE_BACK + m_pod_state.req_angle + m_pod_state.angle_home + m_pod_state.angle_offset;
-		m_pod_state.homing_back_time = 0.0;
+		m_pod_state.homing_back_time = 0.0F;
 		m_pod_state.homing_done = false;
 		m_pod_state.homing_error = false;
 
@@ -296,12 +296,12 @@ static bool can_eid_callback(uint32_t id, uint8_t *data, uint8_t len) {
 			int16_t ang_int = pkt->req_angle;
 
 			// Ignore angles outside of range
-			if (ang_int > 5100.0 || ang_int < -5100.0) {
+			if (ang_int > 5100.0F || ang_int < -5100.0F) {
 				res = false;
 				break;
 			}
 
-			m_pod_state.req_angle = (float)ang_int / 5000.0 * 90.0;
+			m_pod_state.req_angle = (float)ang_int / 5000.0F * 90.0F;
 			m_pod_state.last_update = chVTGetSystemTimeX();
 		}
 
@@ -317,12 +317,12 @@ static bool can_eid_callback(uint32_t id, uint8_t *data, uint8_t len) {
 			int16_t ang_int = pkt->req_angle[m_pod_state.pod_id];
 
 			// Ignore angles outside of range
-			if (ang_int > 5100.0 || ang_int < -5100.0) {
+			if (ang_int > 5100.0F || ang_int < -5100.0F) {
 				res = false;
 				break;
 			}
 
-			m_pod_state.req_angle = (float)ang_int / 5000.0 * 90.0;
+			m_pod_state.req_angle = (float)ang_int / 5000.0F * 90.0F;
 			m_pod_state.last_update = chVTGetSystemTimeX();
 		}
 
@@ -337,12 +337,12 @@ static bool can_eid_callback(uint32_t id, uint8_t *data, uint8_t len) {
 			int16_t ang_int = pkt->req_angle[m_pod_state.pod_id-4];
 
 			// Ignore angles outside of range
-			if (ang_int > 5100.0 || ang_int < -5100.0) {
+			if (ang_int > 5100.0F || ang_int < -5100.0F) {
 				res = false;
 				break;
 			}
 
-			m_pod_state.req_angle = (float)ang_int / 5000.0 * 90.0;
+			m_pod_state.req_angle = (float)ang_int / 5000.0F * 90.0F;
 			m_pod_state.last_update = chVTGetSystemTimeX();
 		}
 
@@ -368,7 +368,7 @@ static THD_FUNCTION(control_thread, arg) {
 	chRegSetThreadName("Finn AZ");
 
 	control_is_running = true;
-	float angle_target = 0.0;
+	float angle_target = 0.0F;
 	systime_t time_last = chVTGetSystemTimeX();
 
 	int btn_left_samples = 0;
@@ -420,8 +420,8 @@ static THD_FUNCTION(control_thread, arg) {
 		float angle_target_no_filter = m_pod_state.req_angle + m_pod_state.angle_home + m_pod_state.angle_offset;
 
 		float angle_now = mc_interface_get_pid_pos_now();
-		if (angle_now > 180.0) {
-			angle_now -= 360.0;
+		if (angle_now > 180.0F) {
+			angle_now -= 360.0F;
 		}
 		angle_now *= APP_FINN_WRAP_FACTOR;
 
@@ -445,7 +445,7 @@ static THD_FUNCTION(control_thread, arg) {
 		}
 
 		if (m_pod_state.homing_error) {
-			angle_target_no_filter = 0.0;
+			angle_target_no_filter = 0.0F;
 		}
 
 		{
@@ -465,10 +465,10 @@ static THD_FUNCTION(control_thread, arg) {
 				offset_update_time = chVTGetSystemTimeX();
 			}
 
-			utils_truncate_number_abs((float*)&m_pod_state.angle_offset, 180.0);
+			utils_truncate_number_abs((float*)&m_pod_state.angle_offset, 180.0F);
 
 			// Store offset update 2s after the last adjustment
-			if (offset_updated && UTILS_AGE_S(offset_update_time) > 2.0) {
+			if (offset_updated && UTILS_AGE_S(offset_update_time) > 2.0F) {
 				offset_updated = false;
 				eeprom_var v;
 				v.as_float = m_pod_state.angle_offset;
@@ -480,7 +480,7 @@ static THD_FUNCTION(control_thread, arg) {
 
 		m_pod_state.actual_angle = angle_now - m_pod_state.angle_home - m_pod_state.angle_offset;
 
-		if (UTILS_AGE_S(m_pod_state.last_update) < 2.0 && m_motors_enabled) {
+		if (UTILS_AGE_S(m_pod_state.last_update) < 2.0F && m_motors_enabled) {
 			timeout_reset();
 			mc_interface_set_pid_pos(angle_target / APP_FINN_WRAP_FACTOR);
 			m_pod_state.wait_data = false;
@@ -522,8 +522,8 @@ static THD_FUNCTION(status_thread, arg) {
 		podstatus_actual.limitswitch = m_pod_state.btn_limit_pressed;
 		podstatus_actual.fake_ready = false;
 
-		podstatus_actual.accepted_angle = (int16_t)(m_pod_state.req_angle / 90.0 * 5000.0);
-		podstatus_actual.actual_angle = (int16_t)(m_pod_state.actual_angle / 90.0 * 5000.0);
+		podstatus_actual.accepted_angle = (int16_t)(m_pod_state.req_angle / 90.0F * 5000.0F);
+		podstatus_actual.actual_angle = (int16_t)(m_pod_state.actual_angle / 90.0F * 5000.0F);
 
 		uint32_t sourceType = 0x0B;
 		uint32_t sourceIndex = m_pod_state.pod_id;
@@ -545,7 +545,7 @@ static void terminal_home(int argc, const char **argv) {
 	(void)argv;
 
 	m_pod_state.homing_angle_now = HOMING_ANGLE_BACK + m_pod_state.req_angle + m_pod_state.angle_home + m_pod_state.angle_offset;
-	m_pod_state.homing_back_time = 0.0;
+	m_pod_state.homing_back_time = 0.0F;
 	m_pod_state.homing_done = false;
 	m_pod_state.homing_error = false;
 

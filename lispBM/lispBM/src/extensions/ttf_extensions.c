@@ -93,8 +93,8 @@ static int num_kern_pairs_row(SFT *sft, uint32_t utf32, uint32_t *codes, uint32_
   for (uint32_t i = 0; i < num_codes; i ++) {
     uint32_t right_utf32 = codes[i];
     SFT_Kerning kern;
-    kern.xShift = 0.0;
-    kern.yShift = 0.0;
+    kern.xShift = 0.0F;
+    kern.yShift = 0.0F;
 
     SFT_Glyph rgid;
     if (sft_lookup(sft, right_utf32, &rgid) < 0) {
@@ -105,13 +105,13 @@ static int num_kern_pairs_row(SFT *sft, uint32_t utf32, uint32_t *codes, uint32_
     if (sft->font->pairAdjustOffset) {
       sft_gpos_kerning(sft, lgid, rgid, &kern);
     }
-    if (kern.xShift == 0.0 && kern.yShift == 0.0) {
+    if (kern.xShift == 0.0F && kern.yShift == 0.0F) {
       sft_kerning(sft, lgid, rgid, &kern);
     }
 #else
     sft_kerning(sft, lgid, rgid, &kern);
 #endif
-    if (kern.xShift != 0.0 || kern.yShift != 0.0) {
+    if (kern.xShift != 0.0F || kern.yShift != 0.0F) {
       num++;
     }
   }
@@ -210,8 +210,8 @@ static bool buffer_append_kerning_table(uint8_t *buffer, SFT *sft, uint32_t *cod
         for (uint32_t right_ix = 0; right_ix < num_codes; right_ix ++) { // and all codes
           uint32_t right_utf32 = codes[right_ix];
           SFT_Kerning kern;
-          kern.xShift = 0.0;
-          kern.yShift = 0.0;
+          kern.xShift = 0.0F;
+          kern.yShift = 0.0F;
 
           // format KernPair
           // - UTF32 : rightGlyph
@@ -228,13 +228,13 @@ static bool buffer_append_kerning_table(uint8_t *buffer, SFT *sft, uint32_t *cod
           if (sft->font->pairAdjustOffset) {
             sft_gpos_kerning(sft, lgid, rgid, &kern);
           }
-          if (kern.xShift == 0.0 && kern.yShift == 0.0) {
+          if (kern.xShift == 0.0F && kern.yShift == 0.0F) {
 #endif
             sft_kerning(sft, lgid, rgid, &kern);
 #if !defined(LBM_USE_TTF_FREETYPE) && !defined(LBM_TTF_USE_FREETYPE)
           }
 #endif
-          if (kern.xShift != 0.0 || kern.yShift != 0.0) {
+          if (kern.xShift != 0.0F || kern.yShift != 0.0F) {
             buffer_append_uint32(buffer, right_utf32, index);
             buffer_append_float32_auto(buffer, kern.xShift, index);
             buffer_append_float32_auto(buffer, kern.yShift, index);
@@ -642,8 +642,8 @@ lbm_value ttf_text_bin(lbm_value *args, lbm_uint argn) {
   }
 
   color_format_t fmt = (color_format_t)color_fmt;
-  float x = 0.0;
-  float y = 0.0;
+  float x = 0.0F;
+  float y = 0.0F;
 
   image_buffer_t tgt;
   tgt.width = image_buffer_width((uint8_t*)img_arr->data);
@@ -659,7 +659,7 @@ lbm_value ttf_text_bin(lbm_value *args, lbm_uint argn) {
   uint32_t next_i = 0;
   while (get_utf32((uint8_t*)utf8_str, &utf32, i, &next_i)) {
     if (utf32 == '\n') {
-      x = 0.0;
+      x = 0.0F;
       y += line_spacing * (ascender - descender + line_gap);
       i++;
       continue; // next iteration
@@ -800,9 +800,9 @@ lbm_value ext_ttf_wh(lbm_value *args, lbm_uint argn) {
     return ENC_SYM_EERROR;
   }
 
-  float x = 0.0;
-  float y = 0.0;
-  float max_x = 0.0;
+  float x = 0.0F;
+  float y = 0.0F;
+  float max_x = 0.0F;
 
   uint32_t utf32;
   uint32_t prev;
@@ -812,7 +812,7 @@ lbm_value ext_ttf_wh(lbm_value *args, lbm_uint argn) {
   while (get_utf32((uint8_t*)utf8_str, &utf32, i, &next_i)) {
     if (utf32 == '\n') {
       if (x > max_x) max_x = x;
-      x = 0.0;
+      x = 0.0F;
       y += line_spacing * (ascender - descender + line_gap);
       i++;
       continue; // next iteration

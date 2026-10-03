@@ -49,7 +49,7 @@
 #include <string.h>
 
 // Macros
-#define DIR_MULT		(motor_now()->m_conf.m_invert_direction ? -1.0 : 1.0)
+#define DIR_MULT		(motor_now()->m_conf.m_invert_direction ? -1.0F : 1.0F)
 
 // Global variables
 volatile uint16_t ADC_Value[HW_ADC_CHANNELS + HW_ADC_CHANNELS_EXTRA];
@@ -131,7 +131,7 @@ static volatile float m_last_adc_duration_sample;
 static volatile bool m_sample_is_second_motor;
 static volatile gnss_data m_gnss = {0};
 static volatile bool m_wheel_speed_override = false;
-static volatile float m_wheel_speed_override_value = 0.0;
+static volatile float m_wheel_speed_override_value = 0.0F;
 
 typedef struct {
 	bool is_second_motor;
@@ -191,7 +191,7 @@ void mc_interface_init(bool reset_conf) {
 	m_motor_2.m_conf.motor_type = MOTOR_TYPE_FOC;
 #endif
 
-	m_last_adc_duration_sample = 0.0;
+	m_last_adc_duration_sample = 0.0F;
 	m_sample_len = 1000;
 	m_sample_int = 1;
 	m_sample_now = 0;
@@ -565,7 +565,7 @@ mc_control_mode mc_interface_get_control_mode(void) {
 }
 
 void mc_interface_set_duty(float dutyCycle) {
-	if (fabsf(dutyCycle) > 0.001) {
+	if (fabsf(dutyCycle) > 0.001F) {
 		SHUTDOWN_RESET();
 	}
 
@@ -591,7 +591,7 @@ void mc_interface_set_duty(float dutyCycle) {
 }
 
 void mc_interface_set_duty_noramp(float dutyCycle) {
-	if (fabsf(dutyCycle) > 0.001) {
+	if (fabsf(dutyCycle) > 0.001F) {
 		SHUTDOWN_RESET();
 	}
 
@@ -617,7 +617,7 @@ void mc_interface_set_duty_noramp(float dutyCycle) {
 }
 
 void mc_interface_set_pid_speed(float rpm) {
-	if (fabsf(rpm) > 0.001) {
+	if (fabsf(rpm) > 0.001F) {
 		SHUTDOWN_RESET();
 	}
 
@@ -658,7 +658,7 @@ void mc_interface_set_pid_pos(float pos) {
 
 	if (encoder_is_configured()) {
 		if (conf->foc_encoder_inverted) {
-			pos *= -1.0;
+			pos *= -1.0F;
 		}
 	}
 
@@ -682,7 +682,7 @@ void mc_interface_set_pid_pos(float pos) {
 }
 
 void mc_interface_set_current(float current) {
-	if (fabsf(current) > 0.001) {
+	if (fabsf(current) > 0.001F) {
 		SHUTDOWN_RESET();
 	}
 
@@ -708,7 +708,7 @@ void mc_interface_set_current(float current) {
 }
 
 void mc_interface_set_brake_current(float current) {
-	if (fabsf(current) > 0.001) {
+	if (fabsf(current) > 0.001F) {
 		SHUTDOWN_RESET();
 	}
 
@@ -740,21 +740,21 @@ void mc_interface_set_brake_current(float current) {
  * The relative current value, range [-1.0 1.0]
  */
 void mc_interface_set_current_rel(float val) {
-	if (fabsf(val) > 0.001) {
+	if (fabsf(val) > 0.001F) {
 		SHUTDOWN_RESET();
 	}
 
 	volatile mc_configuration *cfg = &motor_now()->m_conf;
 	float duty = mc_interface_get_duty_cycle_now();
 
-	if (fabsf(duty) < 0.02 || SIGN(val) == SIGN(duty)) {
+	if (fabsf(duty) < 0.02F || SIGN(val) == SIGN(duty)) {
 		mc_interface_set_current(val * cfg->lo_current_max);
 	} else {
 		mc_interface_set_current(val * fabsf(cfg->lo_current_min));
 	}
 
 	if (fabsf(val * cfg->l_abs_current_max) > cfg->cc_min_current) {
-		mc_interface_set_current_off_delay(0.1);
+		mc_interface_set_current_off_delay(0.1F);
 	}
 }
 
@@ -765,7 +765,7 @@ void mc_interface_set_current_rel(float val) {
  * The relative current value, range [0.0 1.0]
  */
 void mc_interface_set_brake_current_rel(float val) {
-	if (fabsf(val) > 0.001) {
+	if (fabsf(val) > 0.001F) {
 		SHUTDOWN_RESET();
 	}
 
@@ -773,7 +773,7 @@ void mc_interface_set_brake_current_rel(float val) {
 
 	mc_interface_set_brake_current(val * fabsf(cfg->lo_current_min));
 	if (fabsf(val * cfg->lo_current_min) > cfg->cc_min_current) {
-		mc_interface_set_current_off_delay(0.1);
+		mc_interface_set_current_off_delay(0.1F);
 	}
 }
 
@@ -784,7 +784,7 @@ void mc_interface_set_brake_current_rel(float val) {
  * The current value.
  */
 void mc_interface_set_handbrake(float current) {
-	if (fabsf(current) > 0.001) {
+	if (fabsf(current) > 0.001F) {
 		SHUTDOWN_RESET();
 	}
 
@@ -817,7 +817,7 @@ void mc_interface_set_handbrake(float current) {
  * The relative current value, range [0.0 1.0]
  */
 void mc_interface_set_handbrake_rel(float val) {
-	if (fabsf(val) > 0.001) {
+	if (fabsf(val) > 0.001F) {
 		SHUTDOWN_RESET();
 	}
 
@@ -825,7 +825,7 @@ void mc_interface_set_handbrake_rel(float val) {
 }
 
 void mc_interface_set_openloop_current(float current, float rpm) {
-	if (fabsf(current) > 0.001) {
+	if (fabsf(current) > 0.001F) {
 		SHUTDOWN_RESET();
 	}
 
@@ -849,7 +849,7 @@ void mc_interface_set_openloop_current(float current, float rpm) {
 	events_add("set_openloop_current", current);
 }
 void mc_interface_set_openloop_phase(float current, float phase){
-	if (fabsf(current) > 0.001) {
+	if (fabsf(current) > 0.001F) {
 		SHUTDOWN_RESET();
 	}
 
@@ -873,7 +873,7 @@ void mc_interface_set_openloop_phase(float current, float phase){
 	events_add("set_openloop_phase", phase);
 }
 void mc_interface_set_openloop_duty(float dutyCycle, float rpm){
-	if (fabsf(dutyCycle) > 0.001) {
+	if (fabsf(dutyCycle) > 0.001F) {
 		SHUTDOWN_RESET();
 	}
 
@@ -897,7 +897,7 @@ void mc_interface_set_openloop_duty(float dutyCycle, float rpm){
 	events_add("set_openloop_duty", dutyCycle);
 }
 void mc_interface_set_openloop_duty_phase(float dutyCycle, float phase){
-	if (fabsf(dutyCycle) > 0.001) {
+	if (fabsf(dutyCycle) > 0.001F) {
 		SHUTDOWN_RESET();
 	}
 
@@ -924,7 +924,7 @@ void mc_interface_set_openloop_duty_phase(float dutyCycle, float phase){
 void mc_interface_brake_now(void) {
 	SHUTDOWN_RESET();
 
-	mc_interface_set_duty(0.0);
+	mc_interface_set_duty(0.0F);
 }
 
 /**
@@ -949,7 +949,7 @@ void mc_interface_release_motor(void) {
 		break;
 	}
 
-	events_add("release_motor", 0.0);
+	events_add("release_motor", 0.0F);
 }
 
 void mc_interface_release_motor_override(void) {
@@ -967,7 +967,7 @@ void mc_interface_release_motor_override(void) {
 		break;
 	}
 
-	events_add("release_motor_override", 0.0);
+	events_add("release_motor_override", 0.0F);
 }
 
 bool mc_interface_wait_for_motor_release(float timeout) {
@@ -1009,7 +1009,7 @@ bool mc_interface_wait_for_motor_release(float timeout) {
  * Stop the motor and use braking.
  */
 float mc_interface_get_duty_cycle_set(void) {
-	float ret = 0.0;
+	float ret = 0.0F;
 
 	switch (motor_now()->m_conf.motor_type) {
 	case MOTOR_TYPE_BLDC:
@@ -1029,7 +1029,7 @@ float mc_interface_get_duty_cycle_set(void) {
 }
 
 float mc_interface_get_duty_cycle_now(void) {
-	float ret = 0.0;
+	float ret = 0.0F;
 
 	switch (motor_now()->m_conf.motor_type) {
 	case MOTOR_TYPE_BLDC:
@@ -1049,7 +1049,7 @@ float mc_interface_get_duty_cycle_now(void) {
 }
 
 float mc_interface_get_sampling_frequency_now(void) {
-	float ret = 0.0;
+	float ret = 0.0F;
 
 	switch (motor_now()->m_conf.motor_type) {
 	case MOTOR_TYPE_BLDC:
@@ -1069,7 +1069,7 @@ float mc_interface_get_sampling_frequency_now(void) {
 }
 
 float mc_interface_get_rpm(void) {
-	float ret = 0.0;
+	float ret = 0.0F;
 
 	switch (motor_now()->m_conf.motor_type) {
 	case MOTOR_TYPE_BLDC:
@@ -1101,7 +1101,7 @@ float mc_interface_get_amp_hours(bool reset) {
 	float val = motor_now()->m_amp_seconds / 3600;
 
 	if (reset) {
-		motor_now()->m_amp_seconds = 0.0;
+		motor_now()->m_amp_seconds = 0.0F;
 	}
 
 	return val;
@@ -1120,7 +1120,7 @@ float mc_interface_get_amp_hours_charged(bool reset) {
 	float val = motor_now()->m_amp_seconds_charged / 3600;
 
 	if (reset) {
-		motor_now()->m_amp_seconds_charged = 0.0;
+		motor_now()->m_amp_seconds_charged = 0.0F;
 	}
 
 	return val;
@@ -1139,7 +1139,7 @@ float mc_interface_get_watt_hours(bool reset) {
 	float val = motor_now()->m_watt_seconds / 3600;
 
 	if (reset) {
-		motor_now()->m_watt_seconds = 0.0;
+		motor_now()->m_watt_seconds = 0.0F;
 	}
 
 	return val;
@@ -1158,14 +1158,14 @@ float mc_interface_get_watt_hours_charged(bool reset) {
 	float val = motor_now()->m_watt_seconds_charged / 3600;
 
 	if (reset) {
-		motor_now()->m_watt_seconds_charged = 0.0;
+		motor_now()->m_watt_seconds_charged = 0.0F;
 	}
 
 	return val;
 }
 
 float mc_interface_get_tot_current(void) {
-	float ret = 0.0;
+	float ret = 0.0F;
 
 	switch (motor_now()->m_conf.motor_type) {
 	case MOTOR_TYPE_BLDC:
@@ -1185,7 +1185,7 @@ float mc_interface_get_tot_current(void) {
 }
 
 float mc_interface_get_tot_current_filtered(void) {
-	float ret = 0.0;
+	float ret = 0.0F;
 
 	switch (motor_now()->m_conf.motor_type) {
 	case MOTOR_TYPE_BLDC:
@@ -1205,7 +1205,7 @@ float mc_interface_get_tot_current_filtered(void) {
 }
 
 float mc_interface_get_tot_current_directional(void) {
-	float ret = 0.0;
+	float ret = 0.0F;
 
 	switch (motor_now()->m_conf.motor_type) {
 	case MOTOR_TYPE_BLDC:
@@ -1225,7 +1225,7 @@ float mc_interface_get_tot_current_directional(void) {
 }
 
 float mc_interface_get_tot_current_directional_filtered(void) {
-	float ret = 0.0;
+	float ret = 0.0F;
 
 	switch (motor_now()->m_conf.motor_type) {
 	case MOTOR_TYPE_BLDC:
@@ -1245,7 +1245,7 @@ float mc_interface_get_tot_current_directional_filtered(void) {
 }
 
 float mc_interface_get_tot_current_in(void) {
-	float ret = 0.0;
+	float ret = 0.0F;
 
 	switch (motor_now()->m_conf.motor_type) {
 	case MOTOR_TYPE_BLDC:
@@ -1265,7 +1265,7 @@ float mc_interface_get_tot_current_in(void) {
 }
 
 float mc_interface_get_tot_current_in_filtered(void) {
-	float ret = 0.0;
+	float ret = 0.0F;
 
 	switch (motor_now()->m_conf.motor_type) {
 	case MOTOR_TYPE_BLDC:
@@ -1289,7 +1289,7 @@ float mc_interface_get_input_voltage_filtered(void) {
 }
 
 float mc_interface_get_abs_motor_current_unbalance(void) {
-	float ret = 0.0;
+	float ret = 0.0F;
 
 #ifdef HW_HAS_3_SHUNTS
 	switch (motor_now()->m_conf.motor_type) {
@@ -1368,7 +1368,7 @@ int mc_interface_get_tachometer_abs_value(bool reset) {
 }
 
 float mc_interface_get_last_inj_adc_isr_duration(void) {
-	float ret = 0.0;
+	float ret = 0.0F;
 
 	switch (motor_now()->m_conf.motor_type) {
 	case MOTOR_TYPE_BLDC:
@@ -1377,7 +1377,7 @@ float mc_interface_get_last_inj_adc_isr_duration(void) {
 		break;
 
 	case MOTOR_TYPE_FOC:
-		ret = -1.0;
+		ret = -1.0F;
 		break;
 
 	default:
@@ -1389,15 +1389,15 @@ float mc_interface_get_last_inj_adc_isr_duration(void) {
 
 float mc_interface_read_reset_avg_motor_current(void) {
 	float res = motor_now()->m_motor_current_sum / motor_now()->m_motor_current_iterations;
-	motor_now()->m_motor_current_sum = 0.0;
-	motor_now()->m_motor_current_iterations = 0.0;
+	motor_now()->m_motor_current_sum = 0.0F;
+	motor_now()->m_motor_current_iterations = 0.0F;
 	return res;
 }
 
 float mc_interface_read_reset_avg_input_current(void) {
 	float res = motor_now()->m_input_current_sum / motor_now()->m_input_current_iterations;
-	motor_now()->m_input_current_sum = 0.0;
-	motor_now()->m_input_current_iterations = 0.0;
+	motor_now()->m_input_current_sum = 0.0F;
+	motor_now()->m_input_current_iterations = 0.0F;
 	return res;
 }
 
@@ -1409,8 +1409,8 @@ float mc_interface_read_reset_avg_input_current(void) {
  */
 float mc_interface_read_reset_avg_id(void) {
 	float res = motor_now()->m_motor_id_sum / motor_now()->m_motor_id_iterations;
-	motor_now()->m_motor_id_sum = 0.0;
-	motor_now()->m_motor_id_iterations = 0.0;
+	motor_now()->m_motor_id_sum = 0.0F;
+	motor_now()->m_motor_id_iterations = 0.0F;
 	return res;
 }
 
@@ -1422,8 +1422,8 @@ float mc_interface_read_reset_avg_id(void) {
  */
 float mc_interface_read_reset_avg_iq(void) {
 	float res = motor_now()->m_motor_iq_sum / motor_now()->m_motor_iq_iterations;
-	motor_now()->m_motor_iq_sum = 0.0;
-	motor_now()->m_motor_iq_iterations = 0.0;
+	motor_now()->m_motor_iq_sum = 0.0F;
+	motor_now()->m_motor_iq_iterations = 0.0F;
 	return DIR_MULT * res;
 }
 
@@ -1435,8 +1435,8 @@ float mc_interface_read_reset_avg_iq(void) {
  */
 float mc_interface_read_reset_avg_vd(void) {
 	float res = motor_now()->m_motor_vd_sum / motor_now()->m_motor_vd_iterations;
-	motor_now()->m_motor_vd_sum = 0.0;
-	motor_now()->m_motor_vd_iterations = 0.0;
+	motor_now()->m_motor_vd_sum = 0.0F;
+	motor_now()->m_motor_vd_iterations = 0.0F;
 	return res;
 }
 
@@ -1448,8 +1448,8 @@ float mc_interface_read_reset_avg_vd(void) {
  */
 float mc_interface_read_reset_avg_vq(void) {
 	float res = motor_now()->m_motor_vq_sum / motor_now()->m_motor_vq_iterations;
-	motor_now()->m_motor_vq_sum = 0.0;
-	motor_now()->m_motor_vq_iterations = 0.0;
+	motor_now()->m_motor_vq_sum = 0.0F;
+	motor_now()->m_motor_vq_iterations = 0.0F;
 	return DIR_MULT * res;
 }
 
@@ -1458,7 +1458,7 @@ float mc_interface_get_pid_pos_set(void) {
 }
 
 float mc_interface_get_pid_pos_now(void) {
-	float ret = 0.0;
+	float ret = 0.0F;
 
 	volatile mc_configuration *conf = &motor_now()->m_conf;
 
@@ -1478,7 +1478,7 @@ float mc_interface_get_pid_pos_now(void) {
 
 	if (encoder_is_configured()) {
 		if (conf->foc_encoder_inverted) {
-			ret *= -1.0;
+			ret *= -1.0F;
 		}
 	}
 
@@ -1512,7 +1512,7 @@ float mc_interface_get_last_sample_adc_isr_duration(void) {
 	return m_last_adc_duration_sample;
 }
 
-void mc_interface_sample_print_data(debug_sampling_mode mode, uint16_t len, uint8_t decimation, bool raw, 
+void mc_interface_sample_print_data(debug_sampling_mode mode, uint16_t len, uint8_t decimation, bool raw,
 		void(*reply_func)(unsigned char *data, unsigned int len)) {
 
 	send_func_sample = reply_func;
@@ -1573,35 +1573,35 @@ float mc_interface_temp_motor_filtered(void) {
 float mc_interface_get_battery_level(float *wh_left) {
 	const volatile mc_configuration *conf = mc_interface_get_configuration();
 	const float v_in = motor_now()->m_input_voltage_filtered_slower;
-	float battery_avg_voltage = 0.0;
-	float battery_avg_voltage_left = 0.0;
+	float battery_avg_voltage = 0.0F;
+	float battery_avg_voltage_left = 0.0F;
 	float ah_left = 0;
 	float ah_tot = conf->si_battery_ah;
 
 	switch (conf->si_battery_type) {
 	case BATTERY_TYPE_LIION_3_0__4_2:
-		battery_avg_voltage = ((3.2 + 4.2) / 2.0) * (float)(conf->si_battery_cells);
-		battery_avg_voltage_left = ((3.2 * (float)(conf->si_battery_cells) + v_in) / 2.0);
+		battery_avg_voltage = ((3.2F + 4.2F) / 2.0F) * (float)(conf->si_battery_cells);
+		battery_avg_voltage_left = ((3.2F * (float)(conf->si_battery_cells) + v_in) / 2.0F);
 		float batt_left = utils_map(v_in / (float)(conf->si_battery_cells),
-									3.2, 4.2, 0.0, 1.0);
+									3.2F, 4.2F, 0.0F, 1.0F);
 		batt_left = utils_batt_liion_norm_v_to_capacity(batt_left);
-		ah_tot *= 0.85; // 0.85 because the battery is not fully depleted at 3.2V / cell
+		ah_tot *= 0.85F; // 0.85F because the battery is not fully depleted at 3.2V / cell
 		ah_left = batt_left * ah_tot;
 		break;
 
 	case BATTERY_TYPE_LIIRON_2_6__3_6:
-		battery_avg_voltage = ((2.8 + 3.6) / 2.0) * (float)(conf->si_battery_cells);
-		battery_avg_voltage_left = ((2.8 * (float)(conf->si_battery_cells) + v_in) / 2.0);
+		battery_avg_voltage = ((2.8F + 3.6F) / 2.0F) * (float)(conf->si_battery_cells);
+		battery_avg_voltage_left = ((2.8F * (float)(conf->si_battery_cells) + v_in) / 2.0F);
 		ah_left = utils_map(v_in / (float)(conf->si_battery_cells),
-				2.6, 3.6, 0.0, conf->si_battery_ah);
+				2.6F, 3.6F, 0.0F, conf->si_battery_ah);
 		break;
 
 	case BATTERY_TYPE_LEAD_ACID:
 		// TODO: This does not really work for lead-acid batteries
-		battery_avg_voltage = ((2.1 + 2.36) / 2.0) * (float)(conf->si_battery_cells);
-		battery_avg_voltage_left = ((2.1 * (float)(conf->si_battery_cells) + v_in) / 2.0);
+		battery_avg_voltage = ((2.1F + 2.36F) / 2.0F) * (float)(conf->si_battery_cells);
+		battery_avg_voltage_left = ((2.1F * (float)(conf->si_battery_cells) + v_in) / 2.0F);
 		ah_left = utils_map(v_in / (float)(conf->si_battery_cells),
-				2.1, 2.36, 0.0, conf->si_battery_ah);
+				2.1F, 2.36F, 0.0F, conf->si_battery_ah);
 		break;
 
 	default:
@@ -1632,8 +1632,8 @@ float mc_interface_get_speed(void) {
 		return hw_get_speed();
 #else
 		const volatile mc_configuration *conf = mc_interface_get_configuration();
-		const float rpm = mc_interface_get_rpm() / (conf->si_motor_poles / 2.0);
-		return (rpm / 60.0) * conf->si_wheel_diameter * M_PI / conf->si_gear_ratio;
+		const float rpm = mc_interface_get_rpm() / (conf->si_motor_poles / 2.0F);
+		return (rpm / 60.0F) * conf->si_wheel_diameter * UTILS_PI_F / conf->si_gear_ratio;
 #endif
 	}
 }
@@ -1646,7 +1646,7 @@ float mc_interface_get_speed(void) {
  */
 float mc_interface_get_distance(void) {
 	const volatile mc_configuration *conf = mc_interface_get_configuration();
-	const float tacho_scale = (conf->si_wheel_diameter * M_PI) / (3.0 * conf->si_motor_poles * conf->si_gear_ratio);
+	const float tacho_scale = (conf->si_wheel_diameter * UTILS_PI_F) / (3.0F * conf->si_motor_poles * conf->si_gear_ratio);
 	return mc_interface_get_tachometer_value(false) * tacho_scale;
 }
 
@@ -1661,7 +1661,7 @@ float mc_interface_get_distance_abs(void) {
 	return hw_get_distance_abs();
 #else
 	const volatile mc_configuration *conf = mc_interface_get_configuration();
-	const float tacho_scale = (conf->si_wheel_diameter * M_PI) / (3.0 * conf->si_motor_poles * conf->si_gear_ratio);
+	const float tacho_scale = (conf->si_wheel_diameter * UTILS_PI_F) / (3.0F * conf->si_motor_poles * conf->si_gear_ratio);
 	return mc_interface_get_tachometer_abs_value(false) * tacho_scale;
 #endif
 }
@@ -1684,25 +1684,25 @@ setup_values mc_interface_get_setup_values(void) {
 
 	for (int i = 0;i < CAN_STATUS_MSGS_TO_STORE;i++) {
 		can_status_msg *msg = comm_can_get_status_msg_index(i);
-		if (msg->id >= 0 && UTILS_AGE_S(msg->rx_time) < 0.1) {
+		if (msg->id >= 0 && UTILS_AGE_S(msg->rx_time) < 0.1F) {
 			val.current_tot += msg->current;
 			val.num_vescs++;
 		}
 
 		can_status_msg_2 *msg2 = comm_can_get_status_msg_2_index(i);
-		if (msg2->id >= 0 && UTILS_AGE_S(msg2->rx_time) < 0.1) {
+		if (msg2->id >= 0 && UTILS_AGE_S(msg2->rx_time) < 0.1F) {
 			val.ah_tot += msg2->amp_hours;
 			val.ah_charge_tot += msg2->amp_hours_charged;
 		}
 
 		can_status_msg_3 *msg3 = comm_can_get_status_msg_3_index(i);
-		if (msg3->id >= 0 && UTILS_AGE_S(msg3->rx_time) < 0.1) {
+		if (msg3->id >= 0 && UTILS_AGE_S(msg3->rx_time) < 0.1F) {
 			val.wh_tot += msg3->watt_hours;
 			val.wh_charge_tot += msg3->watt_hours_charged;
 		}
 
 		can_status_msg_4 *msg4 = comm_can_get_status_msg_4_index(i);
-		if (msg4->id >= 0 && UTILS_AGE_S(msg4->rx_time) < 0.1) {
+		if (msg4->id >= 0 && UTILS_AGE_S(msg4->rx_time) < 0.1F) {
 			val.current_in_tot += msg4->current_in;
 		}
 	}
@@ -1792,8 +1792,8 @@ void mc_interface_set_current_off_delay(float delay_sec) {
 	}
 
 	UTILS_NAN_ZERO(delay_sec);
-	if (delay_sec > 5.0) {
-		delay_sec = 5.0;
+	if (delay_sec > 5.0F) {
+		delay_sec = 5.0F;
 	}
 
 	switch (motor_now()->m_conf.motor_type) {
@@ -1901,14 +1901,14 @@ __attribute__((aligned(16))) void mc_interface_mc_timer_isr(bool is_second_motor
 
 	mc_configuration *conf_now = (mc_configuration*)&motor->m_conf;
 	const float input_voltage = GET_INPUT_VOLTAGE();
-	UTILS_LP_FAST(motor->m_input_voltage_filtered, input_voltage, 0.02);
+	UTILS_LP_FAST(motor->m_input_voltage_filtered, input_voltage, 0.02F);
 
 	FOC_PROFILE_LINE_FINE()
 
 	// Check for faults that should stop the motor
 
-	static float wrong_voltage_integrator = 0.0;
-	float voltage_diff_now = 0.0;
+	static float wrong_voltage_integrator = 0.0F;
+	float voltage_diff_now = 0.0F;
 
 	if (input_voltage < conf_now->l_min_vin) {
 		voltage_diff_now = conf_now->l_min_vin - input_voltage;
@@ -1916,22 +1916,22 @@ __attribute__((aligned(16))) void mc_interface_mc_timer_isr(bool is_second_motor
 		voltage_diff_now = input_voltage - conf_now->l_max_vin;
 	}
 
-	if (voltage_diff_now > 1.0e-3) {
+	if (voltage_diff_now > 1.0e-3F) {
 		wrong_voltage_integrator += voltage_diff_now;
 
-		const float max_voltage = (conf_now->l_max_vin * 0.05);
+		const float max_voltage = (conf_now->l_max_vin * 0.05F);
 		if (wrong_voltage_integrator > max_voltage) {
 			mc_interface_fault_stop(input_voltage < conf_now->l_min_vin ?
 					FAULT_CODE_UNDER_VOLTAGE : FAULT_CODE_OVER_VOLTAGE, is_second_motor, true);
 
 			// Windup protection
-			wrong_voltage_integrator = max_voltage * 2.0;
+			wrong_voltage_integrator = max_voltage * 2.0F;
 		}
 	} else {
-		if (wrong_voltage_integrator > 1.0) {
-			wrong_voltage_integrator -= 1.0;
+		if (wrong_voltage_integrator > 1.0F) {
+			wrong_voltage_integrator -= 1.0F;
 		} else {
-			wrong_voltage_integrator = 0.0;
+			wrong_voltage_integrator = 0.0F;
 		}
 	}
 
@@ -2041,8 +2041,8 @@ __attribute__((aligned(16))) void mc_interface_mc_timer_isr(bool is_second_motor
 #endif
 
 	// Watt and ah counters
-	if (fabsf(current_filtered) > 1.0) {
-		if (current_in_filtered > 0.0) {
+	if (fabsf(current_filtered) > 1.0F) {
+		if (current_in_filtered > 0.0F) {
 			motor->m_amp_seconds += current_in_filtered * dt;
 			motor->m_watt_seconds += current_in_filtered * dt * input_voltage;
 		} else {
@@ -2167,18 +2167,18 @@ __attribute__((aligned(16))) void mc_interface_mc_timer_isr(bool is_second_motor
 				} else {
 					zero = (ADC_V_L1 + ADC_V_L2 + ADC_V_L3) / 3;
 				}
-				m_phase_samples[m_sample_now] = (uint8_t)(mcpwm_foc_get_phase() / 360.0 * 250.0);
-//				m_phase_samples[m_sample_now] = (uint8_t)(mcpwm_foc_get_phase_observer() / 360.0 * 250.0);
-//				float ang = utils_angle_difference(mcpwm_foc_get_phase_observer(), mcpwm_foc_get_phase_encoder()) + 180.0;
-//				m_phase_samples[m_sample_now] = (uint8_t)(ang / 360.0 * 250.0);
+				m_phase_samples[m_sample_now] = (uint8_t)(mcpwm_foc_get_phase() / 360.0F * 250.0F);
+//				m_phase_samples[m_sample_now] = (uint8_t)(mcpwm_foc_get_phase_observer() / 360.0F * 250.0F);
+//				float ang = utils_angle_difference(mcpwm_foc_get_phase_observer(), mcpwm_foc_get_phase_encoder()) + 180.0F;
+//				m_phase_samples[m_sample_now] = (uint8_t)(ang / 360.0F * 250.0F);
 			} else {
 				zero = mcpwm_vzero;
 				m_phase_samples[m_sample_now] = 0;
 			}
 
 			if (state == MC_STATE_DETECTING) {
-				m_curr0_samples[m_sample_now] = (int16_t)(mcpwm_detect_currents[mcpwm_get_comm_step() - 1] * (8.0 / FAC_CURRENT));
-				m_curr1_samples[m_sample_now] = (int16_t)(mcpwm_detect_currents_diff[mcpwm_get_comm_step() - 1] * (8.0 / FAC_CURRENT));
+				m_curr0_samples[m_sample_now] = (int16_t)(mcpwm_detect_currents[mcpwm_get_comm_step() - 1] * (8.0F / FAC_CURRENT));
+				m_curr1_samples[m_sample_now] = (int16_t)(mcpwm_detect_currents_diff[mcpwm_get_comm_step() - 1] * (8.0F / FAC_CURRENT));
 				m_curr2_samples[m_sample_now] = 0;
 
 				m_ph1_samples[m_sample_now] = (int16_t)mcpwm_detect_voltages[0];
@@ -2191,9 +2191,9 @@ __attribute__((aligned(16))) void mc_interface_mc_timer_isr(bool is_second_motor
 						m_curr1_samples[m_sample_now] = ADC_curr_raw[4];
 						m_curr2_samples[m_sample_now] = ADC_curr_raw[5];
 					} else {
-						m_curr0_samples[m_sample_now] = ADC_curr_norm_value[3] * (8.0 / FAC_CURRENT);
-						m_curr1_samples[m_sample_now] = ADC_curr_norm_value[4] * (8.0 / FAC_CURRENT);
-						m_curr2_samples[m_sample_now] = ADC_curr_norm_value[5] * (8.0 / FAC_CURRENT);	
+						m_curr0_samples[m_sample_now] = ADC_curr_norm_value[3] * (8.0F / FAC_CURRENT);
+						m_curr1_samples[m_sample_now] = ADC_curr_norm_value[4] * (8.0F / FAC_CURRENT);
+						m_curr2_samples[m_sample_now] = ADC_curr_norm_value[5] * (8.0F / FAC_CURRENT);
 					}
 
 					m_ph1_samples[m_sample_now] = ADC_V_L4 - zero;
@@ -2205,10 +2205,10 @@ __attribute__((aligned(16))) void mc_interface_mc_timer_isr(bool is_second_motor
 						m_curr1_samples[m_sample_now] = ADC_curr_raw[1];
 						m_curr2_samples[m_sample_now] = ADC_curr_raw[2];
 					} else {
-						m_curr0_samples[m_sample_now] = ADC_curr_norm_value[0] * (8.0 / FAC_CURRENT);
-						m_curr1_samples[m_sample_now] = ADC_curr_norm_value[1] * (8.0 / FAC_CURRENT);
-						m_curr2_samples[m_sample_now] = ADC_curr_norm_value[2] * (8.0 / FAC_CURRENT);
-					}					
+						m_curr0_samples[m_sample_now] = ADC_curr_norm_value[0] * (8.0F / FAC_CURRENT);
+						m_curr1_samples[m_sample_now] = ADC_curr_norm_value[1] * (8.0F / FAC_CURRENT);
+						m_curr2_samples[m_sample_now] = ADC_curr_norm_value[2] * (8.0F / FAC_CURRENT);
+					}
 
 					m_ph1_samples[m_sample_now] = ADC_V_L1 - zero;
 					m_ph2_samples[m_sample_now] = ADC_V_L2 - zero;
@@ -2217,8 +2217,8 @@ __attribute__((aligned(16))) void mc_interface_mc_timer_isr(bool is_second_motor
 			}
 
 			m_vzero_samples[m_sample_now] = zero;
-			m_curr_fir_samples[m_sample_now] = (int16_t)(current * (8.0 / FAC_CURRENT));
-			m_f_sw_samples[m_sample_now] = (int16_t)(0.1 / dt / m_sample_int);
+			m_curr_fir_samples[m_sample_now] = (int16_t)(current * (8.0F / FAC_CURRENT));
+			m_f_sw_samples[m_sample_now] = (int16_t)(0.1F / dt / m_sample_int);
 			m_status_samples[m_sample_now] = mcpwm_get_comm_step() | (mcpwm_read_hall_phase() << 3);
 
 			m_sample_now++;
@@ -2255,8 +2255,8 @@ static void update_override_limits(volatile motor_if_state_t *motor, volatile mc
 	bool is_motor_1 = motor == &m_motor_1;
 
 	const float v_in = motor->m_input_voltage_filtered;
-	float rpm_now = 0.0;
-	float rpm_slow = 0.0; // Slow ERPM for fault codes
+	float rpm_now = 0.0F;
+	float rpm_slow = 0.0F; // Slow ERPM for fault codes
 
 	if (motor->m_conf.motor_type == MOTOR_TYPE_FOC) {
 		// Low latency is important for avoiding oscillations
@@ -2272,12 +2272,12 @@ static void update_override_limits(volatile motor_if_state_t *motor, volatile mc
 	const float duty_now_abs = fabsf(mc_interface_get_duty_cycle_now());
 
 #ifdef HW_HAS_DUAL_PARALLEL
-	UTILS_LP_FAST(motor->m_temp_fet, fmaxf(NTC_TEMP(ADC_IND_TEMP_MOS), NTC_TEMP(ADC_IND_TEMP_MOS_M2)), 0.1);
+	UTILS_LP_FAST(motor->m_temp_fet, fmaxf(NTC_TEMP(ADC_IND_TEMP_MOS), NTC_TEMP(ADC_IND_TEMP_MOS_M2)), 0.1F);
 #else
-	UTILS_LP_FAST(motor->m_temp_fet, NTC_TEMP(is_motor_1 ? ADC_IND_TEMP_MOS : ADC_IND_TEMP_MOS_M2), 0.1);
+	UTILS_LP_FAST(motor->m_temp_fet, NTC_TEMP(is_motor_1 ? ADC_IND_TEMP_MOS : ADC_IND_TEMP_MOS_M2), 0.1F);
 #endif
 
-	float temp_motor = 0.0;
+	float temp_motor = 0.0F;
 
 	switch(conf->m_motor_temp_sens_type) {
 	case TEMP_SENSOR_NTC_10K_25C:
@@ -2289,7 +2289,7 @@ static void update_override_limits(volatile motor_if_state_t *motor, volatile mc
 		break;
 
 	case TEMP_SENSOR_PTC_1K_100C:
-		temp_motor = is_motor_1 ? PTC_TEMP_MOTOR(1000.0, conf->m_ptc_motor_coeff, 100) : PTC_TEMP_MOTOR_2(1000.0, conf->m_ptc_motor_coeff, 100);
+		temp_motor = is_motor_1 ? PTC_TEMP_MOTOR(1000.0F, conf->m_ptc_motor_coeff, 100) : PTC_TEMP_MOTOR_2(1000.0F, conf->m_ptc_motor_coeff, 100);
 		break;
 
 	case TEMP_SENSOR_KTY83_122: {
@@ -2299,14 +2299,14 @@ static void update_override_limits(volatile motor_if_state_t *motor, volatile mc
 		// You can change pull up resistor and update NTC_RES_MOTOR for your hardware without changing polynom
 		float res = NTC_RES_MOTOR(ADC_Value[is_motor_1 ? ADC_IND_TEMP_MOTOR : ADC_IND_TEMP_MOTOR_2]);
 		float pow2 = res * res;
-		temp_motor = 0.0000000102114874947423 * pow2 * res - 0.000069967997703501 * pow2 +
-				0.243402040973194 * res - 160.145048329356;
+		temp_motor = 0.0000000102114874947423F * pow2 * res - 0.000069967997703501F * pow2 +
+				0.243402040973194F * res - 160.145048329356F;
 	} break;
 
 	case TEMP_SENSOR_KTY84_130: {
 		float res = NTC_RES_MOTOR(ADC_Value[is_motor_1 ? ADC_IND_TEMP_MOTOR : ADC_IND_TEMP_MOTOR_2]);
-		temp_motor = -7.82531699e-12 * res * res * res * res + 6.34445902e-8 * res * res * res -
-				0.00020119157  * res * res + 0.407683016 * res - 161.357536;
+		temp_motor = -7.82531699e-12F * res * res * res * res + 6.34445902e-8F * res * res * res -
+				0.00020119157F  * res * res + 0.407683016F * res - 161.357536F;
 	} break;
 
 	case TEMP_SENSOR_NTCX:
@@ -2321,7 +2321,7 @@ static void update_override_limits(volatile motor_if_state_t *motor, volatile mc
 
 	case TEMP_SENSOR_PT1000: {
 		float res = NTC_RES_MOTOR(ADC_Value[is_motor_1 ? ADC_IND_TEMP_MOTOR : ADC_IND_TEMP_MOTOR_2]);
-		temp_motor = -(sqrtf(-0.00232 * res + 17.59246) - 3.908) / 0.00116;
+		temp_motor = -(sqrtf(-0.00232F * res + 17.59246F) - 3.908F) / 0.00116F;
 	} break;
 
 	case TEMP_SENSOR_DISABLED:
@@ -2333,14 +2333,14 @@ static void update_override_limits(volatile motor_if_state_t *motor, volatile mc
 	// invalid value in the filter, as it will never recover. It is probably safest to keep running the
 	// motor even if the temperature reading fails. A config option to reduce power on invalid temperature
 	// readings might be useful.
-	if (UTILS_IS_NAN(temp_motor) || UTILS_IS_INF(temp_motor) || temp_motor > 600.0 || temp_motor < -200.0) {
-		temp_motor = -100.0;
+	if (UTILS_IS_NAN(temp_motor) || UTILS_IS_INF(temp_motor) || temp_motor > 600.0F || temp_motor < -200.0F) {
+		temp_motor = -100.0F;
 	}
 
 	UTILS_LP_FAST(motor->m_temp_motor, temp_motor, MOTOR_TEMP_LPF);
 
 #ifdef HW_HAS_GATE_DRIVER_SUPPLY_MONITOR
-	UTILS_LP_FAST(motor->m_gate_driver_voltage, GET_GATE_DRIVER_SUPPLY_VOLTAGE(), 0.01);
+	UTILS_LP_FAST(motor->m_gate_driver_voltage, GET_GATE_DRIVER_SUPPLY_VOLTAGE(), 0.01F);
 #endif
 
 	const float l_current_min_tmp = conf->l_current_min * conf->l_current_min_scale;
@@ -2349,11 +2349,11 @@ static void update_override_limits(volatile motor_if_state_t *motor, volatile mc
 	// Temperature MOSFET
 	float lo_min_mos = l_current_min_tmp;
 	float lo_max_mos = l_current_max_tmp;
-	if (motor->m_temp_fet < (conf->l_temp_fet_start + 0.1)) {
+	if (motor->m_temp_fet < (conf->l_temp_fet_start + 0.1F)) {
 		// Keep values
-	} else if (motor->m_temp_fet > (conf->l_temp_fet_end - 0.1)) {
-		lo_min_mos = 0.0;
-		lo_max_mos = 0.0;
+	} else if (motor->m_temp_fet > (conf->l_temp_fet_end - 0.1F)) {
+		lo_min_mos = 0.0F;
+		lo_max_mos = 0.0F;
 		mc_interface_fault_stop(FAULT_CODE_OVER_TEMP_FET, !is_motor_1, false);
 	} else {
 		float maxc = fabsf(l_current_max_tmp);
@@ -2361,7 +2361,7 @@ static void update_override_limits(volatile motor_if_state_t *motor, volatile mc
 			maxc = fabsf(l_current_min_tmp);
 		}
 
-		maxc = utils_map(motor->m_temp_fet, conf->l_temp_fet_start, conf->l_temp_fet_end, maxc, 0.0);
+		maxc = utils_map(motor->m_temp_fet, conf->l_temp_fet_start, conf->l_temp_fet_end, maxc, 0.0F);
 
 		if (fabsf(l_current_min_tmp) > maxc) {
 			lo_min_mos = SIGN(l_current_min_tmp) * maxc;
@@ -2375,11 +2375,11 @@ static void update_override_limits(volatile motor_if_state_t *motor, volatile mc
 	// Temperature MOTOR
 	float lo_min_mot = l_current_min_tmp;
 	float lo_max_mot = l_current_max_tmp;
-	if (motor->m_temp_motor < (conf->l_temp_motor_start + 0.1)) {
+	if (motor->m_temp_motor < (conf->l_temp_motor_start + 0.1F)) {
 		// Keep values
-	} else if (motor->m_temp_motor > (conf->l_temp_motor_end - 0.1)) {
-		lo_min_mot = 0.0;
-		lo_max_mot = 0.0;
+	} else if (motor->m_temp_motor > (conf->l_temp_motor_end - 0.1F)) {
+		lo_min_mot = 0.0F;
+		lo_max_mot = 0.0F;
 		mc_interface_fault_stop(FAULT_CODE_OVER_TEMP_MOTOR, !is_motor_1, false);
 	} else {
 		float maxc = fabsf(l_current_max_tmp);
@@ -2387,7 +2387,7 @@ static void update_override_limits(volatile motor_if_state_t *motor, volatile mc
 			maxc = fabsf(l_current_min_tmp);
 		}
 
-		maxc = utils_map(motor->m_temp_motor, conf->l_temp_motor_start, conf->l_temp_motor_end, maxc, 0.0);
+		maxc = utils_map(motor->m_temp_motor, conf->l_temp_motor_start, conf->l_temp_motor_end, maxc, 0.0F);
 
 		if (fabsf(l_current_min_tmp) > maxc) {
 			lo_min_mot = SIGN(l_current_min_tmp) * maxc;
@@ -2400,53 +2400,53 @@ static void update_override_limits(volatile motor_if_state_t *motor, volatile mc
 
 	// Decreased temperatures during acceleration
 	// in order to still have braking torque available
-	const float temp_fet_accel_start = utils_map(conf->l_temp_accel_dec, 0.0, 1.0, conf->l_temp_fet_start, 25.0);
-	const float temp_fet_accel_end = utils_map(conf->l_temp_accel_dec, 0.0, 1.0, conf->l_temp_fet_end, 25.0);
-	const float temp_motor_accel_start = utils_map(conf->l_temp_accel_dec, 0.0, 1.0, conf->l_temp_motor_start, 25.0);
-	const float temp_motor_accel_end = utils_map(conf->l_temp_accel_dec, 0.0, 1.0, conf->l_temp_motor_end, 25.0);
+	const float temp_fet_accel_start = utils_map(conf->l_temp_accel_dec, 0.0F, 1.0F, conf->l_temp_fet_start, 25.0F);
+	const float temp_fet_accel_end = utils_map(conf->l_temp_accel_dec, 0.0F, 1.0F, conf->l_temp_fet_end, 25.0F);
+	const float temp_motor_accel_start = utils_map(conf->l_temp_accel_dec, 0.0F, 1.0F, conf->l_temp_motor_start, 25.0F);
+	const float temp_motor_accel_end = utils_map(conf->l_temp_accel_dec, 0.0F, 1.0F, conf->l_temp_motor_end, 25.0F);
 
-	float lo_fet_temp_accel = 0.0;
-	if (motor->m_temp_fet < (temp_fet_accel_start + 0.1)) {
+	float lo_fet_temp_accel = 0.0F;
+	if (motor->m_temp_fet < (temp_fet_accel_start + 0.1F)) {
 		lo_fet_temp_accel = l_current_max_tmp;
-	} else if (motor->m_temp_fet > (temp_fet_accel_end - 0.1)) {
-		lo_fet_temp_accel = 0.0;
+	} else if (motor->m_temp_fet > (temp_fet_accel_end - 0.1F)) {
+		lo_fet_temp_accel = 0.0F;
 	} else {
 		lo_fet_temp_accel = utils_map(motor->m_temp_fet, temp_fet_accel_start,
-				temp_fet_accel_end, l_current_max_tmp, 0.0);
+				temp_fet_accel_end, l_current_max_tmp, 0.0F);
 	}
 
-	float lo_motor_temp_accel = 0.0;
-	if (motor->m_temp_motor < (temp_motor_accel_start + 0.1)) {
+	float lo_motor_temp_accel = 0.0F;
+	if (motor->m_temp_motor < (temp_motor_accel_start + 0.1F)) {
 		lo_motor_temp_accel = l_current_max_tmp;
-	} else if (motor->m_temp_motor > (temp_motor_accel_end - 0.1)) {
-		lo_motor_temp_accel = 0.0;
+	} else if (motor->m_temp_motor > (temp_motor_accel_end - 0.1F)) {
+		lo_motor_temp_accel = 0.0F;
 	} else {
 		lo_motor_temp_accel = utils_map(motor->m_temp_motor, temp_motor_accel_start,
-				temp_motor_accel_end, l_current_max_tmp, 0.0);
+				temp_motor_accel_end, l_current_max_tmp, 0.0F);
 	}
 
 	// RPM max
-	float lo_max_rpm = 0.0;
+	float lo_max_rpm = 0.0F;
 	const float rpm_pos_cut_start = conf->l_max_erpm * conf->l_erpm_start;
 	const float rpm_pos_cut_end = conf->l_max_erpm;
-	if (rpm_now < (rpm_pos_cut_start + 0.1)) {
+	if (rpm_now < (rpm_pos_cut_start + 0.1F)) {
 		lo_max_rpm = l_current_max_tmp;
-	} else if (rpm_now > (rpm_pos_cut_end - 0.1)) {
-		lo_max_rpm = 0.0;
+	} else if (rpm_now > (rpm_pos_cut_end - 0.1F)) {
+		lo_max_rpm = 0.0F;
 	} else {
-		lo_max_rpm = utils_map(rpm_now, rpm_pos_cut_start, rpm_pos_cut_end, l_current_max_tmp, 0.0);
+		lo_max_rpm = utils_map(rpm_now, rpm_pos_cut_start, rpm_pos_cut_end, l_current_max_tmp, 0.0F);
 	}
 
 	// RPM min
-	float lo_min_rpm = 0.0;
+	float lo_min_rpm = 0.0F;
 	const float rpm_neg_cut_start = conf->l_min_erpm * conf->l_erpm_start;
 	const float rpm_neg_cut_end = conf->l_min_erpm;
-	if (rpm_now > (rpm_neg_cut_start - 0.1)) {
+	if (rpm_now > (rpm_neg_cut_start - 0.1F)) {
 		lo_min_rpm = l_current_max_tmp;
-	} else if (rpm_now < (rpm_neg_cut_end + 0.1)) {
-		lo_min_rpm = 0.0;
+	} else if (rpm_now < (rpm_neg_cut_end + 0.1F)) {
+		lo_min_rpm = 0.0F;
 	} else {
-		lo_min_rpm = utils_map(rpm_now, rpm_neg_cut_start, rpm_neg_cut_end, l_current_max_tmp, 0.0);
+		lo_min_rpm = utils_map(rpm_now, rpm_neg_cut_start, rpm_neg_cut_end, l_current_max_tmp, 0.0F);
 	}
 
 	// RPM Faults
@@ -2468,12 +2468,12 @@ static void update_override_limits(volatile motor_if_state_t *motor, volatile mc
 	}
 
 	// Duty max
-	float lo_max_duty = 0.0;
-	if (duty_now_abs < (conf->l_duty_start * conf->l_max_duty) || conf->l_duty_start > 0.99) {
+	float lo_max_duty = 0.0F;
+	if (duty_now_abs < (conf->l_duty_start * conf->l_max_duty) || conf->l_duty_start > 0.99F) {
 		lo_max_duty = l_current_max_tmp;
 	} else {
 		lo_max_duty = utils_map(duty_now_abs, (conf->l_duty_start * conf->l_max_duty),
-				conf->l_max_duty, l_current_max_tmp, conf->cc_min_current * 5.0);
+				conf->l_max_duty, l_current_max_tmp, conf->cc_min_current * 5.0F);
 	}
 
 	// Input current limits
@@ -2522,15 +2522,15 @@ static void update_override_limits(volatile motor_if_state_t *motor, volatile mc
 	// input current from id and iq.
 
 	float lo_max_i_in = l_current_max_tmp;
-	if (motor->m_i_in_filter > 0.0 && conf->l_in_current_map_start < 0.98) {
+	if (motor->m_i_in_filter > 0.0F && conf->l_in_current_map_start < 0.98F) {
 		float frac = motor->m_i_in_filter / conf->lo_in_current_max;
 		if (frac > conf->l_in_current_map_start) {
 			lo_max_i_in = utils_map(frac, conf->l_in_current_map_start,
-					1.0, l_current_max_tmp, 0.0);
+					1.0F, l_current_max_tmp, 0.0F);
 		}
 
-		if (lo_max_i_in < 0.0) {
-			lo_max_i_in = 0.0;
+		if (lo_max_i_in < 0.0F) {
+			lo_max_i_in = 0.0F;
 		}
 	}
 
@@ -2569,10 +2569,10 @@ static void run_timer_tasks(volatile motor_if_state_t *motor) {
 	bool is_motor_1 = motor == &m_motor_1;
 	mc_interface_select_motor_thread(is_motor_1 ? 1 : 2);
 
-	float voltage_fc = powf(2.0, -(float)motor->m_conf.m_batt_filter_const * 0.25);
+	float voltage_fc = powf(2.0F, -(float)motor->m_conf.m_batt_filter_const * 0.25F);
 	if (UTILS_AGE_S(0) < 10) {
 		// Run the filter faster in the beginning to avoid convergence latency at boot
-		voltage_fc = 0.01;
+		voltage_fc = 0.01F;
 	}
 	UTILS_LP_FAST(motor->m_input_voltage_filtered_slower, motor->m_input_voltage_filtered, voltage_fc);
 
@@ -2662,29 +2662,29 @@ static void run_timer_tasks(volatile motor_if_state_t *motor) {
 			break;
 
 		case OUT_AUX_MODE_MOTOR_50:
-			if (mc_interface_temp_motor_filtered() > 50.0) {AUX_ON();} else {AUX_OFF();}
+			if (mc_interface_temp_motor_filtered() > 50.0F) {AUX_ON();} else {AUX_OFF();}
 			break;
 
 		case OUT_AUX_MODE_MOSFET_50:
-			if (mc_interface_temp_fet_filtered() > 50.0) {AUX_ON();} else {AUX_OFF();}
+			if (mc_interface_temp_fet_filtered() > 50.0F) {AUX_ON();} else {AUX_OFF();}
 			break;
 
 		case OUT_AUX_MODE_MOTOR_70:
-			if (mc_interface_temp_motor_filtered() > 70.0) {AUX_ON();} else {AUX_OFF();}
+			if (mc_interface_temp_motor_filtered() > 70.0F) {AUX_ON();} else {AUX_OFF();}
 			break;
 
 		case OUT_AUX_MODE_MOSFET_70:
-			if (mc_interface_temp_fet_filtered() > 70.0) {AUX_ON();} else {AUX_OFF();}
+			if (mc_interface_temp_fet_filtered() > 70.0F) {AUX_ON();} else {AUX_OFF();}
 			break;
 
 		case OUT_AUX_MODE_MOTOR_MOSFET_50:
-			if (mc_interface_temp_motor_filtered() > 50.0 ||
-					mc_interface_temp_fet_filtered() > 50.0) {AUX_ON();} else {AUX_OFF();}
+			if (mc_interface_temp_motor_filtered() > 50.0F ||
+					mc_interface_temp_fet_filtered() > 50.0F) {AUX_ON();} else {AUX_OFF();}
 			break;
 
 		case OUT_AUX_MODE_MOTOR_MOSFET_70:
-			if (mc_interface_temp_motor_filtered() > 70.0 ||
-					mc_interface_temp_fet_filtered() > 70.0) {AUX_ON();} else {AUX_OFF();}
+			if (mc_interface_temp_motor_filtered() > 70.0F ||
+					mc_interface_temp_fet_filtered() > 70.0F) {AUX_ON();} else {AUX_OFF();}
 			break;
 		}
 	}
@@ -2730,7 +2730,7 @@ static void run_timer_tasks(volatile motor_if_state_t *motor) {
 	bool too_high_duty_for_unbalance_check = false;
 #else
 	const float duty_now_abs = fabsf(mc_interface_get_duty_cycle_now());
-	bool too_high_duty_for_unbalance_check = duty_now_abs > 0.8;
+	bool too_high_duty_for_unbalance_check = duty_now_abs > 0.8F;
 #endif
 
 	if (motor->m_conf.foc_current_sample_mode != FOC_CURRENT_SAMPLE_MODE_HIGH_CURRENT  &&
@@ -2738,9 +2738,9 @@ static void run_timer_tasks(volatile motor_if_state_t *motor) {
 		motor->m_motor_current_unbalance = mc_interface_get_abs_motor_current_unbalance();
 
 		if (fabsf(motor->m_motor_current_unbalance) > fabsf(MCCONF_MAX_CURRENT_UNBALANCE)) {
-			UTILS_LP_FAST(motor->m_motor_current_unbalance_error_rate, 1.0, (1 / 1000.0));
+			UTILS_LP_FAST(motor->m_motor_current_unbalance_error_rate, 1.0F, (1 / 1000.0F));
 		} else {
-			UTILS_LP_FAST(motor->m_motor_current_unbalance_error_rate, 0.0, (1 / 1000.0));
+			UTILS_LP_FAST(motor->m_motor_current_unbalance_error_rate, 0.0F, (1 / 1000.0F));
 		}
 
 		if (motor->m_motor_current_unbalance_error_rate > MCCONF_MAX_CURRENT_UNBALANCE_RATE) {
@@ -2784,7 +2784,7 @@ static void update_stats(volatile motor_if_state_t *motor) {
 	motor->m_stats.temp_mos_sum += temp_mos;
 	motor->m_stats.temp_motor_sum += temp_mot;
 	motor->m_stats.current_sum += fabs((double)(val.current_tot));
-	motor->m_stats.samples += (double)1.0;
+	motor->m_stats.samples += (double)1.0F;
 
 	if (power > (double)motor->m_stats.max_power) {
 		motor->m_stats.max_power = power;
@@ -2865,8 +2865,8 @@ void mc_interface_stat_reset(void) {
 	volatile setup_stats *s = &motor_now()->m_stats;
 	memset((void*)s, 0, sizeof(setup_stats));
 	s->time_start = chVTGetSystemTimeX();
-	s->max_temp_mos = -300.0;
-	s->max_temp_motor = -300.0;
+	s->max_temp_mos = -300.0F;
+	s->max_temp_motor = -300.0F;
 }
 
 static THD_FUNCTION(stat_thread, arg) {
@@ -2911,17 +2911,17 @@ static void send_sample_block(int ind, int offset) {
 		buffer_append_float32_auto(buffer, (float)m_vzero_samples[ind_samp], &index);
 		buffer_append_float32_auto(buffer, (float)m_curr_fir_samples[ind_samp], &index);
 	} else {
-		buffer_append_float32_auto(buffer, (float)m_curr0_samples[ind_samp] / (8.0 / FAC_CURRENT), &index);
-		buffer_append_float32_auto(buffer, (float)m_curr1_samples[ind_samp] / (8.0 / FAC_CURRENT), &index);
-		buffer_append_float32_auto(buffer, (float)m_curr2_samples[ind_samp] / (8.0 / FAC_CURRENT), &index);
-		buffer_append_float32_auto(buffer, ((float)m_ph1_samples[ind_samp] / 4096.0 * V_REG) * ((VIN_R1 + VIN_R2) / VIN_R2) * ADC_VOLTS_PH_FACTOR, &index);
-		buffer_append_float32_auto(buffer, ((float)m_ph2_samples[ind_samp] / 4096.0 * V_REG) * ((VIN_R1 + VIN_R2) / VIN_R2) * ADC_VOLTS_PH_FACTOR, &index);
-		buffer_append_float32_auto(buffer, ((float)m_ph3_samples[ind_samp] / 4096.0 * V_REG) * ((VIN_R1 + VIN_R2) / VIN_R2) * ADC_VOLTS_PH_FACTOR, &index);
-		buffer_append_float32_auto(buffer, ((float)m_vzero_samples[ind_samp] / 4096.0 * V_REG) * ((VIN_R1 + VIN_R2) / VIN_R2) * ADC_VOLTS_INPUT_FACTOR, &index);
-		buffer_append_float32_auto(buffer, (float)m_curr_fir_samples[ind_samp] / (8.0 / FAC_CURRENT), &index);
+		buffer_append_float32_auto(buffer, (float)m_curr0_samples[ind_samp] / (8.0F / FAC_CURRENT), &index);
+		buffer_append_float32_auto(buffer, (float)m_curr1_samples[ind_samp] / (8.0F / FAC_CURRENT), &index);
+		buffer_append_float32_auto(buffer, (float)m_curr2_samples[ind_samp] / (8.0F / FAC_CURRENT), &index);
+		buffer_append_float32_auto(buffer, ((float)m_ph1_samples[ind_samp] / 4096.0F * V_REG) * ((VIN_R1 + VIN_R2) / VIN_R2) * ADC_VOLTS_PH_FACTOR, &index);
+		buffer_append_float32_auto(buffer, ((float)m_ph2_samples[ind_samp] / 4096.0F * V_REG) * ((VIN_R1 + VIN_R2) / VIN_R2) * ADC_VOLTS_PH_FACTOR, &index);
+		buffer_append_float32_auto(buffer, ((float)m_ph3_samples[ind_samp] / 4096.0F * V_REG) * ((VIN_R1 + VIN_R2) / VIN_R2) * ADC_VOLTS_PH_FACTOR, &index);
+		buffer_append_float32_auto(buffer, ((float)m_vzero_samples[ind_samp] / 4096.0F * V_REG) * ((VIN_R1 + VIN_R2) / VIN_R2) * ADC_VOLTS_INPUT_FACTOR, &index);
+		buffer_append_float32_auto(buffer, (float)m_curr_fir_samples[ind_samp] / (8.0F / FAC_CURRENT), &index);
 	}
 
-	buffer_append_float32_auto(buffer, (float)m_f_sw_samples[ind_samp] * 10.0, &index);
+	buffer_append_float32_auto(buffer, (float)m_f_sw_samples[ind_samp] * 10.0F, &index);
 	buffer[index++] = m_status_samples[ind_samp];
 	buffer[index++] = m_phase_samples[ind_samp];
 	buffer_append_int32(buffer, ind, &index);
@@ -3071,7 +3071,7 @@ static THD_FUNCTION(fault_stop_thread, arg) {
  *
  * @param is_motor_2
  * true if motor2, false if motor1
- * 
+ *
  * @return
  * CRC16 (with crc field in struct temporarily set to zero).
  */

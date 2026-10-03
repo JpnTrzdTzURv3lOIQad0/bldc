@@ -21,7 +21,7 @@
 #define HW_FLIPSKY_110_400_H_
 
 #define HW_FLIPSKY_110_400
-#define CURRENT_AMP_GAIN		18.0
+#define CURRENT_AMP_GAIN		18.0F
 #define MCCONF_L_MAX_ABS_CURRENT		550.0F	// The maximum absolute current above which a fault is generated
 #include "hw_flipsky_110_core.h"
 

@@ -695,7 +695,7 @@ EM_JS(void, js_sim_adc_set, (const char *pin, double value), {
 EM_JS(double, js_sim_adc_get, (const char *pin), {
   if (typeof window.simAdcGet === 'function')
     return window.simAdcGet(UTF8ToString(pin));
-  return 0.0;
+  return 0.0F;
 });
 
 static lbm_value ext_sim_gpio_write(lbm_value *args, lbm_uint argn) {

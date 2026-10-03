@@ -116,10 +116,10 @@
 #define SERVO_OUT_RATE_HZ			50		// Update rate in Hz
 
 // Correction factor for computations that depend on the old resistor division factor
-#define VDIV_CORR					((VIN_R2 / (VIN_R2 + VIN_R1)) / (2.2 / (2.2 + 33.0)))
+#define VDIV_CORR					((VIN_R2 / (VIN_R2 + VIN_R1)) / (2.2F / (2.2F + 33.0F)))
 
 // Current ADC to amperes factor
-#define FAC_CURRENT					((V_REG / 4095.0) / (CURRENT_SHUNT_RES * CURRENT_AMP_GAIN))
+#define FAC_CURRENT					((V_REG / 4095.0F) / (CURRENT_SHUNT_RES * CURRENT_AMP_GAIN))
 #define FAC_CURRENT1				(FAC_CURRENT * CURRENT_CAL1)
 #define FAC_CURRENT2				(FAC_CURRENT * CURRENT_CAL2)
 #define FAC_CURRENT3				(FAC_CURRENT * CURRENT_CAL3)
@@ -127,11 +127,11 @@
 #define FAC_CURRENT2_M2				(FAC_CURRENT * CURRENT_CAL2_M2)
 #define FAC_CURRENT3_M2				(FAC_CURRENT * CURRENT_CAL3_M2)
 
-#define VOLTAGE_TO_ADC_FACTOR	( VIN_R2 / (VIN_R2 + VIN_R1) ) * ( 4096.0 / V_REG )
+#define VOLTAGE_TO_ADC_FACTOR	( VIN_R2 / (VIN_R2 + VIN_R1) ) * ( 4096.0F / V_REG )
 
 // Actual voltage on 3.3V net based on internal reference
-//#define V_REG						(1.21 / ((float)ADC_Value[ADC_IND_VREFINT] / 4095.0))
-//#define V_REG						3.3
+//#define V_REG						(1.21F / ((float)ADC_Value[ADC_IND_VREFINT] / 4095.0F))
+//#define V_REG						3.3F
 
 // Use the pins for the hardware SPI port instead of the hall/encoder pins for the AS5047
 #ifndef AS504x_USE_SW_MOSI_PIN

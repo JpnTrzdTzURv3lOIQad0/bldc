@@ -229,7 +229,7 @@
 #define MCCONF_FOC_D_GAIN_SCALE_START 1
 
 // D Axis Gain Scaling at Max Mod
-#define MCCONF_FOC_D_GAIN_SCALE_MAX_MOD 0.2
+#define MCCONF_FOC_D_GAIN_SCALE_MAX_MOD 0.2F
 
 // Openloop Hysteresis
 #define MCCONF_FOC_SL_OPENLOOP_HYST 0.1F

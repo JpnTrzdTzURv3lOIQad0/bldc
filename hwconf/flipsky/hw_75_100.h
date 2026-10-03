@@ -20,7 +20,7 @@
 // STM32F405 RGT6 78628 9R PHL 7B 12(standard)
 // LM5161 100v Buck Converter
 // m50 resistors for battery side current measuring, one per phase. 0.50mOhms (3 total)
-	
+
 #ifndef HW_75_100_H_
 #define HW_75_100_H_
 
@@ -30,7 +30,7 @@
 #define HW_HAS_3_SHUNTS
 
 
-// Macros  
+// Macros
 #define LED_GREEN_GPIO			GPIOB
 #define LED_GREEN_PIN			5
 #define LED_RED_GPIO			GPIOB
@@ -103,38 +103,38 @@
 
 // Component parameters (can be overridden)
 #ifndef V_REG
-#define V_REG					3.3 // (jaykup) updated from measurement
+#define V_REG					3.3F // (jaykup) updated from measurement
 #endif
 #ifndef VIN_R1
-#define VIN_R1					39000.0 // (jaykup) updated 393 SMD code, 38,800 measured
+#define VIN_R1					39000.0F // (jaykup) updated 393 SMD code, 38,800 measured
 #endif
 #ifndef VIN_R2
-#define VIN_R2					1000.0 // (jaykup) updated 01B code, 1k measured
+#define VIN_R2					1000.0F // (jaykup) updated 01B code, 1k measured
 #endif
 #ifndef CURRENT_AMP_GAIN
-#define CURRENT_AMP_GAIN		20.0 // (jaykup) from current sense amp datasheet
+#define CURRENT_AMP_GAIN		20.0F // (jaykup) from current sense amp datasheet
 #endif
 #ifndef CURRENT_SHUNT_RES
-#define CURRENT_SHUNT_RES		0.0005 // (jaykup) updated
+#define CURRENT_SHUNT_RES		0.0005F // (jaykup) updated
 #endif
 
 // Input voltage
-#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
+#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0F) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
 
 // NTC Termistors
-#define NTC_RES(adc_val)		((4095.0 * 10000.0) / adc_val - 10000.0)
+#define NTC_RES(adc_val)		((4095.0F * 10000.0F) / adc_val - 10000.0F)
 
-// (jaykup) Measured 10k NTC at 3307 beta (11.7kOhm @ 70F, 21.4kOhm @ 43F) 
+// (jaykup) Measured 10k NTC at 3307 beta (11.7kOhm @ 70F, 21.4kOhm @ 43F)
 // (jaykup) Updated to 3380 based on @ypl's firmware https://github.com/1611048264/vesc/blob/main/hw_75_100.h
 // (jaykup) 273 is C to K conversion
-#define NTC_TEMP(adc_ind)		(1.0 / ((logf(NTC_RES(ADC_Value[adc_ind]) / 10000.0) / 3380.0) + (1.0 / 298.15)) - 273.15)
+#define NTC_TEMP(adc_ind)		(1.0F / ((logf(NTC_RES(ADC_Value[adc_ind]) / 10000.0F) / 3380.0F) + (1.0F / 298.15F)) - 273.15F)
 
 
-#define NTC_RES_MOTOR(adc_val)	(10000.0 / ((4095.0 / (float)adc_val) - 1.0)) // Motor temp sensor on low side
-#define NTC_TEMP_MOTOR(beta)	(1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0) / beta) + (1.0 / 298.15)) - 273.15)
+#define NTC_RES_MOTOR(adc_val)	(10000.0F / ((4095.0F / (float)adc_val) - 1.0F)) // Motor temp sensor on low side
+#define NTC_TEMP_MOTOR(beta)	(1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0F) / beta) + (1.0F / 298.15F)) - 273.15F)
 
 // Voltage on ADC channel
-#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4096.0 * V_REG)
+#define ADC_VOLTS(ch)			((float)ADC_Value[ch] / 4096.0F * V_REG)
 
 // Double samples in beginning and end for positive current measurement.
 // Useful when the shunt sense traces have noise that causes offset.
@@ -236,7 +236,7 @@
 #define READ_HALL3()			palReadPad(HW_HALL_ENC_GPIO3, HW_HALL_ENC_PIN3)
 
 // Override dead time. See the stm32f4 reference manual for calculating this value.
-#define HW_DEAD_TIME_NSEC		660.0
+#define HW_DEAD_TIME_NSEC		660.0F
 
 // Default setting overrides
 #ifndef MCCONF_L_MIN_VOLTAGE
@@ -282,13 +282,13 @@
 #endif
 
 // Setting limits
-#define HW_LIM_CURRENT			-120.0, 120.0 // (jaykup) phase amps (Flipsky states 120 max phase amps.)
-#define HW_LIM_CURRENT_IN		-120.0, 120.0 // (jaykup) battery amps (Flipsky states 100 max battery amps, but their firmware is at 120A)
-#define HW_LIM_CURRENT_ABS		0.0, 160.0 // (jaykup) abs phase amps (Flipsky firmware max is 160A)
-#define HW_LIM_VIN				6.0, 120.0 // (jaykup) (ypl firmware)
-#define HW_LIM_ERPM				-200e3, 200e3 // (jaykup) (flipsky firmware)
-#define HW_LIM_DUTY_MIN			0.0, 0.1
-#define HW_LIM_DUTY_MAX			0.0, 0.99
-#define HW_LIM_TEMP_FET			-40.0, 110.0
+#define HW_LIM_CURRENT			-120.0F, 120.0F // (jaykup) phase amps (Flipsky states 120 max phase amps.)
+#define HW_LIM_CURRENT_IN		-120.0F, 120.0F // (jaykup) battery amps (Flipsky states 100 max battery amps, but their firmware is at 120A)
+#define HW_LIM_CURRENT_ABS		0.0F, 160.0F // (jaykup) abs phase amps (Flipsky firmware max is 160A)
+#define HW_LIM_VIN				6.0F, 120.0F // (jaykup) (ypl firmware)
+#define HW_LIM_ERPM				-200e3F, 200e3F // (jaykup) (flipsky firmware)
+#define HW_LIM_DUTY_MIN			0.0F, 0.1F
+#define HW_LIM_DUTY_MAX			0.0F, 0.99F
+#define HW_LIM_TEMP_FET			-40.0F, 110.0F
 
 #endif /* HW_75_100_H_ */

@@ -284,35 +284,35 @@
 
 // VCC net voltage
 #ifndef V_REG
-#define V_REG				3.3
+#define V_REG				3.3F
 #endif
 
 // Individual MOSFET temperature sensors. Override if available.
 #ifndef NTC_TEMP_MOS1
-#define NTC_TEMP_MOS1()		0.0
+#define NTC_TEMP_MOS1()		0.0F
 #endif
 #ifndef NTC_TEMP_MOS2
-#define NTC_TEMP_MOS2()		0.0
+#define NTC_TEMP_MOS2()		0.0F
 #endif
 #ifndef NTC_TEMP_MOS3
-#define NTC_TEMP_MOS3()		0.0
+#define NTC_TEMP_MOS3()		0.0F
 #endif
 
 #ifndef NTC_TEMP_MOS1_M2
-#define NTC_TEMP_MOS1_M2()	0.0
+#define NTC_TEMP_MOS1_M2()	0.0F
 #endif
 #ifndef NTC_TEMP_MOS2_M2
-#define NTC_TEMP_MOS2_M2()	0.0
+#define NTC_TEMP_MOS2_M2()	0.0F
 #endif
 #ifndef NTC_TEMP_MOS3_M2
-#define NTC_TEMP_MOS3_M2()	0.0
+#define NTC_TEMP_MOS3_M2()	0.0F
 #endif
 
 #ifndef TEMP_MOTOR_1
-#define TEMP_MOTOR_1(beta)	0.0
+#define TEMP_MOTOR_1(beta)	0.0F
 #endif
 #ifndef TEMP_MOTOR_2
-#define TEMP_MOTOR_2(beta)	0.0
+#define TEMP_MOTOR_2(beta)	0.0F
 #endif
 
 // Sin/Cos Encoder Signals. Override if available
@@ -320,7 +320,7 @@
 #if defined(ADC_IND_EXT) && defined(ADC_VOLTS)
 #define ENCODER_SIN_VOLTS		ADC_VOLTS(ADC_IND_EXT)
 #else
-#define ENCODER_SIN_VOLTS		0.0
+#define ENCODER_SIN_VOLTS		0.0F
 #endif
 #endif
 
@@ -328,14 +328,14 @@
 #if defined(ADC_IND_EXT2) && defined(ADC_VOLTS)
 #define ENCODER_COS_VOLTS		ADC_VOLTS(ADC_IND_EXT2)
 #else
-#define ENCODER_COS_VOLTS		0.0
+#define ENCODER_COS_VOLTS		0.0F
 #endif
 #endif
 
 // Current ADC macros. Override them for custom current measurement functions.
 #ifndef GET_CURRENT1
 #ifdef INVERTED_SHUNT_POLARITY
-#define GET_CURRENT1()		(4095.0 - (float)ADC_Value[ADC_IND_CURR1])
+#define GET_CURRENT1()		(4095.0F - (float)ADC_Value[ADC_IND_CURR1])
 #else
 #define GET_CURRENT1()		((float)ADC_Value[ADC_IND_CURR1])
 #endif
@@ -343,7 +343,7 @@
 
 #ifndef GET_CURRENT2
 #ifdef INVERTED_SHUNT_POLARITY
-#define GET_CURRENT2()		(4095.0 - (float)ADC_Value[ADC_IND_CURR2])
+#define GET_CURRENT2()		(4095.0F - (float)ADC_Value[ADC_IND_CURR2])
 #else
 #define GET_CURRENT2()		((float)ADC_Value[ADC_IND_CURR2])
 #endif
@@ -353,7 +353,7 @@
 #ifndef GET_CURRENT3
 #ifdef ADC_IND_CURR3
 #ifdef INVERTED_SHUNT_POLARITY
-#define GET_CURRENT3()		(4095.0 - (float)ADC_Value[ADC_IND_CURR3])
+#define GET_CURRENT3()		(4095.0F - (float)ADC_Value[ADC_IND_CURR3])
 #else
 #define GET_CURRENT3()		((float)ADC_Value[ADC_IND_CURR3])
 #endif
@@ -372,7 +372,7 @@
 #ifndef GET_CURRENT1_M2
 #ifdef ADC_IND_CURR4
 #ifdef INVERTED_SHUNT_POLARITY
-#define GET_CURRENT1_M2()	(4095.0 - (float)ADC_Value[ADC_IND_CURR4])
+#define GET_CURRENT1_M2()	(4095.0F - (float)ADC_Value[ADC_IND_CURR4])
 #else
 #define GET_CURRENT1_M2()	((float)ADC_Value[ADC_IND_CURR4])
 #endif
@@ -385,7 +385,7 @@
 #ifndef GET_CURRENT2_M2
 #ifdef ADC_IND_CURR5
 #ifdef INVERTED_SHUNT_POLARITY
-#define GET_CURRENT2_M2()	(4095.0 - (float)ADC_Value[ADC_IND_CURR5])
+#define GET_CURRENT2_M2()	(4095.0F - (float)ADC_Value[ADC_IND_CURR5])
 #else
 #define GET_CURRENT2_M2()	((float)ADC_Value[ADC_IND_CURR5])
 #endif
@@ -399,7 +399,7 @@
 #ifndef GET_CURRENT3_M2
 #ifdef ADC_IND_CURR6
 #ifdef INVERTED_SHUNT_POLARITY
-#define GET_CURRENT3_M2()	(4095.0 - (float)ADC_Value[ADC_IND_CURR6])
+#define GET_CURRENT3_M2()	(4095.0F - (float)ADC_Value[ADC_IND_CURR6])
 #else
 #define GET_CURRENT3_M2()	((float)ADC_Value[ADC_IND_CURR6])
 #endif
@@ -416,22 +416,22 @@
 #endif
 
 #ifndef CURRENT_CAL1
-#define CURRENT_CAL1				1.0
+#define CURRENT_CAL1				1.0F
 #endif
 #ifndef CURRENT_CAL2
-#define CURRENT_CAL2				1.0
+#define CURRENT_CAL2				1.0F
 #endif
 #ifndef CURRENT_CAL3
-#define CURRENT_CAL3				1.0
+#define CURRENT_CAL3				1.0F
 #endif
 #ifndef CURRENT_CAL1_M2
-#define CURRENT_CAL1_M2				1.0
+#define CURRENT_CAL1_M2				1.0F
 #endif
 #ifndef CURRENT_CAL2_M2
-#define CURRENT_CAL2_M2				1.0
+#define CURRENT_CAL2_M2				1.0F
 #endif
 #ifndef CURRENT_CAL3_M2
-#define CURRENT_CAL3_M2				1.0
+#define CURRENT_CAL3_M2				1.0F
 #endif
 
 #ifndef HW_MAX_CURRENT_OFFSET
@@ -441,14 +441,14 @@
 #define MCCONF_MAX_CURRENT_UNBALANCE		(FAC_CURRENT * 512)
 #endif
 #ifndef MCCONF_MAX_CURRENT_UNBALANCE_RATE
-#define MCCONF_MAX_CURRENT_UNBALANCE_RATE	0.3
+#define MCCONF_MAX_CURRENT_UNBALANCE_RATE	0.3F
 #endif
 
 #ifndef HW_LIM_DUTY_MIN
-#define HW_LIM_DUTY_MIN			0.0, 0.1
+#define HW_LIM_DUTY_MIN			0.0F, 0.1F
 #endif
 #ifndef HW_LIM_DUTY_MAX
-#define HW_LIM_DUTY_MAX			0.0, 1.0
+#define HW_LIM_DUTY_MAX			0.0F, 1.0F
 #endif
 
 // ADC Channels
@@ -476,30 +476,30 @@
 
 // Voltage on phase input used for FOC
 #ifndef ADC_V_L1_VOLTS
-#define ADC_V_L1_VOLTS				((float)ADC_V_L1 / 4096.0 * V_REG)
+#define ADC_V_L1_VOLTS				((float)ADC_V_L1 / 4096.0F * V_REG)
 #endif
 #ifndef ADC_V_L2_VOLTS
-#define ADC_V_L2_VOLTS				((float)ADC_V_L2 / 4096.0 * V_REG)
+#define ADC_V_L2_VOLTS				((float)ADC_V_L2 / 4096.0F * V_REG)
 #endif
 #ifndef ADC_V_L3_VOLTS
-#define ADC_V_L3_VOLTS				((float)ADC_V_L3 / 4096.0 * V_REG)
+#define ADC_V_L3_VOLTS				((float)ADC_V_L3 / 4096.0F * V_REG)
 #endif
 #ifndef ADC_V_L4_VOLTS
-#define ADC_V_L4_VOLTS				((float)ADC_V_L4 / 4096.0 * V_REG)
+#define ADC_V_L4_VOLTS				((float)ADC_V_L4 / 4096.0F * V_REG)
 #endif
 #ifndef ADC_V_L5_VOLTS
-#define ADC_V_L5_VOLTS				((float)ADC_V_L5 / 4096.0 * V_REG)
+#define ADC_V_L5_VOLTS				((float)ADC_V_L5 / 4096.0F * V_REG)
 #endif
 #ifndef ADC_V_L6_VOLTS
-#define ADC_V_L6_VOLTS				((float)ADC_V_L6 / 4096.0 * V_REG)
+#define ADC_V_L6_VOLTS				((float)ADC_V_L6 / 4096.0F * V_REG)
 #endif
 
 // Adc voltage scaling on phases and input
 #ifndef ADC_VOLTS_PH_FACTOR
-#define ADC_VOLTS_PH_FACTOR		1.0
+#define ADC_VOLTS_PH_FACTOR		1.0F
 #endif
 #ifndef ADC_VOLTS_INPUT_FACTOR
-#define ADC_VOLTS_INPUT_FACTOR	1.0
+#define ADC_VOLTS_INPUT_FACTOR	1.0F
 #endif
 
 // NRF SW SPI (default to spi header pins)
@@ -568,18 +568,18 @@
 #endif
 
 #ifndef HW_LIM_CURRENT
-#define HW_LIM_CURRENT			-100.0, 100.0
+#define HW_LIM_CURRENT			-100.0F, 100.0F
 #endif
 #ifndef HW_LIM_CURRENT_ABS
-#define HW_LIM_CURRENT_ABS		0.0, 140.0
+#define HW_LIM_CURRENT_ABS		0.0F, 140.0F
 #endif
 
 #ifndef HW_LIM_FOC_CTRL_LOOP_FREQ
-#define HW_LIM_FOC_CTRL_LOOP_FREQ	3000.0, 30000.0
+#define HW_LIM_FOC_CTRL_LOOP_FREQ	3000.0F, 30000.0F
 #endif
 
 #ifndef HW_FOC_CURRENT_FILTER_LIM
-#define HW_FOC_CURRENT_FILTER_LIM	0.05, 1.0
+#define HW_FOC_CURRENT_FILTER_LIM	0.05F, 1.0F
 #endif
 
 #ifndef COMM_USE_USB
@@ -591,28 +591,28 @@
 #define PTC_TEMP_MOTOR(res, con, tbase)			(((NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) - (res)) / (res)) * 100 / (con) + (tbase))
 #define PTC_TEMP_MOTOR_2(res, con, tbase)		(((NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR_2]) - (res)) / (res)) * 100 / (con) + (tbase))
 #else
-#define PTC_TEMP_MOTOR(res, con, tbase)			0.0
-#define PTC_TEMP_MOTOR_2(res, con, tbase)		0.0
+#define PTC_TEMP_MOTOR(res, con, tbase)			0.0F
+#define PTC_TEMP_MOTOR_2(res, con, tbase)		0.0F
 #endif
 #endif
 
 #ifndef NTC100K_TEMP_MOTOR
 #if defined(NTC_RES_MOTOR) && defined(ADC_IND_TEMP_MOTOR)
-#define NTC100K_TEMP_MOTOR(beta)				(1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 100000.0) / beta) + (1.0 / 298.15)) - 273.15)
-#define NTC100K_TEMP_MOTOR_2(beta)				(1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR_2]) / 100000.0) / beta) + (1.0 / 298.15)) - 273.15)
+#define NTC100K_TEMP_MOTOR(beta)				(1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 100000.0F) / beta) + (1.0F / 298.15F)) - 273.15F)
+#define NTC100K_TEMP_MOTOR_2(beta)				(1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR_2]) / 100000.0F) / beta) + (1.0F / 298.15F)) - 273.15F)
 #else
-#define NTC100K_TEMP_MOTOR(beta)				0.0
-#define NTC100K_TEMP_MOTOR_2(beta)				0.0
+#define NTC100K_TEMP_MOTOR(beta)				0.0F
+#define NTC100K_TEMP_MOTOR_2(beta)				0.0F
 #endif
 #endif
 
 #ifndef NTCX_TEMP_MOTOR
 #if defined(NTC_RES_MOTOR) && defined(ADC_IND_TEMP_MOTOR)
-#define NTCX_TEMP_MOTOR(res, beta, tbase)		(1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / (res)) / (beta)) + (1.0 / (273.15 + (tbase)))) - 273.15)
-#define NTCX_TEMP_MOTOR_2(res, beta, tbase)		(1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR_2]) / (res)) / (beta)) + (1.0 / (273.15 + (tbase)))) - 273.15)
+#define NTCX_TEMP_MOTOR(res, beta, tbase)		(1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / (res)) / (beta)) + (1.0F / (273.15F + (tbase)))) - 273.15F)
+#define NTCX_TEMP_MOTOR_2(res, beta, tbase)		(1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR_2]) / (res)) / (beta)) + (1.0F / (273.15F + (tbase)))) - 273.15F)
 #else
-#define NTCX_TEMP_MOTOR(res, beta, tbase)		0.0
-#define NTCX_TEMP_MOTOR_2(res, beta, tbase)		0.0
+#define NTCX_TEMP_MOTOR(res, beta, tbase)		0.0F
+#define NTCX_TEMP_MOTOR_2(res, beta, tbase)		0.0F
 #endif
 #endif
 
@@ -636,7 +636,7 @@
 #define ADC_IND_TEMP_MOTOR_2	ADC_IND_TEMP_MOTOR
 #endif
 #ifndef  MOTOR_TEMP_LPF
-#define MOTOR_TEMP_LPF 			0.01
+#define MOTOR_TEMP_LPF 			0.01F
 #endif
 #ifndef HW_ADC_CHANNELS_EXTRA
 #define HW_ADC_CHANNELS_EXTRA	0

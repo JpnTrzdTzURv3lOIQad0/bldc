@@ -21,7 +21,7 @@
 #ifndef HW_LUNA_BBSHD_H_
 #define HW_LUNA_BBSHD_H_
 
-#define FW_NAME				"2025.09.02"
+#define FW_NAME				"2025.09F.02"
 #define HW_NAME				"LUNA_BBSHD"
 #include "mcconf_luna_bbshd.h"
 #include "appconf_luna_bbshd.h"
@@ -86,37 +86,37 @@
 
 // Component parameters (can be overridden)
 #ifndef V_REG
-#define V_REG					3.3
+#define V_REG					3.3F
 #endif
 #ifndef VIN_R1
-#define VIN_R1					66500.0
+#define VIN_R1					66500.0F
 #endif
 #ifndef VIN_R2
-#define VIN_R2					2000.0
+#define VIN_R2					2000.0F
 #endif
 #ifndef CURRENT_AMP_GAIN
-#define CURRENT_AMP_GAIN		20.0
+#define CURRENT_AMP_GAIN		20.0F
 #endif
 #ifndef CURRENT_SHUNT_RES
-#define CURRENT_SHUNT_RES		(0.0005 / 2.0)
+#define CURRENT_SHUNT_RES		(0.0005F / 2.0F)
 #endif
 
 // Input voltage
-#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
+#define GET_INPUT_VOLTAGE()		((V_REG / 4095.0F) * (float)ADC_Value[ADC_IND_VIN_SENS] * ((VIN_R1 + VIN_R2) / VIN_R2))
 
 // 12V supply voltage
-#define GET_GATE_DRIVER_SUPPLY_VOLTAGE()	((float)ADC_VOLTS(ADC_IND_VOUT_GATE_DRV) * 11.0)
+#define GET_GATE_DRIVER_SUPPLY_VOLTAGE()	((float)ADC_VOLTS(ADC_IND_VOUT_GATE_DRV) * 11.0F)
 
 // NTC Termistors
-#define NTC_RES(adc_val)		(10000.0 * adc_val / ( 4095.0 - adc_val))//((4095.0 * 10000.0) / adc_val - 10000.0)
-#define NTC_TEMP(adc_ind)		(1.0 / ((logf(NTC_RES(ADC_Value[adc_ind]) / 10000.0) / 3455.0) + (1.0 / 298.15)) - 273.15)
+#define NTC_RES(adc_val)		(10000.0F * adc_val / ( 4095.0F - adc_val))//((4095.0F * 10000.0F) / adc_val - 10000.0F)
+#define NTC_TEMP(adc_ind)		(1.0F / ((logf(NTC_RES(ADC_Value[adc_ind]) / 10000.0F) / 3455.0F) + (1.0F / 298.15F)) - 273.15F)
 
 #define NTC_TEMP_MOTOR(beta)	(hw_read_motor_temp(beta))
-//#define NTC_TEMP_MOTOR(beta)	(1.0 / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0) / beta) + (1.0 / 298.15)) - 273.15)
+//#define NTC_TEMP_MOTOR(beta)	(1.0F / ((logf(NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) / 10000.0F) / beta) + (1.0F / 298.15F)) - 273.15F)
 #define PTC_TEMP_MOTOR(res, con, tbase)			(((NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR]) - res) / NTC_RES_MOTOR(ADC_Value[ADC_IND_TEMP_MOTOR])) * 100 / con - 10)
-#define PTC_TEMP_MOTOR_2(res, con, tbase)		0.0
+#define PTC_TEMP_MOTOR_2(res, con, tbase)		0.0F
 
-#define NTC_RES_MOTOR(adc_val)	(10000.0 / ((4095.0 / (float)adc_val) - 1.0))
+#define NTC_RES_MOTOR(adc_val)	(10000.0F / ((4095.0F / (float)adc_val) - 1.0F))
 
 // Voltage on ADC channel
 #define ADC_VOLTS(ch)			hw_get_ADC_value(ch)
@@ -240,21 +240,21 @@
 #define READ_HALL3()			palReadPad(HW_HALL_ENC_GPIO3, HW_HALL_ENC_PIN3)
 
 // Override dead time.
-#define HW_DEAD_TIME_NSEC		460.0
+#define HW_DEAD_TIME_NSEC		460.0F
 
 // Setting limits
-#define HW_LIM_CURRENT			-200.0, 200.0
-#define HW_LIM_CURRENT_IN		-150.0, 150.0
-#define HW_LIM_CURRENT_ABS		0.0, 230.0
-#define HW_LIM_VIN				30.0, 86.0
-#define HW_LIM_ERPM				-26e3, 26e3
-#define HW_LIM_DUTY_MIN			0.0, 0.1
-#define HW_LIM_DUTY_MAX			0.0, 0.95
-#define HW_LIM_TEMP_FET			-40.0, 90.0
-#define HW_LIM_FOC_CTRL_LOOP_FREQ	49999.0, 50001.0
+#define HW_LIM_CURRENT			-200.0F, 200.0F
+#define HW_LIM_CURRENT_IN		-150.0F, 150.0F
+#define HW_LIM_CURRENT_ABS		0.0F, 230.0F
+#define HW_LIM_VIN				30.0F, 86.0F
+#define HW_LIM_ERPM				-26e3F, 26e3F
+#define HW_LIM_DUTY_MIN			0.0F, 0.1F
+#define HW_LIM_DUTY_MAX			0.0F, 0.95F
+#define HW_LIM_TEMP_FET			-40.0F, 90.0F
+#define HW_LIM_FOC_CTRL_LOOP_FREQ	49999.0F, 50001.0F
 
-#define HW_GATE_DRIVER_SUPPLY_MIN_VOLTAGE	11.0
-#define HW_GATE_DRIVER_SUPPLY_MAX_VOLTAGE	13.0
+#define HW_GATE_DRIVER_SUPPLY_MIN_VOLTAGE	11.0F
+#define HW_GATE_DRIVER_SUPPLY_MAX_VOLTAGE	13.0F
 
 // HW-specific functions
 void hw_update_speed_sensor(void);

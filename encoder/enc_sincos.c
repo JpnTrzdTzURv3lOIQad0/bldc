@@ -32,8 +32,8 @@
 #include <math.h>
 #include <string.h>
 
-#define SINCOS_MIN_AMPLITUDE        0.7         // sqrt(sin^2 + cos^2) has to be larger than this
-#define SINCOS_MAX_AMPLITUDE        1.3         // sqrt(sin^2 + cos^2) has to be smaller than this
+#define SINCOS_MIN_AMPLITUDE        0.7F         // sqrt(sin^2 + cos^2) has to be larger than this
+#define SINCOS_MAX_AMPLITUDE        1.3F         // sqrt(sin^2 + cos^2) has to be smaller than this
 
 #define PROFILE_LINE()
 //#define PROFILE_LINE() FOC_PROFILE_LINE()
@@ -68,8 +68,8 @@ float enc_sincos_read_deg(ENCSINCOS_config_t *cfg) {
 	float module = SQ(sin) + SQ(cos);
 
 	float timestep = timer_seconds_elapsed_since(cfg->state.last_update_time);
-	if (timestep > 1.0) {
-		timestep = 1.0;
+	if (timestep > 1.0F) {
+		timestep = 1.0F;
 	}
 	cfg->state.last_update_time = timer_time_now();
 
@@ -78,18 +78,18 @@ float enc_sincos_read_deg(ENCSINCOS_config_t *cfg) {
 	if (module > SQ(SINCOS_MAX_AMPLITUDE) )	{
 		// signals vector outside of the valid area. Increase error count and discard measurement
 		++cfg->state.signal_above_max_error_cnt;
-		UTILS_LP_FAST(cfg->state.signal_above_max_error_rate, 1.0, timestep);
+		UTILS_LP_FAST(cfg->state.signal_above_max_error_rate, 1.0F, timestep);
 	} else if (module < SQ(SINCOS_MIN_AMPLITUDE)) {
 		++cfg->state.signal_below_min_error_cnt;
-		UTILS_LP_FAST(cfg->state.signal_low_error_rate, 1.0, timestep);
+		UTILS_LP_FAST(cfg->state.signal_low_error_rate, 1.0F, timestep);
 	} else {
-		UTILS_LP_FAST(cfg->state.signal_above_max_error_rate, 0.0, timestep);
-		UTILS_LP_FAST(cfg->state.signal_low_error_rate, 0.0, timestep);
+		UTILS_LP_FAST(cfg->state.signal_above_max_error_rate, 0.0F, timestep);
+		UTILS_LP_FAST(cfg->state.signal_low_error_rate, 0.0F, timestep);
 
 		PROFILE_LINE();
-		float delay_comp = ((1.0 - cfg->filter_constant) * RPM2RADPS_f(mc_interface_get_rpm()) * timestep) / (cfg->filter_constant * cfg->ratio);
+		float delay_comp = ((1.0F - cfg->filter_constant) * RPM2RADPS_f(mc_interface_get_rpm()) * timestep) / (cfg->filter_constant * cfg->ratio);
 		PROFILE_LINE();
-		float angle = RAD2DEG_f(utils_fast_atan2(sin, cos) + delay_comp * cfg->delay_comp_sign) + 180.0;
+		float angle = RAD2DEG_f(utils_fast_atan2(sin, cos) + delay_comp * cfg->delay_comp_sign) + 180.0F;
 		PROFILE_LINE();
 		utils_norm_angle(&angle);
 		PROFILE_LINE();

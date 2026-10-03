@@ -50,7 +50,7 @@ void hw_init_gpio(void) {
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
 
-	// LEDs	
+	// LEDs
 	palSetPadMode(GPIOB, 5,
 			PAL_MODE_OUTPUT_PUSHPULL |
 			PAL_STM32_OSPEED_HIGHEST);
@@ -79,7 +79,7 @@ void hw_init_gpio(void) {
 			PAL_STM32_OSPEED_HIGHEST |
 			PAL_STM32_PUDR_FLOATING);
 
-	// Hall sensors	
+	// Hall sensors
 	palSetPadMode(HW_HALL_ENC_GPIO1, HW_HALL_ENC_PIN1, PAL_MODE_INPUT_PULLUP);
 	palSetPadMode(HW_HALL_ENC_GPIO2, HW_HALL_ENC_PIN2, PAL_MODE_INPUT_PULLUP);
 	palSetPadMode(HW_HALL_ENC_GPIO3, HW_HALL_ENC_PIN3, PAL_MODE_INPUT_PULLUP);
@@ -93,7 +93,7 @@ void hw_init_gpio(void) {
 	// Current filter
 	palSetPadMode(GPIOC, 15, PAL_MODE_OUTPUT_OPENDRAIN);
 	palSetPadMode(GPIOB, 1, PAL_MODE_OUTPUT_OPENDRAIN);
-	CURRENT_FILTER_OFF();	
+	CURRENT_FILTER_OFF();
 
 	// AUX pin
 	AUX_OFF();
@@ -118,7 +118,7 @@ void hw_init_gpio(void) {
 	palSetPadMode(GPIOC, 3, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(GPIOC, 4, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(GPIOC, 5, PAL_MODE_INPUT_ANALOG);
-	
+
 	//register terminal callbacks
 	//double pulse not possible with dual motor setup
 	terminal_register_command_callback(
@@ -264,39 +264,39 @@ int inject_temp = 0;
 float hw_a200s_get_temp_mos(void) {
 	float t_board = NTC_TEMP_MOS1();
 	UTILS_NAN_ZERO(t_board);
-	const float motor_current_now = fabs(mc_interface_get_tot_current_directional_filtered()); // To work out mosfet temperature	
+	const float motor_current_now = fabs(mc_interface_get_tot_current_directional_filtered()); // To work out mosfet temperature
 	// iteration 1, find roughly
-	float mos_temp = t_board + ((SQ(motor_current_now) * HW_TEMP_MOSFET_R/HW_TEMP_MOSFET_COUNT)/HW_TEMP_NUM_PHASES * HW_TEMP_MOSFET_KW);	
+	float mos_temp = t_board + ((SQ(motor_current_now) * HW_TEMP_MOSFET_R/HW_TEMP_MOSFET_COUNT)/HW_TEMP_NUM_PHASES * HW_TEMP_MOSFET_KW);
 	// iteration 2, use junction temperature to calaculate new RDSon
 	float mos_r_temp_comp = HW_TEMP_MOSFET_R  * (0.0055f * mos_temp + 0.85f); // best fit on the graph, could use a polynomial
-	mos_temp = t_board + ((SQ(motor_current_now) * mos_r_temp_comp/HW_TEMP_MOSFET_COUNT)/HW_TEMP_NUM_PHASES * HW_TEMP_MOSFET_KW);	
-	
-	static float mos_temp_filtered = 0.0;  
-	UTILS_LP_FAST(mos_temp_filtered, mos_temp, 0.0003);
-	
-	return mos_temp_filtered;	
+	mos_temp = t_board + ((SQ(motor_current_now) * mos_r_temp_comp/HW_TEMP_MOSFET_COUNT)/HW_TEMP_NUM_PHASES * HW_TEMP_MOSFET_KW);
+
+	static float mos_temp_filtered = 0.0F;
+	UTILS_LP_FAST(mos_temp_filtered, mos_temp, 0.0003F);
+
+	return mos_temp_filtered;
 }
 
 float hw_a200s_get_temp_shunt(void) {
 	float t_board = NTC_TEMP_MOS1();
 	UTILS_NAN_ZERO(t_board);
-	const float input_current_now = fabs(mc_interface_get_tot_current_in_filtered()); // To work out shunt temperature	
+	const float input_current_now = fabs(mc_interface_get_tot_current_in_filtered()); // To work out shunt temperature
 	float shunt_temp = t_board +((((SQ(input_current_now) * CURRENT_SHUNT_RES)/HW_TEMP_NUM_PHASES)) * HW_TEMP_MOSFET_KW);
-	
-	static float shunt_temp_filtered = 0.0;	 
-	UTILS_LP_FAST(shunt_temp_filtered, shunt_temp, 0.0003);	
-	
+
+	static float shunt_temp_filtered = 0.0F;
+	UTILS_LP_FAST(shunt_temp_filtered, shunt_temp, 0.0003F);
+
 	return shunt_temp_filtered;
 }
 
 float hw_a200s_get_temp(void) {
 	float t1 = hw_a200s_get_temp_mos();
 	float t2 = hw_a200s_get_temp_shunt();
-	float t_board = NTC_TEMP_MOS1();	
+	float t_board = NTC_TEMP_MOS1();
 	float res;
 
 	if (t1 > t2) {
-		res = t1;	
+		res = t1;
 	} else {
 		res = t2;
 	}

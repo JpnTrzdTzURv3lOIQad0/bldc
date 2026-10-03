@@ -26,7 +26,7 @@
 static volatile bool i2c_running = false;
 #if defined (HW75_200_V2)
 	static mutex_t shutdown_mutex;
-	static float bt_diff = 0.0;
+	static float bt_diff = 0.0F;
 #endif
 
 // I2C configuration
@@ -86,7 +86,7 @@ void hw_init_gpio(void) {
 				PAL_MODE_OUTPUT_PUSHPULL |
 				PAL_STM32_OSPEED_HIGHEST);
 		PHASE_FILTER_OFF();
-	
+
 //For low-measurement current sampling, it is not recommended to use a current filter.
 		// Current filter
 		palSetPadMode(GPIOD, 2,
@@ -117,7 +117,7 @@ void hw_init_gpio(void) {
 	palSetPadMode(GPIOC, 2, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(GPIOC, 3, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(GPIOC, 4, PAL_MODE_INPUT_ANALOG);
-	#if defined (HW75_200_V2_OLD)	
+	#if defined (HW75_200_V2_OLD)
 	palSetPadMode(GPIOC, 5, PAL_MODE_INPUT_ANALOG);
 	#endif
 }
@@ -257,7 +257,7 @@ void hw_try_restore_i2c(void) {
 bool hw_sample_shutdown_button(void) {
 	chMtxLock(&shutdown_mutex);
 
-	bt_diff = 0.0;
+	bt_diff = 0.0F;
 
 	for (int i = 0;i < 3;i++) {
 		palSetPadMode(HW_SHUTDOWN_GPIO, HW_SHUTDOWN_PIN, PAL_MODE_INPUT_ANALOG);
@@ -272,7 +272,7 @@ bool hw_sample_shutdown_button(void) {
 	}
 
 	chMtxUnlock(&shutdown_mutex);
-	
-	return (bt_diff > 0.12);
+
+	return (bt_diff > 0.12F);
 }
 #endif

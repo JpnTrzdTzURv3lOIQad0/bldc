@@ -192,7 +192,7 @@ lbm_value array_extension_buffer_append_i8(lbm_value *args, lbm_uint argn) {
   if (decode_append_args(&res, args, argn, &index, &be, &d_size, &data)) {
     if (buffer_append_bytes(data, d_size, be, index, 1, (lbm_uint)lbm_dec_as_i32(args[2]))) {
       res = ENC_SYM_TRUE;
-    } 
+    }
   }
   return res;
 }
@@ -208,7 +208,7 @@ lbm_value array_extension_buffer_append_i16(lbm_value *args, lbm_uint argn) {
   if (decode_append_args(&res, args, argn, &index, &be, &d_size, &data)) {
     if (buffer_append_bytes(data, d_size, be, index, 2, (lbm_uint)lbm_dec_as_i32(args[2]))) {
       res = ENC_SYM_TRUE;
-    } 
+    }
   }
   return res;
 }
@@ -224,7 +224,7 @@ lbm_value array_extension_buffer_append_i32(lbm_value *args, lbm_uint argn) {
   if (decode_append_args(&res, args, argn, &index, &be, &d_size, &data)) {
     if (buffer_append_bytes(data, d_size, be, index, 4, (lbm_uint)lbm_dec_as_i32(args[2]))) {
       res = ENC_SYM_TRUE;
-    } 
+    }
   }
   return res;
 }
@@ -241,7 +241,7 @@ lbm_value array_extension_buffer_append_u8(lbm_value *args, lbm_uint argn) {
   if (decode_append_args(&res, args, argn, &index, &be, &d_size, &data)) {
     if (buffer_append_bytes(data, d_size, be, index, 1, (lbm_uint)lbm_dec_as_u32(args[2]))) {
       res = ENC_SYM_TRUE;
-    } 
+    }
   }
   return res;
 }
@@ -257,7 +257,7 @@ lbm_value array_extension_buffer_append_u16(lbm_value *args, lbm_uint argn) {
   if (decode_append_args(&res, args, argn, &index, &be, &d_size, &data)) {
     if (buffer_append_bytes(data, d_size, be, index, 2, (lbm_uint)lbm_dec_as_u32(args[2]))) {
       res = ENC_SYM_TRUE;
-    } 
+    }
   }
   return res;
 }
@@ -273,7 +273,7 @@ lbm_value array_extension_buffer_append_u24(lbm_value *args, lbm_uint argn) {
   if (decode_append_args(&res, args, argn, &index, &be, &d_size, &data)) {
     if (buffer_append_bytes(data, d_size, be, index, 3, (lbm_uint)lbm_dec_as_u32(args[2]))) {
       res = ENC_SYM_TRUE;
-    } 
+    }
   }
   return res;
 }
@@ -289,7 +289,7 @@ lbm_value array_extension_buffer_append_u32(lbm_value *args, lbm_uint argn) {
   if (decode_append_args(&res, args, argn, &index, &be, &d_size, &data)) {
     if (buffer_append_bytes(data, d_size, be, index, 4, (lbm_uint)lbm_dec_as_u32(args[2]))) {
       res = ENC_SYM_TRUE;
-    } 
+    }
   }
   return res;
 }
@@ -298,7 +298,7 @@ static lbm_uint float_to_u(float number) {
   // Set subnormal numbers to 0 as they are not handled properly
   // using this method.
   if (fabsf(number) < 1.5e-38) {
-    number = 0.0;
+    number = 0.0F;
   }
 
   int e = 0;
@@ -306,7 +306,7 @@ static lbm_uint float_to_u(float number) {
   float sig_abs = fabsf(sig);
   uint32_t sig_i = 0;
 
-  if (sig_abs >= 0.5) {
+  if (sig_abs >= 0.5F) {
     sig_i = (uint32_t)((sig_abs - 0.5f) * 2.0f * 8388608.0f);
     e += 126;
   }
@@ -325,7 +325,7 @@ static lbm_float u_to_float(uint32_t v) {
   uint32_t sig_i = v & 0x7FFFFF;
   bool neg = v & (1U << 31);
 
-  float sig = 0.0;
+  float sig = 0.0F;
   if (e != 0 || sig_i != 0) {
     sig = (float)sig_i / (8388608.0f * 2.0f) + 0.5f;
     e -= 126;
@@ -349,7 +349,7 @@ lbm_value array_extension_buffer_append_f32(lbm_value *args, lbm_uint argn) {
   if (decode_append_args(&res, args, argn, &index, &be, &d_size, &data)) {
     if (buffer_append_bytes(data, d_size, be, index, 4, (lbm_uint)float_to_u(lbm_dec_as_float(args[2])))) {
       res = ENC_SYM_TRUE;
-    } 
+    }
   }
   return res;
 }

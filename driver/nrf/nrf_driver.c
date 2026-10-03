@@ -207,18 +207,18 @@ static THD_FUNCTION(tx_thread, arg) {
 			float wh_left = 0;
 
 			pl[index++] = MOTE_PACKET_ALIVE;
-			buffer_append_float16(pl, mc_interface_get_battery_level(&wh_left), 1e3, &index);
-			buffer_append_float32(pl, mc_interface_get_speed(), 1e3, &index);
-			buffer_append_float32(pl, mc_interface_get_distance_abs(), 1e3, &index);
-			buffer_append_float16(pl, mc_interface_temp_fet_filtered(), 1e1, &index);
-			buffer_append_float16(pl, mc_interface_temp_motor_filtered(), 1e1, &index);
+			buffer_append_float16(pl, mc_interface_get_battery_level(&wh_left), 1e3F, &index);
+			buffer_append_float32(pl, mc_interface_get_speed(), 1e3F, &index);
+			buffer_append_float32(pl, mc_interface_get_distance_abs(), 1e3F, &index);
+			buffer_append_float16(pl, mc_interface_temp_fet_filtered(), 1e1F, &index);
+			buffer_append_float16(pl, mc_interface_temp_motor_filtered(), 1e1F, &index);
 			pl[index++] = seq_cnt;
-			buffer_append_float32(pl, wh_left, 1e3, &index);
-			buffer_append_float32(pl, val.wh_tot, 1e4, &index);
-			buffer_append_float32(pl, val.wh_charge_tot, 1e4, &index);
+			buffer_append_float32(pl, wh_left, 1e3F, &index);
+			buffer_append_float32(pl, val.wh_tot, 1e4F, &index);
+			buffer_append_float32(pl, val.wh_charge_tot, 1e4F, &index);
 			pl[index++] = (uint8_t)((int8_t)(mc_interface_get_tot_current_directional_filtered() /
 					(mc_interface_get_configuration()->l_current_max *
-							mc_interface_get_configuration()->l_current_max_scale) * 100.0));
+							mc_interface_get_configuration()->l_current_max_scale) * 100.0F));
 
 			if (driver_paused == 0) {
 				rf_tx_wrapper((char*)pl, index);
@@ -403,7 +403,7 @@ void nrf_driver_process_packet(unsigned char *buf, unsigned char len) {
 		mstate.bt_push = buttons & (1 << 2);
 		mstate.rev_has_state = buttons & (1 << 3);
 		mstate.is_rev = buttons & (1 << 4);
-		mstate.vbat = (float)buffer_get_int16(buf, &ind) / 1000.0;
+		mstate.vbat = (float)buffer_get_int16(buf, &ind) / 1000.0F;
 
 		cdata.js_x = 255 - mstate.js_x;
 		cdata.js_y = mstate.js_y;

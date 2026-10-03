@@ -38,7 +38,7 @@
        - Objects are culled against the view frustrum
        - when decomposed into camera-coordinate polygons, ony clip against near-plane.
      - local -> world -> camera coordinate transformations.
-       - Stream. The final perspective projection and render using fixed size buffers. 
+       - Stream. The final perspective projection and render using fixed size buffers.
      - larger environmental features will be prerendered images or solid fills.
 
   Pipeline plan:
@@ -60,7 +60,7 @@
 
   Additional stuff and parameters
     - An intialization function that takes an image to draw onto (pixels w,h,colordepth)
-    - An array to use as the triangles_to_render datastructure (pointer + size bytes). 
+    - An array to use as the triangles_to_render datastructure (pointer + size bytes).
     - Aspect ratio is calulated from w,h.
     - desired near, far clipping planes.
     - Focal-length passed in as a field of view in degrees.
@@ -74,7 +74,7 @@
 #include <stdlib.h>
 
 #ifndef M_PI
-#define M_PI 3.14159265358979323846
+#define M_PI 3.14159265358979323846F
 #endif
 
 // //////////////////////////////////////////////////
@@ -294,8 +294,8 @@ bool tiny3d_init(tiny3d_state_t *state,
   float half_fov_rad = fov_degrees * ((float)M_PI / 180.0f) * 0.5f;
   float focal_y = 1.0f / tanf(half_fov_rad);
   float focal_x = focal_y * (float)img->height / (float)img->width;
-  state->focal_length_y = (int32_t)lround(focal_y * 65536.0);
-  state->focal_length_x = (int32_t)lround(focal_x * 65536.0);
+  state->focal_length_y = (int32_t)lround(focal_y * 65536.0F);
+  state->focal_length_x = (int32_t)lround(focal_x * 65536.0F);
 
   // light_source
   state->light_source = light_source; // Either null or a light_source
@@ -316,10 +316,10 @@ bool tiny3d_init(tiny3d_state_t *state,
   // Camera-space view frustum
   state->planes[0] = (tiny3d_plane_t){ .normal = {0, 0,  (1 << 16)}, .d = near };
   state->planes[1] = (tiny3d_plane_t){ .normal = {0, 0, -(1 << 16)}, .d = -far };
-  state->planes[2] = side_plane_q16_16( focal_x, 0.0, 1.0); // left
-  state->planes[3] = side_plane_q16_16(-focal_x, 0.0, 1.0); // right
-  state->planes[4] = side_plane_q16_16(0.0, -focal_y, 1.0); // top
-  state->planes[5] = side_plane_q16_16(0.0,  focal_y, 1.0); // bottom
+  state->planes[2] = side_plane_q16_16( focal_x, 0.0F, 1.0F); // left
+  state->planes[3] = side_plane_q16_16(-focal_x, 0.0F, 1.0F); // right
+  state->planes[4] = side_plane_q16_16(0.0F, -focal_y, 1.0F); // top
+  state->planes[5] = side_plane_q16_16(0.0F,  focal_y, 1.0F); // bottom
   return true;
 }
 

@@ -40,13 +40,13 @@ bool enc_bissc_init(BISSC_config_t *cfg) {
 
 	memset(&cfg->state, 0, sizeof(BISSC_state));
 
-	palSetPadMode(cfg->sck_gpio, cfg->sck_pin, 
+	palSetPadMode(cfg->sck_gpio, cfg->sck_pin,
 			PAL_MODE_ALTERNATE(cfg->spi_af) | PAL_STM32_OSPEED_HIGHEST);
-	palSetPadMode(cfg->miso_gpio, cfg->miso_pin, 
+	palSetPadMode(cfg->miso_gpio, cfg->miso_pin,
 			PAL_MODE_ALTERNATE(cfg->spi_af) | PAL_STM32_OSPEED_HIGHEST);
-	palSetPadMode(cfg->nss_gpio, cfg->nss_pin, 
+	palSetPadMode(cfg->nss_gpio, cfg->nss_pin,
 			PAL_MODE_OUTPUT_PUSHPULL | PAL_STM32_OSPEED_HIGHEST);
-	palSetPadMode(cfg->mosi_gpio, cfg->mosi_pin, 
+	palSetPadMode(cfg->mosi_gpio, cfg->mosi_pin,
 			PAL_MODE_ALTERNATE(cfg->spi_af) | PAL_STM32_OSPEED_HIGHEST);
 
 	cfg->spi_dev->app_arg = (void*)cfg;
@@ -55,9 +55,9 @@ bool enc_bissc_init(BISSC_config_t *cfg) {
 	spiStart(cfg->spi_dev, &(cfg->hw_spi_cfg));
 
 	cfg->state.spi_data_error_cnt = 0;
-	cfg->state.spi_data_error_rate = 0.0;
+	cfg->state.spi_data_error_rate = 0.0F;
 	cfg->state.spi_comm_error_cnt = 0;
-	cfg->state.spi_comm_error_rate = 0.0;
+	cfg->state.spi_comm_error_rate = 0.0F;
 
 	//Init CRC table
 	uint8_t POLY = 0x43;
@@ -87,11 +87,11 @@ void enc_bissc_deinit(BISSC_config_t *cfg) {
 
 		spiStop(cfg->spi_dev);
 
-		cfg->state.last_enc_angle = 0.0;
+		cfg->state.last_enc_angle = 0.0F;
 		cfg->state.spi_data_error_cnt = 0;
-		cfg->state.spi_data_error_rate = 0.0;
+		cfg->state.spi_data_error_rate = 0.0F;
 		cfg->state.spi_comm_error_cnt = 0;
-		cfg->state.spi_comm_error_rate = 0.0;
+		cfg->state.spi_comm_error_rate = 0.0F;
 	}
 }
 
@@ -99,11 +99,11 @@ void enc_bissc_routine(BISSC_config_t *cfg) {
 	if (cfg->spi_dev->state == SPI_READY) {
 		spiSelectI(cfg->spi_dev);
 		spiStartReceiveI(cfg->spi_dev, 8, (void *)cfg->state.decod_buf);
-		UTILS_LP_FAST(encoder_cfg_bissc.state.spi_comm_error_rate, 0.0, 0.0001);
+		UTILS_LP_FAST(encoder_cfg_bissc.state.spi_comm_error_rate, 0.0F, 0.0001F);
 	} else {
 		++encoder_cfg_bissc.state.spi_comm_error_cnt;
-		// compute rate with factor 0.0001 for 10000hz
-		UTILS_LP_FAST(encoder_cfg_bissc.state.spi_comm_error_rate, 1.0, 0.0001);
+		// compute rate with factor 0.0001F for 10000hz
+		UTILS_LP_FAST(encoder_cfg_bissc.state.spi_comm_error_rate, 1.0F, 0.0001F);
 	}
 }
 
@@ -113,8 +113,8 @@ void compute_bissc_callback(SPIDriver *pspi) {
 		spiUnselectI(cfg->spi_dev);
 
 		float timestep = timer_seconds_elapsed_since(cfg->state.last_update_time);
-		if (timestep > 1.0) {
-			timestep = 1.0;
+		if (timestep > 1.0F) {
+			timestep = 1.0F;
 		}
 		cfg->state.last_update_time = timer_time_now();
 
@@ -160,10 +160,10 @@ void compute_bissc_callback(SPIDriver *pspi) {
 		if(crc != crcRx)
 		{
 			++cfg->state.spi_data_error_cnt;
-			UTILS_LP_FAST(cfg->state.spi_data_error_rate, 1.0, timestep);
+			UTILS_LP_FAST(cfg->state.spi_data_error_rate, 1.0F, timestep);
 		} else {
-			UTILS_LP_FAST(cfg->state.spi_data_error_rate, 0.0, timestep);
-			cfg->state.last_enc_angle = ((float)cfg->state.spi_val * 360.0) / ((1<<lenghtDataBit) - 1);
+			UTILS_LP_FAST(cfg->state.spi_data_error_rate, 0.0F, timestep);
+			cfg->state.last_enc_angle = ((float)cfg->state.spi_val * 360.0F) / ((1<<lenghtDataBit) - 1);
 		}
 
 	}

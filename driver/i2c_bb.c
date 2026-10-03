@@ -40,13 +40,13 @@ static void i2c_delay(float seconds);
 
 static inline float rate2secs(i2c_bb_state *s) {
 	switch (s->rate) {
-	case I2C_BB_RATE_100K: return 3.5e-6;
-	case I2C_BB_RATE_200K: return 1.0e-6;
-	case I2C_BB_RATE_400K: return 2.5e-7;
-	case I2C_BB_RATE_700K: return 0.0;
+	case I2C_BB_RATE_100K: return 3.5e-6F;
+	case I2C_BB_RATE_200K: return 1.0e-6F;
+	case I2C_BB_RATE_400K: return 2.5e-7F;
+	case I2C_BB_RATE_700K: return 0.0F;
 	}
 
-	return 1.0e-6;
+	return 1.0e-6F;
 }
 
 void i2c_bb_init(i2c_bb_state *s) {
@@ -283,14 +283,14 @@ static bool clock_stretch_timeout(i2c_bb_state *s) {
 	uint32_t time_start = timer_time_now();
 
 	while (READ_SCL() == 0) {
-		if (timer_seconds_elapsed_since(time_start) > 0.01) {
+		if (timer_seconds_elapsed_since(time_start) > 0.01F) {
 			s->has_error = true;
 			return false;
 		}
 
 		// Avoid excessive CPU usage if clock stretching takes too long. This lets other
 		// tasks run in-between.
-		if (timer_seconds_elapsed_since(time_start) > 0.0002) {
+		if (timer_seconds_elapsed_since(time_start) > 0.0002F) {
 			chThdSleep(1);
 		}
 	}

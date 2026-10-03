@@ -33,7 +33,7 @@
 #define MT6835_BURST_ADDR		0x03
 #define MT6835_BURST_LEN		6
 
-#define MT6835_ANGLE_RES		2097152.0
+#define MT6835_ANGLE_RES		2097152.0F
 
 bool enc_mt6835_init(MT6835_config_t *cfg) {
 	if (cfg->spi_dev == NULL) {
@@ -53,7 +53,7 @@ bool enc_mt6835_init(MT6835_config_t *cfg) {
 
 	spiStart(cfg->spi_dev, &(cfg->hw_spi_cfg));
 
-	cfg->state.spi_error_rate = 0.0;
+	cfg->state.spi_error_rate = 0.0F;
 
 	return true;
 }
@@ -70,8 +70,8 @@ void enc_mt6835_deinit(MT6835_config_t *cfg) {
 
 	spiStop(cfg->spi_dev);
 
-	cfg->state.last_enc_angle = 0.0;
-	cfg->state.spi_error_rate = 0.0;
+	cfg->state.last_enc_angle = 0.0F;
+	cfg->state.spi_error_rate = 0.0F;
 }
 
 static uint8_t mt6835_crc8(uint8_t *data, int len) {
@@ -91,8 +91,8 @@ static uint8_t mt6835_crc8(uint8_t *data, int len) {
 
 void enc_mt6835_routine(MT6835_config_t *cfg) {
 	float timestep = timer_seconds_elapsed_since(cfg->state.last_update_time);
-	if (timestep > 1.0) {
-		timestep = 1.0;
+	if (timestep > 1.0F) {
+		timestep = 1.0F;
 	}
 	cfg->state.last_update_time = timer_time_now();
 
@@ -120,10 +120,10 @@ void enc_mt6835_routine(MT6835_config_t *cfg) {
 
 	if (crc_rx != crc_calc || status != 0) {
 		cfg->state.spi_error_cnt++;
-		UTILS_LP_FAST(cfg->state.spi_error_rate, 1.0, timestep);
+		UTILS_LP_FAST(cfg->state.spi_error_rate, 1.0F, timestep);
 	} else {
 		cfg->state.spi_val = angle_raw;
-		cfg->state.last_enc_angle = ((float)angle_raw * 360.0) / MT6835_ANGLE_RES;
-		UTILS_LP_FAST(cfg->state.spi_error_rate, 0.0, timestep);
+		cfg->state.last_enc_angle = ((float)angle_raw * 360.0F) / MT6835_ANGLE_RES;
+		UTILS_LP_FAST(cfg->state.spi_error_rate, 0.0F, timestep);
 	}
 }

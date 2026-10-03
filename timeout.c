@@ -42,7 +42,7 @@ static THD_FUNCTION(timeout_thread, arg);
 void timeout_init(void) {
 	timeout_msec = 1000;
 	last_update_time = 0;
-	timeout_brake_current = 0.0;
+	timeout_brake_current = 0.0F;
 	timeout_kill_sw_mode = KILL_SW_MODE_DISABLED;
 	has_timeout = false;
 	kill_sw_active = false;
@@ -66,7 +66,7 @@ void timeout_init(void) {
 	 *
 	 * t_IWDG(ms) = t_LSI(ms) * 4 * 2^(IWDG_PR[2:0]) * (IWDG_RLR[11:0] + 1)
 	 * t_LSI(ms) [MAX] = 0.021276ms
-	 * 12ms = 0.0212765 * 4 * 1 * (140 + 1)
+	 * 12ms = 0.0212765F * 4 * 1 * (140 + 1)
 	 *
 	 * Counter Reload Value = 140
 	 *
@@ -202,19 +202,19 @@ static THD_FUNCTION(timeout_thread, arg) {
 			break;
 
 		case KILL_SW_MODE_ADC2_LOW:
-			kill_sw = ADC_VOLTS(ADC_IND_EXT2) < 1.65;
+			kill_sw = ADC_VOLTS(ADC_IND_EXT2) < 1.65F;
 			break;
 
 		case KILL_SW_MODE_ADC2_HIGH:
-			kill_sw = ADC_VOLTS(ADC_IND_EXT2) > 1.65;
+			kill_sw = ADC_VOLTS(ADC_IND_EXT2) > 1.65F;
 			break;
 
 		case KILL_SW_MODE_ADC3_LOW:
-			kill_sw = ADC_VOLTS(ADC_IND_EXT3) < 1.65;
+			kill_sw = ADC_VOLTS(ADC_IND_EXT3) < 1.65F;
 			break;
 
 		case KILL_SW_MODE_ADC3_HIGH:
-			kill_sw = ADC_VOLTS(ADC_IND_EXT3) > 1.65;
+			kill_sw = ADC_VOLTS(ADC_IND_EXT3) > 1.65F;
 			break;
 
 		case KILL_SW_MODE_SWDIO_LOW:
