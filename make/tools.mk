@@ -11,7 +11,7 @@
 ####################
 # ARM (Cortex) SDK #
 ####################
-ARM_SDK_VER := 14.3.rel1
+ARM_SDK_VER := 15.3.rel1
 
 # The tar archives extract into a directory named after them; the Windows zip
 # has no top-level directory and is extracted into ARM_SDK_DIR explicitly.
@@ -250,4 +250,6 @@ endif
 # Get the git branch name, commit hash, and clean/dirty state
 GIT_BRANCH_NAME := $(shell git rev-parse --abbrev-ref HEAD)
 GIT_COMMIT_HASH := $(shell git rev-parse HEAD)
+ifndef GIT_DIRTY_LABEL
 GIT_DIRTY_LABEL := $(shell git diff --quiet || echo -dirty)
+endif
