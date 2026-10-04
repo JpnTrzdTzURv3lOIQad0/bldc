@@ -18,6 +18,9 @@
  */
 
 #include "encoder_cfg.h"
+#include "enc_as5x47u.h"
+#include "enc_bissc.h"
+#include "enc_ma782.h"
 #include "hw.h"
 #include "ch.h"
 #include "hal.h"
@@ -188,7 +191,6 @@ TS5700N8501_config_t encoder_cfg_TS5700N8501 = {
 		{0}
 };
 
-void enc_as5x47u_spi_callback(SPIDriver *pspi);
 AS5x47U_config_t encoder_cfg_as5x47u = {
 #ifdef HW_SPI_DEV
 		&HW_SPI_DEV, // spi_dev
@@ -221,8 +223,6 @@ AS5x47U_config_t encoder_cfg_as5x47u = {
 		{0}, // State
 };
 
-// Spi Handler for bissC
-void compute_bissc_callback(SPIDriver *pspi);
 BISSC_config_t encoder_cfg_bissc = {
 #ifdef HW_SPI_DEV
 		&HW_SPI_DEV, // spi_dev
@@ -259,8 +259,6 @@ BISSC_config_t encoder_cfg_bissc = {
 #endif
 };
 
-// Spi Handler for MA782
-void compute_ma782_callback(SPIDriver *pspi);
 ma782_config_t encoder_cfg_ma782 = {
 #ifdef HW_SPI_DEV
 		&HW_SPI_DEV, // spi_dev

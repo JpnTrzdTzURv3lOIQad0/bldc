@@ -211,15 +211,18 @@ uint64_t buffer_get_uint64(const uint8_t *buffer, int32_t *index) {
 }
 
 float buffer_get_float16(const uint8_t *buffer, float scale, int32_t *index) {
-    return (float)buffer_get_int16(buffer, index) / scale;
+	int16_t raw_value = buffer_get_int16(buffer, index);
+	return (float)raw_value / scale;
 }
 
 float buffer_get_float32(const uint8_t *buffer, float scale, int32_t *index) {
-    return (float)buffer_get_int32(buffer, index) / scale;
+	int32_t raw_value = buffer_get_int32(buffer, index);
+	return (float)raw_value / scale;
 }
 
 double buffer_get_double64(const uint8_t *buffer, double scale, int32_t *index) {
-    return (double)buffer_get_int64(buffer, index) / scale;
+	int64_t raw_value = buffer_get_int64(buffer, index);
+	return (double)raw_value / scale;
 }
 
 float buffer_get_float32_auto(const uint8_t *buffer, int32_t *index) {

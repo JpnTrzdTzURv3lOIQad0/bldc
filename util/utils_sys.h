@@ -40,6 +40,7 @@ const char* utils_hw_type_to_string(HW_TYPE hw);
 int utils_check_min_stack_left(thread_t *th);
 int utils_stack_left_now(void);
 bool utils_is_func_valid(void *addr);
+bool utils_is_func_addr_valid(uintptr_t addr);
 
 // Return the age of a timestamp in seconds
 static inline float utils_age_seconds(systime_t timestamp) {

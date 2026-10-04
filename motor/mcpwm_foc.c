@@ -3863,7 +3863,8 @@ void mcpwm_foc_adc_int_handler(void *p, uint32_t flags) {
 	// Update tachometer (resolution = 60 deg as for BLDC)
 	float ph_tmp = state_now->phase;
 	utils_norm_angle_rad(&ph_tmp);
-	int step = (int)floorf((ph_tmp + UTILS_PI_F) / (2.0F * UTILS_PI_F) * 6.0F);
+	float step_value = floorf((ph_tmp + UTILS_PI_F) / (2.0F * UTILS_PI_F) * 6.0F);
+	int step = (int)step_value;
 	utils_truncate_number_int(&step, 0, 5);
 	int diff = step - motor_now->m_tacho_step_last;
 	motor_now->m_tacho_step_last = step;
@@ -4764,7 +4765,8 @@ static void control_current(motor_all_state_t *motor, float dt) {
 			break;
 		}
 
-		float sample = (float)table[(int)floorf(audio->sample_pos)] / 128.0F * audio->sample_voltage;
+		float sample_index_float = floorf(audio->sample_pos);
+		float sample = (float)table[(int)sample_index_float] / 128.0F * audio->sample_voltage;
 
 		audio->sample_pos += dt * audio->sample_freq;
 		if (floorf(audio->sample_pos) >= audio->sample_table_len[audio->sample_table_now]) {

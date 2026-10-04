@@ -80,6 +80,8 @@ static void gpio_init_all(void) {
  * @details This initialization must be performed just after stack setup
  *          and before any other initialization.
  */
+void __early_init(void);
+
 void __early_init(void) {
   HW_VERY_EARLY_INIT();
   stm32_clock_init();

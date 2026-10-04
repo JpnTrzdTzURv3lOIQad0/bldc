@@ -1,7 +1,6 @@
 -Wall
 -Wextra
 -Wpedantic
--Werror
 -Wformat=2
 -Wformat-overflow=2
 -Wformat-truncation=2

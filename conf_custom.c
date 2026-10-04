@@ -37,9 +37,9 @@ void conf_custom_add_config(
 		bool (*set_cfg)(uint8_t *data),
 		int (*get_cfg_xml)(uint8_t **data)) {
 
-	if (utils_is_func_valid(get_cfg) &&
-			utils_is_func_valid(set_cfg) &&
-			utils_is_func_valid(get_cfg_xml)) {
+	if (utils_is_func_addr_valid((uintptr_t)get_cfg) &&
+			utils_is_func_addr_valid((uintptr_t)set_cfg) &&
+			utils_is_func_addr_valid((uintptr_t)get_cfg_xml)) {
 		m_get_cfg = get_cfg;
 		m_set_cfg = set_cfg;
 		m_get_cfg_xml = get_cfg_xml;

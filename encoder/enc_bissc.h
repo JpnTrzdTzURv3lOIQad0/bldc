@@ -23,6 +23,8 @@
 
 #include "encoder/encoder_datatype.h"
 
+void compute_bissc_callback(SPIDriver *pspi);
+
 bool enc_bissc_init(BISSC_config_t *cfg);
 void enc_bissc_deinit(BISSC_config_t *cfg);
 void enc_bissc_routine(BISSC_config_t *cfg);

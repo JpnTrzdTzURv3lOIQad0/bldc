@@ -154,7 +154,8 @@ static THD_FUNCTION(shutdown_thread, arg) {
 	uint64_t odometer_old = mc_interface_get_odometer();
 
 	for(;;) {
-		float dt = (float)chVTTimeElapsedSinceX(last_iteration_time) / (float)CH_CFG_ST_FREQUENCY;
+		systime_t elapsed_ticks = chVTTimeElapsedSinceX(last_iteration_time);
+		float dt = (float)elapsed_ticks / (float)CH_CFG_ST_FREQUENCY;
 		last_iteration_time = chVTGetSystemTimeX();
 
 		systime_t t0 = chVTGetSystemTimeX();
@@ -322,7 +323,8 @@ static THD_FUNCTION(shutdown_thread, arg) {
 	uint64_t odometer_old = mc_interface_get_odometer();
 
 	for(;;) {
-		float dt = (float)chVTTimeElapsedSinceX(last_iteration_time) / (float)CH_CFG_ST_FREQUENCY;
+		systime_t elapsed_ticks = chVTTimeElapsedSinceX(last_iteration_time);
+		float dt = (float)elapsed_ticks / (float)CH_CFG_ST_FREQUENCY;
 		last_iteration_time = chVTGetSystemTimeX();
 
 		const app_configuration *conf = app_get_configuration();

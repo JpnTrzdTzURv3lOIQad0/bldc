@@ -24,6 +24,8 @@
 #include "encoder/encoder_datatype.h"
 
 // Functions
+void enc_as5x47u_spi_callback(SPIDriver *pspi);
+
 /**
  * @brief Initalized the SPI peripheral used to communicate with the AS5x47U encoder.
  */

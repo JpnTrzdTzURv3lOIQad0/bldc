@@ -27,6 +27,7 @@ bool enc_ma782_init(ma782_config_t *cfg);
 void enc_ma782_deinit(ma782_config_t *cfg);
 void enc_ma782_routine(ma782_config_t *cfg);
 void enc_ma782_print_status(ma782_config_t *cfg);
+void compute_ma782_callback(SPIDriver *pspi);
 
 extern ma782_config_t encoder_cfg_ma782;
 

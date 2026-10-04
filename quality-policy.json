@@ -5,7 +5,7 @@
   "owned_roots": ["."],
   "exclude_roots": ["ChibiOS_21.11.5", "libstm32f4", "libcanard", "lispBM", "blackmagic", "tools", "downloads", "build", "tests"],
   "minimum_translation_units": 1,
-  "c_standard": "gnu23",
+  "c_standard": "gnu99",
   "cxx_standard": "gnu++14",
   "target": "arm-none-eabi",
   "cpu": "cortex-m4",

@@ -3,6 +3,7 @@
 #include "ch.h"
 #include "hal.h"
 #include "stm32f4xx_conf.h"
+#include "comm_usb_serial.h"
 
 /*
  * Endpoints to be used for USBD2.
@@ -307,7 +308,7 @@ static const USBConfig usbcfg = {
 /*
  * Serial over USB driver configuration.
  */
-const SerialUSBConfig serusbcfg = {
+static const SerialUSBConfig serusbcfg = {
 		&USBD1,
 		USBD2_DATA_REQUEST_EP,
 		USBD2_DATA_AVAILABLE_EP,

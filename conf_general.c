@@ -126,11 +126,15 @@ __attribute__((section(".text2"))) void conf_general_init(void) {
 		}
 
 		if (g_backup.hw_config_init_flag == BACKUP_VAR_INIT_CODE) {
-			memcpy((void*)backup_tmp.hw_config, (uint8_t*)g_backup.hw_config, sizeof(g_backup.hw_config));
+			for (unsigned int i = 0;i < sizeof(g_backup.hw_config);i++) {
+				backup_tmp.hw_config[i] = g_backup.hw_config[i];
+			}
 		}
 
 		if (g_backup.enc_corr_init_flag == BACKUP_VAR_INIT_CODE) {
-			memcpy((void*)backup_tmp.enc_corr, (uint8_t*)g_backup.enc_corr, sizeof(g_backup.enc_corr));
+			for (unsigned int i = 0;i < sizeof(g_backup.enc_corr);i++) {
+				backup_tmp.enc_corr[i] = g_backup.enc_corr[i];
+			}
 			backup_tmp.enc_corr_en = g_backup.enc_corr_en;
 		}
 
@@ -172,7 +176,7 @@ __attribute__((section(".text2"))) bool conf_general_store_backup_data(void) {
 	timeout_configure_IWDT_slowest();
 
 	bool is_ok = true;
-	uint8_t *data_addr = (uint8_t*)&g_backup;
+	volatile uint8_t *data_addr = (volatile uint8_t *)&g_backup;
 	uint16_t var;
 
 	FLASH_Unlock();

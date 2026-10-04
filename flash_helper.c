@@ -84,6 +84,7 @@ typedef struct {
 } crc_info_t;
 
 // Make sure the app image has the CRC bits set to '1' to later write the flag and CRC.
+extern const crc_info_t crc_info;
 const crc_info_t __attribute__((section (".crcinfo"))) crc_info = {0xFFFFFFFF, 0xFFFFFFFF};
 
 // Private functions
@@ -274,11 +275,11 @@ void flash_helper_jump_to_bootloader(void) {
 	pFunction jump_to_bootloader;
 
 	// Variable that will be loaded with the start address of the application
-	volatile uint32_t* jump_address;
+	uint32_t jump_address;
 	const volatile uint32_t* bootloader_address = (volatile uint32_t*)0x080E0000;
 
 	// Get jump address from application vector table
-	jump_address = (volatile uint32_t*) bootloader_address[1];
+	jump_address = bootloader_address[1];
 
 	// Load this address into function pointer
 	jump_to_bootloader = (pFunction) jump_address;

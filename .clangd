@@ -1,8 +1,15 @@
-# Uses the SAME prepared database as the command-line gate.
+# Uses the raw Bear database for interactive checking.
+# The command-line gate still requires its separate prepared database.
 # Never remove all -m* or -f*: those include target and semantic options.
 # Do not add -std=gnu23 here to mask a GNU99 build; fix the real C commands.
 CompileFlags:
-  CompilationDatabase: build/analysis
+  CompilationDatabase: build/bear
+  # Clang cannot accept these GCC-only build options. In particular, it cannot
+  # reproduce -fsingle-precision-constant; editor analysis is not build parity.
+  Remove: [-fsingle-precision-constant, -mthumb-interwork,
+           -freorder-blocks-algorithm=*, -falign-functions=*, -flto*,
+           -fno-tree-loop-distribute-patterns, -fno-reorder-functions,
+           -fstack-usage, -fanalyzer, -Wstack-usage=*, -Wframe-larger-than=*]
   # clangd does not use .clang-tidy ExtraArgs; repeat frontend diagnostics here.
   Add: [-Wall, -Wextra, -Wpedantic, -Wconversion, -Wsign-conversion,
         -Wdouble-promotion, -Wfloat-equal, -Wshadow, -Wformat=2, -Wundef,

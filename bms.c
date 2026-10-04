@@ -50,6 +50,12 @@ static volatile bms_soc_soh_temp_stat m_stat_soc_max;
 static volatile bms_soc_soh_temp_stat m_stat_vcell_min;
 static volatile bms_soc_soh_temp_stat m_stat_vcell_max;
 
+static void bms_copy_status(uint8_t status[BMS_STATUS_LEN]) {
+	for (int i = 0; i < BMS_STATUS_LEN; i++) {
+		status[i] = (uint8_t)m_values.status[i];
+	}
+}
+
 // Contiguously received value count of the multi-frame V_CELL and TEMPS
 // sequences. The counts in m_values are only published once a whole sequence
 // is received.
@@ -58,12 +64,12 @@ static unsigned int m_temps_filled;
 
 void bms_init(bms_config *conf) {
 	m_conf = *conf;
-	memset((void*)&m_values, 0, sizeof(m_values));
-	memset((void*)&m_stat_temp_max, 0, sizeof(m_stat_temp_max));
-	memset((void*)&m_stat_soc_min, 0, sizeof(m_stat_soc_min));
-	memset((void*)&m_stat_soc_max, 0, sizeof(m_stat_soc_max));
-	memset((void*)&m_stat_vcell_min, 0, sizeof(m_stat_vcell_min));
-	memset((void*)&m_stat_vcell_max, 0, sizeof(m_stat_vcell_max));
+	m_values = (bms_values){0};
+	m_stat_temp_max = (bms_soc_soh_temp_stat){0};
+	m_stat_soc_min = (bms_soc_soh_temp_stat){0};
+	m_stat_soc_max = (bms_soc_soh_temp_stat){0};
+	m_stat_vcell_min = (bms_soc_soh_temp_stat){0};
+	m_stat_vcell_max = (bms_soc_soh_temp_stat){0};
 
 	m_values.can_id = -1;
 	m_vcell_filled = 0;
@@ -392,7 +398,11 @@ bool bms_process_can_frame(uint32_t can_id, uint8_t *data8, int len, bool is_ext
 				if (id == m_values.can_id || m_values.can_id == -1 || UTILS_AGE_S(m_values.update_time) > MAX_CAN_AGE_SEC) {
 					m_values.can_id = id;
 					m_values.update_time = chVTGetSystemTimeX();
-					memcpy((void*)m_values.status + ((cmd - CAN_PACKET_BMS_STATUS_1) * 8), data8, len);
+					volatile uint8_t *status = (volatile uint8_t *)m_values.status;
+					status += (cmd - CAN_PACKET_BMS_STATUS_1) * 8;
+					for (int i = 0; i < len; i++) {
+						status[i] = data8[i];
+					}
 				}
 			} break;
 
@@ -536,6 +546,7 @@ void bms_process_cmd(unsigned char *data, unsigned int len,
 	case COMM_BMS_GET_VALUES: {
 		int32_t ind = 0;
 		uint8_t send_buffer[256];
+		uint8_t status[BMS_STATUS_LEN];
 
 		send_buffer[ind++] = packet_id;
 
@@ -591,8 +602,17 @@ void bms_process_cmd(unsigned char *data, unsigned int len,
 		send_buffer[ind++] = m_values.data_version;
 
 		// Status string
-		strcpy((char*)(send_buffer + ind), (char*)m_values.status);
-		ind += strlen((char*)m_values.status) + 1;
+		bms_copy_status(status);
+		int status_index;
+		for (status_index = 0; status_index < BMS_STATUS_LEN; status_index++) {
+			send_buffer[ind++] = status[status_index];
+			if (status[status_index] == '\0') {
+				break;
+			}
+		}
+		if (status_index == BMS_STATUS_LEN) {
+			send_buffer[ind++] = '\0';
+		}
 
 		reply_func(send_buffer, ind);
 	} break;
@@ -625,8 +645,10 @@ volatile bms_values *bms_get_values(void) {
 void bms_send_status_can(void) {
 	int32_t send_index = 0;
 	uint8_t buffer[8];
+	uint8_t status[BMS_STATUS_LEN];
 
 	uint8_t id = app_get_configuration()->controller_id;
+	bms_copy_status(status);
 
 	buffer_append_float32_auto(buffer, m_values.v_tot, &send_index);
 	buffer_append_float32_auto(buffer, m_values.v_charge, &send_index);
@@ -743,9 +765,9 @@ void bms_send_status_can(void) {
 	buffer_append_float32_auto(buffer, m_values.wh_cnt_dis_total, &send_index);
 	comm_can_transmit_eid(id | ((uint32_t)CAN_PACKET_BMS_AH_WH_DIS_TOTAL << 8), buffer, send_index);
 
-	comm_can_transmit_eid(id | ((uint32_t)CAN_PACKET_BMS_STATUS_1 << 8), (uint8_t*)m_values.status, send_index);
-	comm_can_transmit_eid(id | ((uint32_t)CAN_PACKET_BMS_STATUS_2 << 8), (uint8_t*)m_values.status + 8, send_index);
-	comm_can_transmit_eid(id | ((uint32_t)CAN_PACKET_BMS_STATUS_3 << 8), (uint8_t*)m_values.status + 16, send_index);
-	comm_can_transmit_eid(id | ((uint32_t)CAN_PACKET_BMS_STATUS_4 << 8), (uint8_t*)m_values.status + 24, send_index);
-	comm_can_transmit_eid(id | ((uint32_t)CAN_PACKET_BMS_STATUS_5 << 8), (uint8_t*)m_values.status + 32, send_index);
+	comm_can_transmit_eid(id | ((uint32_t)CAN_PACKET_BMS_STATUS_1 << 8), status, send_index);
+	comm_can_transmit_eid(id | ((uint32_t)CAN_PACKET_BMS_STATUS_2 << 8), status + 8, send_index);
+	comm_can_transmit_eid(id | ((uint32_t)CAN_PACKET_BMS_STATUS_3 << 8), status + 16, send_index);
+	comm_can_transmit_eid(id | ((uint32_t)CAN_PACKET_BMS_STATUS_4 << 8), status + 24, send_index);
+	comm_can_transmit_eid(id | ((uint32_t)CAN_PACKET_BMS_STATUS_5 << 8), status + 32, send_index);
 }

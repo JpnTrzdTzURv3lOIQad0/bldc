@@ -122,7 +122,7 @@ float app_pas_get_pedal_rpm(void) {
 	return pedal_rpm;
 }
 
-void pas_event_handler(void) {
+static void pas_event_handler(void) {
 #ifdef HW_PAS1_PORT
 	const int8_t QEM[] = {0,-1,1,2,1,0,2,-1,-1,2,0,1,2,1,-1,0}; // Quadrature Encoder Matrix
 	int8_t direction_qem;
@@ -149,7 +149,8 @@ void pas_event_handler(void) {
 		case -1:correct_direction_counter = 0; break;
 	}
 
-	const float timestamp = (float)chVTGetSystemTimeX() / (float)CH_CFG_ST_FREQUENCY;
+	systime_t timestamp_ticks = chVTGetSystemTimeX();
+	const float timestamp = (float)timestamp_ticks / (float)CH_CFG_ST_FREQUENCY;
 
 	// sensors are poorly placed, so use only one rising edge as reference
 	if( (new_state == 3) && (correct_direction_counter >= 4) ) {

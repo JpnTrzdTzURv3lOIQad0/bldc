@@ -66,6 +66,18 @@
 // Settings
 #define PRINT_BUFFER_SIZE	400
 
+static void buffer_append_str_max_len(uint8_t *buffer, char *str, size_t max_len, int32_t *index) {
+	size_t str_len = strlen(str);
+	if (str_len > max_len) {
+		str_len = max_len;
+		return;
+	}
+
+	memcpy(&buffer[*index], str, str_len);
+	*index += str_len;
+	buffer[(*index)++] = '\0';
+}
+
 // Threads
 static THD_FUNCTION(blocking_thread, arg);
 static THD_WORKING_AREA(blocking_thread_wa, 3000);
@@ -901,7 +913,8 @@ void commands_process_packet(unsigned char *data, unsigned int len,
 
 	case COMM_SET_MCCONF_TEMP:
 	case COMM_SET_MCCONF_TEMP_SETUP: {
-		mc_configuration *mcconf = (mc_configuration*)mc_interface_get_configuration();
+		mc_configuration *mcconf = mempools_alloc_mcconf();
+		*mcconf = *mc_interface_get_configuration();
 
 		int32_t ind = 0;
 		bool store = data[ind++];
@@ -1002,6 +1015,8 @@ void commands_process_packet(unsigned char *data, unsigned int len,
 		if (store) {
 			conf_general_store_mc_configuration(mcconf, mc_interface_get_motor_thread() == 2);
 		}
+		mc_interface_set_configuration(mcconf);
+		mempools_free_mcconf(mcconf);
 
 		if (forward_can) {
 			data[-1] = COMM_SET_MCCONF_TEMP;
@@ -1642,20 +1657,6 @@ void commands_process_packet(unsigned char *data, unsigned int len,
 	} break;
 
 	case COMM_FW_INFO: {
-		// Write at most the first max_len characters of str into buffer,
-		// followed by a null byte.
-		void buffer_append_str_max_len(uint8_t *buffer, char *str, size_t max_len, int32_t *index) {
-			size_t str_len = strlen(str);
-			if (str_len > max_len) {
-				str_len = max_len;
-				return;
-			}
-
-			memcpy(&buffer[*index], str, str_len);
-			*index += str_len;
-			buffer[(*index)++] = '\0';
-		}
-
 		int32_t ind = 0;
 		uint8_t send_buffer[98];
 
@@ -1851,7 +1852,7 @@ disp_pos_mode commands_get_disp_pos_mode(void) {
 }
 
 bool commands_set_app_data_handler(void(*func)(unsigned char *data, unsigned int len)) {
-	if (utils_is_func_valid(func)) {
+	if (utils_is_func_addr_valid((uintptr_t)func)) {
 		appdata_func = func;
 		return true;
 	} else {
@@ -2540,9 +2541,12 @@ static THD_FUNCTION(blocking_thread, arg) {
 
 				comm_can_set_baud(baud, delay_msec);
 
-				app_configuration *appconf = (app_configuration*)app_get_configuration();
+				app_configuration *appconf = mempools_alloc_appconf();
+				*appconf = *app_get_configuration();
 				appconf->can_baud_rate = baud;
 				conf_general_store_app_configuration(appconf);
+				app_set_configuration(appconf);
+				mempools_free_appconf(appconf);
 			}
 
 			ind = 0;

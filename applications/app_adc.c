@@ -205,7 +205,9 @@ static THD_FUNCTION(adc_thread, arg) {
 			read_voltage = pwr;
 		}
 
-		range_ok = read_voltage >= config.voltage_min && read_voltage <= config.voltage_max;
+		// Check if the read voltage is within the acceptable range
+		// The voltage is considered OK if it is within the range [voltage_min, voltage_max].
+		range_ok = ((config.voltage_min <= read_voltage && read_voltage <= config.voltage_max) != 0);
 
 		// Map the read voltage
 		switch (config.ctrl_type) {

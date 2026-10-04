@@ -32,13 +32,18 @@
 // Default IMU SPI clock used when bus_hz is 0.
 #define SPI_HW_DEFAULT_HZ	10500000
 
+typedef struct {
+	volatile bool err;
+} spi_error_state_t;
+
 static SPIDriver *dev_of(transport_t *t) {
 	return t->bus.spi_hw.spid;
 }
 
 static void spi_err_cb(SPIDriver *spip) {
 	if (spip->app_arg) {
-		*(volatile bool *)spip->app_arg = true;
+		spi_error_state_t *error_state = spip->app_arg;
+		error_state->err = true;
 	}
 }
 
@@ -54,9 +59,9 @@ static bool read_reg(transport_t *t, uint8_t dev_addr, uint8_t reg, uint8_t *rx,
 	txd[0] = reg | SPI_READ_BIT;
 	memset(txd + 1, 0, len);
 
-	volatile bool err = false;
+	spi_error_state_t error_state = {false};
 	spiAcquireBus(spid);
-	spid->app_arg = (void *)&err;
+	spid->app_arg = &error_state;
 	spiSelect(spid);
 	// One full-duplex exchange (address byte + len bytes read back), not a separate
 	// send-then-receive: a single bus acquisition and DMA setup per read instead of
@@ -66,7 +71,7 @@ static bool read_reg(transport_t *t, uint8_t dev_addr, uint8_t reg, uint8_t *rx,
 	spid->app_arg = NULL;
 	spiReleaseBus(spid);
 
-	if (err) {
+	if (error_state.err) {
 		return false;
 	}
 	memcpy(rx, rxd + 1, len);
@@ -84,16 +89,16 @@ static bool write_reg(transport_t *t, uint8_t dev_addr, uint8_t reg, const uint8
 	txd[0] = reg & ~SPI_READ_BIT;
 	memcpy(txd + 1, tx, len);
 
-	volatile bool err = false;
+	spi_error_state_t error_state = {false};
 	spiAcquireBus(spid);
-	spid->app_arg = (void *)&err;
+	spid->app_arg = &error_state;
 	spiSelect(spid);
 	spiSend(spid, 1 + len, txd);
 	spiUnselect(spid);
 	spid->app_arg = NULL;
 	spiReleaseBus(spid);
 
-	return !err;
+	return !error_state.err;
 }
 
 static uint16_t max_sample_rate(transport_t *t) {

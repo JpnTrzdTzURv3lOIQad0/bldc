@@ -393,7 +393,7 @@ void nrf_driver_process_packet(unsigned char *buf, unsigned char len) {
 		// TODO!
 		break;
 
-	case MOTE_PACKET_BUTTONS:
+	case MOTE_PACKET_BUTTONS: {
 		ind = 1;
 		mstate.js_x = buf[ind++];
 		mstate.js_y = buf[ind++];
@@ -403,7 +403,8 @@ void nrf_driver_process_packet(unsigned char *buf, unsigned char len) {
 		mstate.bt_push = buttons & (1 << 2);
 		mstate.rev_has_state = buttons & (1 << 3);
 		mstate.is_rev = buttons & (1 << 4);
-		mstate.vbat = (float)buffer_get_int16(buf, &ind) / 1000.0F;
+		int16_t raw_vbat = buffer_get_int16(buf, &ind);
+		mstate.vbat = (float)raw_vbat / 1000.0F;
 
 		cdata.js_x = 255 - mstate.js_x;
 		cdata.js_y = mstate.js_y;
@@ -414,6 +415,7 @@ void nrf_driver_process_packet(unsigned char *buf, unsigned char len) {
 
 		app_nunchuk_update_output(&cdata);
 		break;
+	}
 
 	case MOTE_PACKET_FILL_RX_BUFFER:
 		memcpy(rx_buffer + buf[1], buf + 2, len - 2);

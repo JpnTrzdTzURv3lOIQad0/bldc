@@ -24,7 +24,7 @@
 	https://www.infineon.com/dgdl/Infineon-TLE5012B_Exxxx-DataSheet-v02_01-EN.pdf?fileId=db3a304334fac4c601350f31c43c433f
  */
 
-#include "enc_mt6816.h"
+#include "enc_tle5012.h"
 
 #include "ch.h"
 #include "hal.h"

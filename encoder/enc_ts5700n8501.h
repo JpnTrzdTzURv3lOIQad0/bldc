@@ -31,8 +31,8 @@ inline float enc_ts5700n8501_read_deg(TS5700N8501_config_t *cfg) {
 	return cfg->state.last_enc_angle;
 }
 
-inline uint8_t* enc_ts5700n8501_get_raw_status(TS5700N8501_config_t *cfg) {
-	return (uint8_t*)cfg->state.raw_status;
+inline const volatile uint8_t* enc_ts5700n8501_get_raw_status(TS5700N8501_config_t *cfg) {
+	return cfg->state.raw_status;
 }
 
 inline int16_t enc_ts5700n8501_get_abm(TS5700N8501_config_t *cfg) {

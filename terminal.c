@@ -157,9 +157,14 @@ void terminal_process_string(char *str) {
   		argv[0][i] = tolower(argv[0][i]);
 	}
 
+	const char *argv_const[kMaxArgs];
+	for (int i = 0; i < argc; i++) {
+		argv_const[i] = argv[i];
+	}
+
 	for (int i = 0;i < callback_write;i++) {
 		if (callbacks[i].cbf != NULL && strcmp(argv[0], callbacks[i].command) == 0) {
-			callbacks[i].cbf(argc, (const char**)argv);
+			callbacks[i].cbf(argc, argv_const);
 			return;
 		}
 	}
@@ -620,8 +625,10 @@ void terminal_process_string(char *str) {
 		commands_printf("Performing DC offset calibration...");
 		int res = mcpwm_foc_dc_cal(true);
 		if (res >= 0) {
-			conf_general_store_mc_configuration((mc_configuration*)mc_interface_get_configuration(),
-					mc_interface_get_motor_thread() == 2);
+			mc_configuration *mcconf = mempools_alloc_mcconf();
+			*mcconf = *mc_interface_get_configuration();
+			conf_general_store_mc_configuration(mcconf, mc_interface_get_motor_thread() == 2);
+			mempools_free_mcconf(mcconf);
 			commands_printf("Done!\n");
 		} else {
 			commands_printf("DC Cal Failed: %d\n", res);
@@ -1013,7 +1020,8 @@ void terminal_process_string(char *str) {
 			commands_printf("This command requires one argument. [Max_power_loss]\n");
 		}
 	} else if (strcmp(argv[0], "uptime") == 0) {
-		commands_printf("Uptime: %.2f s\n", (double)chVTGetSystemTimeX() / (double)CH_CFG_ST_FREQUENCY);
+		systime_t uptime_ticks = chVTGetSystemTimeX();
+		commands_printf("Uptime: %.2f s\n", (double)uptime_ticks / (double)CH_CFG_ST_FREQUENCY);
 	} else if (strcmp(argv[0], "hall_analyze") == 0) {
 		if (argc == 2) {
 			float current = -1.0F;

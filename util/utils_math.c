@@ -622,7 +622,7 @@ float utils_batt_liion_norm_v_to_capacity(float norm_v) {
 }
 
 static int uint16_cmp_func (const void *a, const void *b) {
-	return (*(uint16_t*)a - *(uint16_t*)b);
+	return (*(const uint16_t*)a - *(const uint16_t*)b);
 }
 
 uint16_t utils_median_filter_uint16_run(uint16_t *buffer,

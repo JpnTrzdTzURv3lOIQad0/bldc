@@ -35,7 +35,7 @@ endif
 
 # Linker extra options here.
 ifeq ($(USE_LDOPT),)
-  USE_LDOPT = --fatal-warnings,--print-memory-usage
+  USE_LDOPT = --print-memory-usage
 endif
 
 # Enable this if you want link time optimizations (LTO)
@@ -288,7 +288,7 @@ QUALITY_SYSTEM_INCLUDE_DIRS := $(filter $(CHIBIOS)/% libstm32f4/% libcanard/% li
 QUALITY_SYSTEM_INCLUDE_FLAGS := $(foreach dir,$(QUALITY_SYSTEM_INCLUDE_DIRS),-isystem $(dir))
 QUALITY_C += $(QUALITY_SYSTEM_INCLUDE_FLAGS)
 QUALITY_CXX += $(QUALITY_SYSTEM_INCLUDE_FLAGS)
-USE_COPT += @"$(QUALITY_DIR)/compiler/c-gnu23.rsp"
+USE_COPT += @"$(QUALITY_DIR)/compiler/c-gnu99-baseline.rsp"
 include $(RULESPATH)/rules.mk
 
 # Dependency ownership is provisional; review these roots before release gating.

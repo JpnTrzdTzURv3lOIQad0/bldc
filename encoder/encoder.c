@@ -45,7 +45,7 @@ typedef enum {
 	routine_rate_10k
 } routine_rate_t;
 
-volatile routine_rate_t m_routine_rate = routine_rate_1k;
+static volatile routine_rate_t m_routine_rate = routine_rate_1k;
 static encoder_type_t m_encoder_type_now = ENCODER_TYPE_NONE;
 static float m_enc_custom_pos = 0.0F;
 
@@ -470,19 +470,19 @@ void encoder_set_custom_callbacks (
 		bool (*has_fault)(void),
 		char* (*print_info)(void)) {
 
-	if (utils_is_func_valid(read_deg)) {
+	if (utils_is_func_addr_valid((uintptr_t)read_deg)) {
 		m_enc_custom_read_deg = read_deg;
 	} else {
 		m_enc_custom_read_deg = NULL;
 	}
 
-	if (utils_is_func_valid(has_fault)) {
+	if (utils_is_func_addr_valid((uintptr_t)has_fault)) {
 		m_enc_custom_fault = has_fault;
 	} else {
 		m_enc_custom_fault = NULL;
 	}
 
-	if (utils_is_func_valid(print_info)) {
+	if (utils_is_func_addr_valid((uintptr_t)print_info)) {
 		m_enc_custom_print_info = print_info;
 	} else {
 		m_enc_custom_print_info = NULL;
@@ -575,7 +575,8 @@ __attribute__((aligned(16))) float encoder_read_deg(void) {
 
 float encoder_read_deg_multiturn(void) {
 	if (m_encoder_type_now == ENCODER_TYPE_TS5700N8501) {
-		float ts_mt = (float)enc_ts5700n8501_get_abm(&encoder_cfg_TS5700N8501);
+		int16_t raw_ts_mt = enc_ts5700n8501_get_abm(&encoder_cfg_TS5700N8501);
+		float ts_mt = (float)raw_ts_mt;
 		if (fabsf(ts_mt) > 5000.0F) {
 			ts_mt = 0;
 			encoder_reset_multiturn();
@@ -621,7 +622,7 @@ bool encoder_index_found(void) {
 
 void encoder_reset_multiturn(void) {
 	if (m_encoder_type_now == ENCODER_TYPE_TS5700N8501) {
-		return enc_ts5700n8501_reset_multiturn(&encoder_cfg_TS5700N8501);
+		enc_ts5700n8501_reset_multiturn(&encoder_cfg_TS5700N8501);
 	}
 }
 

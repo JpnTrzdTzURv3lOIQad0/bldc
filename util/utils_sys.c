@@ -142,28 +142,34 @@ int utils_check_min_stack_left(thread_t *tp) {
  * Check how much stack the current thread has left now.
  */
 int utils_stack_left_now(void) {
-	struct port_intctx *r13 = (struct port_intctx *)__get_PSP();
-	return ((stkalign_t *)(r13 - 1) - chThdGetSelfX()->wabase) * sizeof(stkalign_t);
+	uintptr_t stack_pointer_value = __get_PSP();
+	const uint8_t *stack_pointer = (const uint8_t *)stack_pointer_value;
+	const uint8_t *stack_base = (const uint8_t *)chThdGetSelfX()->wabase;
+	return (int)(stack_pointer - sizeof(struct port_intctx) - stack_base);
 }
 
 /*
  * Check if function is on a valid address
  */
 bool utils_is_func_valid(void *addr) {
+	return utils_is_func_addr_valid((uintptr_t)addr);
+}
+
+bool utils_is_func_addr_valid(uintptr_t addr) {
 	bool res = false;
 
 	// Flash
-	if ((uint32_t)addr >= 0x08000000 && (uint32_t)addr <= (0x08000000 + 1024 * 1024)) {
+	if (addr >= 0x08000000 && addr <= (0x08000000 + 1024 * 1024)) {
 		res = true;
 	}
 
 	// Ram
-	if ((uint32_t)addr >= 0x20000000 && (uint32_t)addr <= (0x20000000 + 1024 * 128)) {
+	if (addr >= 0x20000000 && addr <= (0x20000000 + 1024 * 128)) {
 		res = true;
 	}
 
 	// CCM
-	if ((uint32_t)addr >= 0x10000000 && (uint32_t)addr <= (0x10000000 + 1024 * 64)) {
+	if (addr >= 0x10000000 && addr <= (0x10000000 + 1024 * 64)) {
 		res = true;
 	}
 

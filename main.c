@@ -226,6 +226,13 @@ static THD_FUNCTION(periodic_thread, arg) {
 	}
 }
 
+void assert_failed(uint8_t* file, uint32_t line);
+void fault_handler_c(uint32_t *hardfault_args);
+void __aeabi_unwind_cpp_pr0(void);
+void __aeabi_unwind_cpp_pr1(void);
+void __aeabi_unwind_cpp_pr2(void);
+void __assert_func(const char *file, int line, const char *func, const char *expr);
+
 // When assertions enabled halve PWM frequency. The control loop ISR runs 40% slower
 void assert_failed(uint8_t* file, uint32_t line) {
 	commands_printf("Wrong parameters value: file %s on line %d\r\n", file, line);
@@ -446,7 +453,7 @@ int main(void) {
 	if (appconf->can_mode == CAN_MODE_VESC) {
 		comm_can_transmit_eid(
 				app_get_configuration()->controller_id | (CAN_PACKET_NOTIFY_BOOT << 8),
-				(uint8_t *)HW_NAME, (strlen(HW_NAME) <= CAN_FRAME_MAX_PL_SIZE) ?
+				(const uint8_t *)HW_NAME, (strlen(HW_NAME) <= CAN_FRAME_MAX_PL_SIZE) ?
 						strlen(HW_NAME) : CAN_FRAME_MAX_PL_SIZE);
 	}
 #endif

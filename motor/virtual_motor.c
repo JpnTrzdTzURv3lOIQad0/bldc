@@ -215,8 +215,11 @@ static void connect_virtual_motor(float ml , float J, float Vbus){
 		}
 #endif
 		virtual_motor.phi = DEG2RAD_f(mcpwm_foc_get_phase());
-		utils_fast_sincos_better(virtual_motor.phi, (float*)&virtual_motor.sin_phi,
-														(float*)&virtual_motor.cos_phi);
+		float sin_phi;
+		float cos_phi;
+		utils_fast_sincos_better(virtual_motor.phi, &sin_phi, &cos_phi);
+		virtual_motor.sin_phi = sin_phi;
+		virtual_motor.cos_phi = cos_phi;
 
 		if(m_conf->foc_sensor_mode == FOC_SENSOR_MODE_ENCODER ||
 				m_conf->foc_sensor_mode == FOC_SENSOR_MODE_ENCODER_AB){
@@ -325,8 +328,12 @@ static inline void run_virtual_motor_electrical(float v_alpha, float v_beta){
 						* virtual_motor.Ts / virtual_motor.lq;
 
 //	// limit current maximum values
-	utils_truncate_number_abs((float *) &(virtual_motor.iq) , (2048 * FAC_CURRENT) );
-	utils_truncate_number_abs((float *) &(virtual_motor.id) , (2048 * FAC_CURRENT) );
+	float iq = virtual_motor.iq;
+	float id = virtual_motor.id;
+	utils_truncate_number_abs(&iq, (2048 * FAC_CURRENT));
+	utils_truncate_number_abs(&id, (2048 * FAC_CURRENT));
+	virtual_motor.iq = iq;
+	virtual_motor.id = id;
 }
 
 /**
@@ -357,8 +364,11 @@ static inline void run_virtual_motor_mechanics(float ml){
  * Take the id and iq calculated values and translate them into ADC_Values
  */
 static inline void run_virtual_motor_park_clark_inverse( void ){
-	utils_fast_sincos_better( virtual_motor.phi , (float*)&virtual_motor.sin_phi,
-													(float*)&virtual_motor.cos_phi );
+	float sin_phi;
+	float cos_phi;
+	utils_fast_sincos_better(virtual_motor.phi, &sin_phi, &cos_phi);
+	virtual_motor.sin_phi = sin_phi;
+	virtual_motor.cos_phi = cos_phi;
 
 	//	Park Inverse
 	virtual_motor.i_alpha = virtual_motor.cos_phi * virtual_motor.id -

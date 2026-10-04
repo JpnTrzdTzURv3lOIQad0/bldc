@@ -167,6 +167,7 @@
 #endif
 
 // Global configuration variables
+extern uint16_t VirtAddVarTab[];
 extern bool conf_general_permanent_nrf_found;
 extern volatile backup_data g_backup;
 

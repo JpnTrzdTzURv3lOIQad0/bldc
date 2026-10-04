@@ -46,5 +46,10 @@ void log_send_samples_f32(
 		int field_start,
 		float *samples,
 		int sample_num);
+void log_send_samples_f64(
+		int can_id,
+		int field_start,
+		double *samples,
+		int sample_num);
 
 #endif /* COMM_LOG_H_ */

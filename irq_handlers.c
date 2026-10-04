@@ -29,6 +29,18 @@
 #include "irq_handlers.h"
 #include "imu/drdy.h"
 
+CH_IRQ_HANDLER(ADC1_2_3_IRQHandler);
+CH_IRQ_HANDLER(EXTI9_5_IRQHandler);
+CH_IRQ_HANDLER(EXTI15_10_IRQHandler);
+CH_IRQ_HANDLER(HW_ENC_TIM_ISR_VEC);
+CH_IRQ_HANDLER(TIM2_IRQHandler);
+CH_IRQ_HANDLER(PVD_IRQHandler);
+CH_IRQ_HANDLER(NMI_Handler);
+CH_IRQ_HANDLER(HardFault_Handler);
+CH_IRQ_HANDLER(MemManage_Handler);
+CH_IRQ_HANDLER(BusFault_Handler);
+CH_IRQ_HANDLER(UsageFault_Handler);
+
 CH_IRQ_HANDLER(ADC1_2_3_IRQHandler) {
 	CH_IRQ_PROLOGUE();
 	ADC_ClearITPendingBit(ADC1, ADC_IT_JEOC);

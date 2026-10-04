@@ -1972,9 +1972,16 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 		} break;
 
 		case CAN_PACKET_POLL_TS5700N8501_STATUS: {
+			const volatile uint8_t *raw_status =
+					enc_ts5700n8501_get_raw_status(&encoder_cfg_TS5700N8501);
+			uint8_t status_data[8];
+			for (int i = 0; i < 8; i++) {
+				status_data[i] = raw_status[i];
+			}
+
 			comm_can_transmit_eid_replace(app_get_configuration()->controller_id |
 					((uint32_t)CAN_PACKET_POLL_TS5700N8501_STATUS << 8),
-					enc_ts5700n8501_get_raw_status(&encoder_cfg_TS5700N8501), 8, true, 0);
+					status_data, 8, true, 0);
 		} break;
 
 		case CAN_PACKET_CONF_BATTERY_CUT:
@@ -2266,9 +2273,12 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 			if (baud != CAN_BAUD_INVALID) {
 				comm_can_set_baud(baud, delay_msec);
 
-				app_configuration *appconf = (app_configuration*)app_get_configuration();
+				app_configuration *appconf = mempools_alloc_appconf();
+				*appconf = *app_get_configuration();
 				appconf->can_baud_rate = baud;
 				conf_general_store_app_configuration(appconf);
+				app_set_configuration(appconf);
+				mempools_free_appconf(appconf);
 			}
 		}
 	} break;

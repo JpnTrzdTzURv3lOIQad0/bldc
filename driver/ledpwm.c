@@ -29,11 +29,14 @@ static volatile bool led_values_override[LEDPWM_LED_NUM] = {false};
 static uint8_t gamma_table[LEDPWM_CNT_TOP + 1];
 
 void ledpwm_init(void) {
-	memset((int*)led_values, 0, sizeof(led_values));
+	for (int i = 0;i < LEDPWM_LED_NUM;i++) {
+		led_values[i] = 0;
+	}
 
 	// Generate gamma correction table
 	for (int i = 0;i < (LEDPWM_CNT_TOP + 1);i++) {
-		gamma_table[i] = (int)roundf(powf((float)i / (float)LEDPWM_CNT_TOP, 1.0F / 0.45F) * (float)LEDPWM_CNT_TOP);
+		float gamma_value = roundf(powf((float)i / (float)LEDPWM_CNT_TOP, 1.0F / 0.45F) * (float)LEDPWM_CNT_TOP);
+		gamma_table[i] = (uint8_t)(int)gamma_value;
 	}
 }
 
