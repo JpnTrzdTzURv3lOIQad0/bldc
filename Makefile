@@ -23,6 +23,14 @@ MAKE_DIR := $(ROOT_DIR)/make
 BUILD_DIR := $(ROOT_DIR)/build
 DL_DIR    := $(ROOT_DIR)/downloads
 
+GCC_ANALYZER_TOOLCHAIN := $(firstword $(wildcard $(TOOLS_DIR)/arm-gnu-toolchain-*/bin/arm-none-eabi-gcc))
+GCC_ANALYZER_TOOLCHAIN_DIR := $(patsubst %/bin/arm-none-eabi-gcc,%,$(GCC_ANALYZER_TOOLCHAIN))
+ifneq ($(filter lint,$(MAKECMDGOALS)),)
+ifneq ($(GCC_ANALYZER_TOOLCHAIN_DIR),)
+override ARM_SDK_DIR := $(GCC_ANALYZER_TOOLCHAIN_DIR)
+endif
+endif
+
 # import macros common to all supported build systems
 include $(ROOT_DIR)/make/system-id.mk
 
@@ -85,6 +93,8 @@ help:
 	@echo "   [Big Hammer]"
 	@echo "     all_fw               - Build firmware for all boards"
 	@echo "     all_fw_package       - Packaage firmware for boards in package list"
+	@echo "     lint                 - Build all firmware with GCC static analysis (GCC 10+)"
+	@echo "                            Set LINT_TARGETS=fw_<board> to lint one board"
 	@echo ""
 	@echo "   [Unit Tests]"
 	@echo "     all_ut               - Build all unit tests"
@@ -179,6 +189,7 @@ fw_$(1)_vescfw:
 	$(V1) $$(MAKE) -f $(MAKE_DIR)/fw.mk \
 		TCHAIN_PREFIX="$(ARM_SDK_PREFIX)" \
 		BUILDDIR="$(2)" \
+		DEPDIR="$(2)/.dep" \
 		PROJECT="$(3)" \
 		build_args='$$($(1)_BUILD_MACROS)' USE_VERBOSE_COMPILE=no
 
@@ -254,6 +265,22 @@ FW_TARGETS := $(addprefix fw_, $(ALL_BOARD_NAMES))
 .PHONY: all_fw all_fw_clean
 all_fw:        $(addsuffix _vescfw, $(FW_TARGETS))
 all_fw_clean:  $(addsuffix _clean,  $(FW_TARGETS))
+
+GCC_ANALYZER_COMPILER := $(if $(GCC_ANALYZER_TOOLCHAIN),$(GCC_ANALYZER_TOOLCHAIN),$(ARM_SDK_PREFIX)gcc)
+GCC_ANALYZER_VERSION := $(shell $(GCC_ANALYZER_COMPILER) -dumpversion 2>/dev/null)
+GCC_ANALYZER_MAJOR_VERSION := $(firstword $(subst ., ,$(GCC_ANALYZER_VERSION)))
+GCC_ANALYZER_UNSUPPORTED_VERSIONS := 0 1 2 3 4 5 6 7 8 9
+LINT_TARGETS ?= $(FW_TARGETS)
+
+.PHONY: lint
+lint:
+ifeq ($(strip $(GCC_ANALYZER_VERSION)),)
+	$(error "make lint could not find an Arm GCC compiler; install GCC 10+ or add arm-none-eabi-gcc to PATH")
+else ifneq ($(filter $(GCC_ANALYZER_UNSUPPORTED_VERSIONS),$(GCC_ANALYZER_MAJOR_VERSION)),)
+	$(error "make lint requires GCC 10 or newer for -fanalyzer; found $(GCC_ANALYZER_VERSION)")
+else
+	$(MAKE) --no-print-directory all_fw BUILD_DIR="$(ROOT_DIR)/build/lint" FW_TARGETS="$(LINT_TARGETS)" ARM_SDK_DIR="$(GCC_ANALYZER_TOOLCHAIN_DIR)" GCC_ANALYZER=yes
+endif
 
 # Expand the firmware rules
 $(foreach board, $(ALL_BOARD_NAMES), $(eval $(call FW_TEMPLATE,$(board),$(BUILD_DIR)/$(board),$(board),$(GIT_BRANCH_NAME),$(GIT_COMMIT_HASH)$(GIT_DIRTY_LABEL),$(ARM_GCC_VERSION),,)))

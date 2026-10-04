@@ -70,6 +70,27 @@ Open up a terminal
 3.  `make` <-- Pick out the name of your target device from the supported boards list. For instance, I have a Trampa **VESC 100/250**, so my target is `100_250`
 4.   `make 100_250` <-- This will build the **VESC 100/250** firmware and place it into the `bldc/builds/100_250/` directory
 
+## ChibiOS
+
+Firmware builds use upstream ChibiOS `ver21.11.5`, commit
+`f4bbadf964fc746aef8bbcf34135c7d8fabb8eae`, in `ChibiOS_21.11.5/`. The source
+archive SHA-256 is `CF0B320037EE98DE9DACE8CFA91D5A11E5F2DE32AA28CB923F3EC69AB43A5A0F`.
+
+The STM32 Standard Peripheral Library from the previous ChibiOS 3.0.5 bundle
+remains separately in `libstm32f4/` because motor control configures ADC, DMA, and
+timers directly through that API. `libstm32f4/assert_compat.h` preserves the
+library's disabled `assert_param` behavior, and its legacy flash status name is
+renamed to avoid colliding with the ChibiOS flash HAL.
+
+The only ChibiOS source patch preserves the existing baud-dependent USART IRQ
+priority in [hal_serial_lld.c](ChibiOS_21.11.5/os/hal/ports/STM32/LLD/USARTv1/hal_serial_lld.c):
+priority 4 above 200 kbaud, otherwise 7. The default `-Os` and four-way LTO
+settings keep firmware within the bootloader's fixed flash map.
+
+The Flipsky 75/300 target was build-validated with `make fw_fsesc_75_300` using
+Arm GCC 14.3.1; its application uses 449,624 of 475,120 bytes. Firmware was not
+flashed or run, so hardware behavior remains unverified.
+
 ## Building with Nix
 
 Nix is a build tool which manages all dependencies. With [Nix flakes](https://nixos.wiki/wiki/Flakes)

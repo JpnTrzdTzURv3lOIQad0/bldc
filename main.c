@@ -511,7 +511,7 @@ void main_fault_handler(void) {
 	);
 }
 
-void fault_handler_c(uint32_t *hardfault_args) {
+void __attribute__((used)) fault_handler_c(uint32_t *hardfault_args) {
 	// Store the registers dumped on the stack after a crash
 	crash_info.registers.r0 = hardfault_args[0];
 	crash_info.registers.r1 = hardfault_args[1];

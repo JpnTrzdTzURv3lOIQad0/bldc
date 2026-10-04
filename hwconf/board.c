@@ -17,51 +17,63 @@
 #include "hal.h"
 #include "hw.h"
 
-#if HAL_USE_PAL || defined(__DOXYGEN__)
-/**
- * @brief   PAL setup.
- * @details Digital I/O ports static configuration as defined in @p board.h.
- *          This variable is used by the HAL when initializing the PAL driver.
- */
-const PALConfig pal_default_config = {
+static void gpio_init(stm32_gpio_t *gpiop,
+                      uint32_t moder,
+                      uint32_t otyper,
+                      uint32_t ospeedr,
+                      uint32_t pupdr,
+                      uint32_t odr,
+                      uint32_t afrl,
+                      uint32_t afrh) {
+  gpiop->OTYPER = otyper;
+  gpiop->OSPEEDR = ospeedr;
+  gpiop->PUPDR = pupdr;
+  gpiop->ODR = odr;
+  gpiop->AFRL = afrl;
+  gpiop->AFRH = afrh;
+  gpiop->MODER = moder;
+}
+
+static void gpio_init_all(void) {
+  rccResetAHB1(STM32_GPIO_EN_MASK);
+  rccEnableAHB1(STM32_GPIO_EN_MASK, TRUE);
 #if STM32_HAS_GPIOA
-  {VAL_GPIOA_MODER, VAL_GPIOA_OTYPER, VAL_GPIOA_OSPEEDR, VAL_GPIOA_PUPDR,
-   VAL_GPIOA_ODR,   VAL_GPIOA_AFRL,   VAL_GPIOA_AFRH},
+  gpio_init(GPIOA, VAL_GPIOA_MODER, VAL_GPIOA_OTYPER, VAL_GPIOA_OSPEEDR,
+            VAL_GPIOA_PUPDR, VAL_GPIOA_ODR, VAL_GPIOA_AFRL, VAL_GPIOA_AFRH);
 #endif
 #if STM32_HAS_GPIOB
-  {VAL_GPIOB_MODER, VAL_GPIOB_OTYPER, VAL_GPIOB_OSPEEDR, VAL_GPIOB_PUPDR,
-   VAL_GPIOB_ODR,   VAL_GPIOB_AFRL,   VAL_GPIOB_AFRH},
+  gpio_init(GPIOB, VAL_GPIOB_MODER, VAL_GPIOB_OTYPER, VAL_GPIOB_OSPEEDR,
+            VAL_GPIOB_PUPDR, VAL_GPIOB_ODR, VAL_GPIOB_AFRL, VAL_GPIOB_AFRH);
 #endif
 #if STM32_HAS_GPIOC
-  {VAL_GPIOC_MODER, VAL_GPIOC_OTYPER, VAL_GPIOC_OSPEEDR, VAL_GPIOC_PUPDR,
-   VAL_GPIOC_ODR,   VAL_GPIOC_AFRL,   VAL_GPIOC_AFRH},
+  gpio_init(GPIOC, VAL_GPIOC_MODER, VAL_GPIOC_OTYPER, VAL_GPIOC_OSPEEDR,
+            VAL_GPIOC_PUPDR, VAL_GPIOC_ODR, VAL_GPIOC_AFRL, VAL_GPIOC_AFRH);
 #endif
 #if STM32_HAS_GPIOD
-  {VAL_GPIOD_MODER, VAL_GPIOD_OTYPER, VAL_GPIOD_OSPEEDR, VAL_GPIOD_PUPDR,
-   VAL_GPIOD_ODR,   VAL_GPIOD_AFRL,   VAL_GPIOD_AFRH},
+  gpio_init(GPIOD, VAL_GPIOD_MODER, VAL_GPIOD_OTYPER, VAL_GPIOD_OSPEEDR,
+            VAL_GPIOD_PUPDR, VAL_GPIOD_ODR, VAL_GPIOD_AFRL, VAL_GPIOD_AFRH);
 #endif
 #if STM32_HAS_GPIOE
-  {VAL_GPIOE_MODER, VAL_GPIOE_OTYPER, VAL_GPIOE_OSPEEDR, VAL_GPIOE_PUPDR,
-   VAL_GPIOE_ODR,   VAL_GPIOE_AFRL,   VAL_GPIOE_AFRH},
+  gpio_init(GPIOE, VAL_GPIOE_MODER, VAL_GPIOE_OTYPER, VAL_GPIOE_OSPEEDR,
+            VAL_GPIOE_PUPDR, VAL_GPIOE_ODR, VAL_GPIOE_AFRL, VAL_GPIOE_AFRH);
 #endif
 #if STM32_HAS_GPIOF
-  {VAL_GPIOF_MODER, VAL_GPIOF_OTYPER, VAL_GPIOF_OSPEEDR, VAL_GPIOF_PUPDR,
-   VAL_GPIOF_ODR,   VAL_GPIOF_AFRL,   VAL_GPIOF_AFRH},
+  gpio_init(GPIOF, VAL_GPIOF_MODER, VAL_GPIOF_OTYPER, VAL_GPIOF_OSPEEDR,
+            VAL_GPIOF_PUPDR, VAL_GPIOF_ODR, VAL_GPIOF_AFRL, VAL_GPIOF_AFRH);
 #endif
 #if STM32_HAS_GPIOG
-  {VAL_GPIOG_MODER, VAL_GPIOG_OTYPER, VAL_GPIOG_OSPEEDR, VAL_GPIOG_PUPDR,
-   VAL_GPIOG_ODR,   VAL_GPIOG_AFRL,   VAL_GPIOG_AFRH},
+  gpio_init(GPIOG, VAL_GPIOG_MODER, VAL_GPIOG_OTYPER, VAL_GPIOG_OSPEEDR,
+            VAL_GPIOG_PUPDR, VAL_GPIOG_ODR, VAL_GPIOG_AFRL, VAL_GPIOG_AFRH);
 #endif
 #if STM32_HAS_GPIOH
-  {VAL_GPIOH_MODER, VAL_GPIOH_OTYPER, VAL_GPIOH_OSPEEDR, VAL_GPIOH_PUPDR,
-   VAL_GPIOH_ODR,   VAL_GPIOH_AFRL,   VAL_GPIOH_AFRH},
+  gpio_init(GPIOH, VAL_GPIOH_MODER, VAL_GPIOH_OTYPER, VAL_GPIOH_OSPEEDR,
+            VAL_GPIOH_PUPDR, VAL_GPIOH_ODR, VAL_GPIOH_AFRL, VAL_GPIOH_AFRH);
 #endif
 #if STM32_HAS_GPIOI
-  {VAL_GPIOI_MODER, VAL_GPIOI_OTYPER, VAL_GPIOI_OSPEEDR, VAL_GPIOI_PUPDR,
-   VAL_GPIOI_ODR,   VAL_GPIOI_AFRL,   VAL_GPIOI_AFRH}
+  gpio_init(GPIOI, VAL_GPIOI_MODER, VAL_GPIOI_OTYPER, VAL_GPIOI_OSPEEDR,
+            VAL_GPIOI_PUPDR, VAL_GPIOI_ODR, VAL_GPIOI_AFRL, VAL_GPIOI_AFRH);
 #endif
-};
-#endif
+}
 
 /**
  * @brief   Early initialization code.
@@ -71,6 +83,7 @@ const PALConfig pal_default_config = {
 void __early_init(void) {
   HW_VERY_EARLY_INIT();
   stm32_clock_init();
+  gpio_init_all();
 }
 
 #if HAL_USE_SDC || defined(__DOXYGEN__)

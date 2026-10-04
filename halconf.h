@@ -28,7 +28,15 @@
 #ifndef _HALCONF_H_
 #define _HALCONF_H_
 
+#define _CHIBIOS_HAL_CONF_
+#define _CHIBIOS_HAL_CONF_VER_9_1_
+
 #include "mcuconf.h"
+
+#define PAL_STM32_PUDR_MASK       PAL_STM32_PUPDR_MASK
+#define PAL_STM32_PUDR_FLOATING   PAL_STM32_PUPDR_FLOATING
+#define PAL_STM32_PUDR_PULLUP     PAL_STM32_PUPDR_PULLUP
+#define PAL_STM32_PUDR_PULLDOWN   PAL_STM32_PUPDR_PULLDOWN
 
 /**
  * @brief   Enables the PAL subsystem.

@@ -15,4 +15,8 @@
 #include "stm32f4xx_wwdg.h"
 #include "stm32f4xx_iwdg.h"
 
+#ifndef assert_param
+#define assert_param(expr) ((void)0)
+#endif
+
 #endif

@@ -87,22 +87,29 @@ SECTIONS
 
     startup : ALIGN(16) SUBALIGN(16)
     {
+        __textvectors_base__ = LOADADDR(startup);
+        __vectors_base__ = .;
         KEEP(*(.vectors))
+        __vectors_end__ = .;
     } > flash
 
     constructors : ALIGN(4) SUBALIGN(4)
     {
+        PROVIDE(__init_array_base__ = .);
         PROVIDE(__init_array_start = .);
         KEEP(*(SORT(.init_array.*)))
         KEEP(*(.init_array))
+        PROVIDE(__init_array_end__ = .);
         PROVIDE(__init_array_end = .);
     } > flash2
 
     destructors : ALIGN(4) SUBALIGN(4)
     {
+        PROVIDE(__fini_array_base__ = .);
         PROVIDE(__fini_array_start = .);
         KEEP(*(.fini_array))
         KEEP(*(SORT(.fini_array.*)))
+        PROVIDE(__fini_array_end__ = .);
         PROVIDE(__fini_array_end = .);
     } > flash2
 
@@ -182,22 +189,27 @@ SECTIONS
     .data : ALIGN(4)
     {
         . = ALIGN(4);
+        __textdata_base__ = LOADADDR(.data);
+        __data_base__ = .;
         PROVIDE(_data = .);
         *(.data)
         *(.data.*)
         *(.ramtext)
         . = ALIGN(4);
+        __data_end__ = .;
         PROVIDE(_edata = .);
     } > DATA_RAM AT > flash2
 
     .bss : ALIGN(4)
     {
         . = ALIGN(4);
+        __bss_base__ = .;
         PROVIDE(_bss_start = .);
         *(.bss)
         *(.bss.*)
         *(COMMON)
         . = ALIGN(4);
+        __bss_end__ = .;
         PROVIDE(_bss_end = .);
         PROVIDE(end = .);
     } > BSS_RAM

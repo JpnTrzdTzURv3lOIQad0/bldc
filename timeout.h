@@ -21,8 +21,6 @@
 #define TIMEOUT_H_
 
 #include "ch.h"
-#include "chtypes.h"
-#include "chsystypes.h"
 #include "datatypes.h"
 
 #define MAX_THREADS_MONITOR		10
