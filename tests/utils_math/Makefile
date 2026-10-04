@@ -4,6 +4,7 @@ TOP      := $(realpath $(WHEREAMI)/../../)
 include $(TOP)/make/unittest-defs.mk
 
 EXTRAINCDIRS += $(TOP)/
+EXTRAINCDIRS += $(TOP)/util
 EXTRAINCDIRS += $(HERE)/
 
 
@@ -31,6 +32,6 @@ CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS)) -I.
 
 CONLYFLAGS += -std=gnu99
 
-SRC := $(TOP)/utils_math.c
+SRC := $(TOP)/util/utils_math.c
 
 include $(TOP)/make/unittest.mk

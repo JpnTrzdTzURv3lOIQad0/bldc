@@ -1,11 +1,33 @@
 #include "pm_interface.h"
 
 #include <limits.h>
+#include <math.h>
 #include <string.h>
+
+#define PM_MAX_TIME_DELTA_MS 0x7FFFFFFFU
 
 static uint32_t next_generation(uint32_t generation) {
 	generation++;
 	return generation == 0 ? 1 : generation;
+}
+
+static void clear_settle_tracking(pm_axis_t *axis) {
+	axis->settle_started_ms = 0;
+	axis->stable_since_ms = 0;
+	axis->settle_started = false;
+	axis->stable_window_started = false;
+	axis->settle_qualified = false;
+}
+
+static bool elapsed_ms(uint32_t now_ms, uint32_t start_ms,
+		uint32_t *elapsed) {
+	*elapsed = now_ms - start_ms;
+	return *elapsed <= PM_MAX_TIME_DELTA_MS;
+}
+
+static uint64_t distance_i64(int64_t left, int64_t right) {
+	return left >= right ? (uint64_t)left - (uint64_t)right :
+			(uint64_t)right - (uint64_t)left;
 }
 
 static bool is_position_command(pm_command_type_t type) {
@@ -19,12 +41,12 @@ static void record_terminal(pm_axis_status_t *status, uint32_t command_id,
 	status->last_terminal_result = result;
 }
 
-static void cancel_active(pm_axis_status_t *status,
-		pm_terminal_result_t result) {
-	if (status->command_active) {
-		record_terminal(status, status->active_command_id, result);
-		status->command_active = false;
-		status->active_has_endpoint = false;
+static void cancel_active(pm_axis_t *axis, pm_terminal_result_t result) {
+	if (axis->status.command_active) {
+		record_terminal(&axis->status, axis->status.active_command_id, result);
+		axis->status.command_active = false;
+		axis->status.active_has_endpoint = false;
+		clear_settle_tracking(axis);
 	}
 }
 
@@ -43,6 +65,15 @@ static bool request_is_valid(const pm_command_t *command) {
 			command->command_id != 0 &&
 			command->owner_session != 0 &&
 			command->owner_generation != 0;
+}
+
+static bool settle_config_is_valid(const pm_settle_config_t *config) {
+	return config != NULL && config->position_tolerance_counts >= 0 &&
+			isfinite(config->velocity_tolerance_counts_per_second) &&
+			config->velocity_tolerance_counts_per_second >= 0.0f &&
+			config->settle_duration_ms <= config->timeout_ms &&
+			config->timeout_ms > 0 &&
+			config->timeout_ms <= PM_MAX_TIME_DELTA_MS;
 }
 
 void pm_axis_init(pm_axis_t *axis, uint16_t axis_id) {
@@ -73,7 +104,7 @@ void pm_axis_revoke_owner(pm_axis_t *axis, bool invalidate_reference) {
 	if (axis == NULL) {
 		return;
 	}
-	cancel_active(&axis->status, PM_TERMINAL_CANCELLED);
+	cancel_active(axis, PM_TERMINAL_CANCELLED);
 	if (axis->status.command_pending) {
 		record_terminal(&axis->status, axis->status.pending_command_id,
 				PM_TERMINAL_CANCELLED);
@@ -86,6 +117,7 @@ void pm_axis_revoke_owner(pm_axis_t *axis, bool invalidate_reference) {
 	axis->status.enabled = false;
 	axis->status.lifecycle = PM_LIFECYCLE_DISABLED;
 	axis->status.fault_code = 0;
+	clear_settle_tracking(axis);
 	if (invalidate_reference) {
 		axis->status.referenced = false;
 		axis->status.has_commanded_endpoint = false;
@@ -154,8 +186,9 @@ static bool activate_motion(pm_axis_t *axis, const pm_command_t *command,
 		}
 	}
 	if (replacing) {
-		cancel_active(&axis->status, PM_TERMINAL_SUPERSEDED);
+		cancel_active(axis, PM_TERMINAL_SUPERSEDED);
 	}
+	clear_settle_tracking(axis);
 	axis->status.command_active = true;
 	axis->status.active_command_id = command->command_id;
 	axis->status.active_command_type = command->type;
@@ -195,7 +228,7 @@ void pm_axis_tick(pm_axis_t *axis) {
 	}
 	if (command.type == PM_COMMAND_DISABLE ||
 			command.type == PM_COMMAND_ABORT_RELEASE) {
-		cancel_active(&axis->status, command.type == PM_COMMAND_ABORT_RELEASE ?
+		cancel_active(axis, command.type == PM_COMMAND_ABORT_RELEASE ?
 				PM_TERMINAL_ABORTED : PM_TERMINAL_CANCELLED);
 		axis->status.enabled = false;
 		axis->status.lifecycle = PM_LIFECYCLE_DISABLED;
@@ -248,7 +281,7 @@ void pm_axis_tick(pm_axis_t *axis) {
 			reject_pending(axis);
 			return;
 		}
-		cancel_active(&axis->status, PM_TERMINAL_CANCELLED);
+		cancel_active(axis, PM_TERMINAL_CANCELLED);
 		axis->status.command_active = true;
 		axis->status.active_command_id = command.command_id;
 		axis->status.active_command_type = command.type;
@@ -279,6 +312,82 @@ void pm_axis_tick(pm_axis_t *axis) {
 	reject_pending(axis);
 }
 
+pm_settle_result_t pm_axis_update_settle(pm_axis_t *axis,
+		uint32_t command_id, bool profile_complete, bool feedback_fresh,
+		int64_t measured_position_counts, float measured_velocity_counts_per_second,
+		uint32_t now_ms, const pm_settle_config_t *config) {
+	if (axis == NULL || !settle_config_is_valid(config)) {
+		return PM_SETTLE_RESULT_INVALID;
+	}
+	if (!axis->status.command_active ||
+			axis->status.active_command_id != command_id ||
+			!axis->status.active_has_endpoint ||
+			(axis->status.active_command_type != PM_COMMAND_MOVE_ABSOLUTE &&
+			axis->status.active_command_type != PM_COMMAND_MOVE_RELATIVE)) {
+		return PM_SETTLE_RESULT_NOT_ACTIVE;
+	}
+	if (!axis->status.enabled || !axis->status.referenced ||
+			axis->status.lifecycle == PM_LIFECYCLE_FAULTED) {
+		return PM_SETTLE_RESULT_INVALID;
+	}
+	if (!profile_complete) {
+		if (axis->status.lifecycle == PM_LIFECYCLE_SETTLING) {
+			return PM_SETTLE_RESULT_INVALID;
+		}
+		clear_settle_tracking(axis);
+		axis->status.lifecycle = PM_LIFECYCLE_MOVING;
+		return PM_SETTLE_RESULT_RUNNING;
+	}
+	if (feedback_fresh &&
+			!isfinite(measured_velocity_counts_per_second)) {
+		return PM_SETTLE_RESULT_INVALID;
+	}
+
+	if (!axis->settle_started) {
+		axis->settle_started = true;
+		axis->settle_started_ms = now_ms;
+		axis->status.lifecycle = PM_LIFECYCLE_SETTLING;
+	}
+	uint32_t settle_elapsed;
+	if (!elapsed_ms(now_ms, axis->settle_started_ms, &settle_elapsed)) {
+		return PM_SETTLE_RESULT_INVALID;
+	}
+
+	if (feedback_fresh) {
+		bool within_position = distance_i64(measured_position_counts,
+				axis->status.active_endpoint_ticks) <=
+				(uint64_t)config->position_tolerance_counts;
+		bool within_velocity = fabsf(measured_velocity_counts_per_second) <=
+				config->velocity_tolerance_counts_per_second;
+		if (within_position && within_velocity) {
+			if (!axis->stable_window_started) {
+				axis->stable_since_ms = now_ms;
+				axis->stable_window_started = true;
+			}
+			uint32_t stable_elapsed;
+			if (!elapsed_ms(now_ms, axis->stable_since_ms, &stable_elapsed)) {
+				return PM_SETTLE_RESULT_INVALID;
+			}
+			if (stable_elapsed >= config->settle_duration_ms) {
+				axis->settle_qualified = true;
+				return pm_axis_finish(axis, command_id,
+						PM_TERMINAL_COMPLETED) ? PM_SETTLE_RESULT_COMPLETED :
+						PM_SETTLE_RESULT_INVALID;
+			}
+		} else {
+			axis->stable_window_started = false;
+		}
+	} else {
+		axis->stable_window_started = false;
+	}
+
+	if (settle_elapsed >= config->timeout_ms) {
+		pm_axis_latch_fault(axis, PM_FAULT_SETTLE_TIMEOUT);
+		return PM_SETTLE_RESULT_TIMEOUT;
+	}
+	return PM_SETTLE_RESULT_RUNNING;
+}
+
 bool pm_axis_finish(pm_axis_t *axis, uint32_t command_id,
 		pm_terminal_result_t result) {
 	if (axis == NULL || !axis->status.command_active ||
@@ -286,10 +395,16 @@ bool pm_axis_finish(pm_axis_t *axis, uint32_t command_id,
 			result == PM_TERMINAL_NONE || result > PM_TERMINAL_REJECTED) {
 		return false;
 	}
-	bool completed = result == PM_TERMINAL_COMPLETED;
 	pm_command_type_t type = axis->status.active_command_type;
+	if (result == PM_TERMINAL_COMPLETED &&
+			(type == PM_COMMAND_MOVE_ABSOLUTE ||
+			 type == PM_COMMAND_MOVE_RELATIVE) && !axis->settle_qualified) {
+		return false;
+	}
+	bool completed = result == PM_TERMINAL_COMPLETED;
 	axis->status.command_active = false;
 	axis->status.active_has_endpoint = false;
+	clear_settle_tracking(axis);
 	if (completed && type == PM_COMMAND_HOME) {
 		axis->status.referenced = true;
 	}
@@ -314,7 +429,7 @@ void pm_axis_latch_fault(pm_axis_t *axis, uint32_t fault_code) {
 	if (axis == NULL) {
 		return;
 	}
-	cancel_active(&axis->status, PM_TERMINAL_FAULTED);
+	cancel_active(axis, PM_TERMINAL_FAULTED);
 	if (axis->status.command_pending) {
 		record_terminal(&axis->status, axis->status.pending_command_id,
 				PM_TERMINAL_REJECTED);

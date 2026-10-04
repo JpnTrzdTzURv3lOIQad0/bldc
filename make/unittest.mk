@@ -1,9 +1,9 @@
 ###############################################################################
 # @file       unittest.mk
 # @author
-# @addtogroup 
+# @addtogroup
 # @{
-# @addtogroup 
+# @addtogroup
 # @{
 # @brief Makefile template for unit tests
 ###############################################################################
@@ -18,7 +18,7 @@ CXXFLAGS += -g -Wall -Wextra -Wno-missing-field-initializers -std=c++11
 LDFLAGS += -lpthread
 
 # Google Test requires visibility of gtest includes
-GTEST_CXXFLAGS := -I$(GTEST_DIR)
+GTEST_CXXFLAGS := -I$(GTEST_DIR) -Wno-error=double-promotion
 
 # gcov requires specific link options to enable the coverage hooks
 LDFLAGS += -fprofile-arcs

@@ -166,7 +166,7 @@ fw_$(1): fw_$(1)_vescfw
 ifeq ($(7),)
   $(1)_HW_DIR = $(dir $(filter %/hw_$(1).h, $(TARGET_PATHS)))
   $(1)_HW_HEADER = $$($(1)_HW_DIR)/hw_$(1).h
-  
+
   $$(eval $$(call FIND_TARGET_C_CODE,$(1)_HW_SRC_FILE,$(1),$$($(1)_HW_DIR)))
 else
   $(1)_HW_SRC_FILE = $(7)
@@ -336,7 +336,7 @@ endif
 #
 ##############################
 
-ALL_UNITTESTS := utils_math
+ALL_UNITTESTS := utils_math pm_motion
 
 UT_OUT_DIR := $(BUILD_DIR)/unit_tests
 

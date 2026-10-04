@@ -48,6 +48,23 @@ typedef enum {
 	PM_TERMINAL_REJECTED
 } pm_terminal_result_t;
 
+typedef enum {
+	PM_SETTLE_RESULT_RUNNING = 0,
+	PM_SETTLE_RESULT_COMPLETED,
+	PM_SETTLE_RESULT_TIMEOUT,
+	PM_SETTLE_RESULT_INVALID,
+	PM_SETTLE_RESULT_NOT_ACTIVE
+} pm_settle_result_t;
+
+#define PM_FAULT_SETTLE_TIMEOUT 1U
+
+typedef struct {
+	int64_t position_tolerance_counts;
+	float velocity_tolerance_counts_per_second;
+	uint32_t settle_duration_ms;
+	uint32_t timeout_ms;
+} pm_settle_config_t;
+
 typedef struct {
 	uint16_t axis_id;
 	uint32_t owner_session;
@@ -85,6 +102,11 @@ typedef struct {
 typedef struct {
 	pm_axis_status_t status;
 	pm_command_t pending_command;
+	uint32_t settle_started_ms;
+	uint32_t stable_since_ms;
+	bool settle_started;
+	bool stable_window_started;
+	bool settle_qualified;
 } pm_axis_t;
 
 void pm_axis_init(pm_axis_t *axis, uint16_t axis_id);
@@ -93,6 +115,10 @@ pm_result_t pm_axis_claim_owner(pm_axis_t *axis, uint32_t owner_session,
 void pm_axis_revoke_owner(pm_axis_t *axis, bool invalidate_reference);
 pm_result_t pm_axis_submit(pm_axis_t *axis, const pm_command_t *command);
 void pm_axis_tick(pm_axis_t *axis);
+pm_settle_result_t pm_axis_update_settle(pm_axis_t *axis,
+		uint32_t command_id, bool profile_complete, bool feedback_fresh,
+		int64_t measured_position_counts, float measured_velocity_counts_per_second,
+		uint32_t now_ms, const pm_settle_config_t *config);
 bool pm_axis_finish(pm_axis_t *axis, uint32_t command_id,
 		pm_terminal_result_t result);
 void pm_axis_latch_fault(pm_axis_t *axis, uint32_t fault_code);
