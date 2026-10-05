@@ -1,16 +1,22 @@
 ---
 BasedOnStyle: LLVM
 IndentWidth: 4
+AccessModifierOffset: 0
 TabWidth: 4
-UseTab: Never
-ColumnLimit: 100
+UseTab: ForIndentation
+ColumnLimit: 90
 BreakBeforeBraces: Attach
-IndentCaseLabels: false
-AllowShortFunctionsOnASingleLine: Empty
+MaxEmptyLinesToKeep: 1
+InsertNewlineAtEOF: true
+AllowShortBlocksOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: None
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
+IndentCaseLabels: true
+SortIncludes: Never
 PointerAlignment: Right
 DerivePointerAlignment: false
-SpaceBeforeParens: ControlStatements
-SortIncludes: false
-...
+# Formatting does not add required braces; clang-tidy checks their presence.
+# Project CONTRIBUTING takes precedence over BARR's alternative layout.
+# ColumnLimit is a formatting target; no separate hard 90-character gate.
+# Comment style (// and Doxygen function comments) still requires review.
