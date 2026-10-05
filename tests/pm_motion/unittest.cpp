@@ -928,6 +928,10 @@ TEST_F(PmTrajectoryTest, CompletedProfileRemainsAtExactTerminalState) {
 	EXPECT_FLOAT_EQ(0.0f, trajectory.velocity);
 }
 
+static pm_feedback_result_t feedback_update_ms(pm_feedback_t *f, const pm_feedback_sample_t *s, uint32_t t) { return pm_feedback_update(f, s, t * 1000U); }
+static pm_feedback_result_t feedback_check_freshness_ms(pm_feedback_t *f, uint32_t t) { return pm_feedback_check_freshness(f, t * 1000U); }
+static pm_feedback_result_t feedback_set_reference_ms(pm_feedback_t *f, int64_t p, uint32_t t) { return pm_feedback_set_reference(f, p, t * 1000U); }
+static pm_feedback_result_t feedback_get_status_ms(pm_feedback_t *f, uint32_t t, pm_feedback_status_t *s) { return pm_feedback_get_status(f, t * 1000U, s); }
 class PmFeedbackTest : public testing::Test {
 protected:
 	pm_feedback_t feedback;
@@ -939,20 +943,20 @@ protected:
 		config.source_id = 4;
 		config.counts_per_revolution = 360;
 		config.max_counts_per_second = 1000;
-		config.max_sample_gap_ms = 200;
-		config.max_sample_age_ms = 100;
+		config.max_sample_gap_us = 100000;
+		config.max_sample_age_us = 100000;
 		ASSERT_EQ(PM_FEEDBACK_RESULT_OK,
 				pm_feedback_init(&feedback, &config));
 	}
 
-	pm_feedback_sample_t sample(uint32_t sequence, uint32_t time_ms,
+	pm_feedback_sample_t sample(uint32_t sequence, uint32_t time_us,
 			uint32_t position, uint32_t reset_epoch = 7,
 			bool sensor_healthy = true, bool commutation_valid = true) {
 		pm_feedback_sample_t result = {};
 		result.axis_id = config.axis_id;
 		result.source_id = config.source_id;
 		result.sequence = sequence;
-		result.acquisition_time_ms = time_ms;
+		result.acquisition_time_us = time_us * 1000U;
 		result.reset_epoch = reset_epoch;
 		result.position_counts = position;
 		result.sensor_healthy = sensor_healthy;
@@ -960,11 +964,11 @@ protected:
 		return result;
 	}
 
-	void seed(uint32_t sequence = 1, uint32_t time_ms = 10,
+	void seed(uint32_t sequence = 1, uint32_t time_us = 10,
 			uint32_t position = 0) {
-		pm_feedback_sample_t initial_sample = sample(sequence, time_ms, position);
+		pm_feedback_sample_t initial_sample = sample(sequence, time_us, position);
 		ASSERT_EQ(PM_FEEDBACK_RESULT_OK,
-				pm_feedback_update(&feedback, &initial_sample, time_ms));
+				feedback_update_ms(&feedback, &initial_sample, time_us));
 	}
 };
 
@@ -972,7 +976,7 @@ TEST_F(PmFeedbackTest, StartsUnreferencedAndAcceptsFreshBaseline) {
 	seed(5, 20, 359);
 	pm_feedback_status_t status = {};
 	EXPECT_EQ(PM_FEEDBACK_RESULT_OK,
-			pm_feedback_get_status(&feedback, 20, &status));
+			feedback_get_status_ms(&feedback, 20, &status));
 	EXPECT_TRUE(status.initialized);
 	EXPECT_TRUE(status.valid);
 	EXPECT_TRUE(status.commutation_valid);
@@ -984,25 +988,25 @@ TEST_F(PmFeedbackTest, StartsUnreferencedAndAcceptsFreshBaseline) {
 TEST_F(PmFeedbackTest, StatusAndFreshnessReportUninitializedAndExpiredStates) {
 	pm_feedback_status_t status = {};
 	EXPECT_EQ(PM_FEEDBACK_RESULT_NOT_READY,
-			pm_feedback_check_freshness(&feedback, 0));
+			feedback_check_freshness_ms(&feedback, 0));
 	EXPECT_EQ(PM_FEEDBACK_RESULT_NOT_READY,
-			pm_feedback_get_status(&feedback, 0, &status));
+			feedback_get_status_ms(&feedback, 0, &status));
 	EXPECT_FALSE(status.initialized);
 
 	pm_feedback_sample_t stale_baseline = sample(1, 0, 10);
 	EXPECT_EQ(PM_FEEDBACK_RESULT_STALE,
-			pm_feedback_update(&feedback, &stale_baseline, 101));
+			feedback_update_ms(&feedback, &stale_baseline, 101));
 	EXPECT_FALSE(feedback.initialized);
 	EXPECT_FALSE(feedback.valid);
 	EXPECT_EQ(PM_FEEDBACK_RESULT_NOT_READY,
-			pm_feedback_check_freshness(&feedback, 101));
+			feedback_check_freshness_ms(&feedback, 101));
 }
 
 TEST_F(PmFeedbackTest, ZeroElapsedSampleInvalidatesTracking) {
 	seed(1, 10, 20);
 	pm_feedback_sample_t same_time = sample(2, 10, 21);
 	EXPECT_EQ(PM_FEEDBACK_RESULT_STALE,
-			pm_feedback_update(&feedback, &same_time, 10));
+			feedback_update_ms(&feedback, &same_time, 10));
 	EXPECT_FALSE(feedback.valid);
 	EXPECT_FALSE(feedback.referenced);
 }
@@ -1011,7 +1015,7 @@ TEST_F(PmFeedbackTest, UnwrapsBothDirectionsAcrossModuloBoundary) {
 	seed(1, 10, 359);
 	pm_feedback_sample_t next_sample = sample(2, 11, 0);
 	ASSERT_EQ(PM_FEEDBACK_RESULT_OK,
-			pm_feedback_update(&feedback, &next_sample, 11));
+			feedback_update_ms(&feedback, &next_sample, 11));
 	EXPECT_EQ(360, feedback.raw_position_counts);
 	EXPECT_EQ(1000.0f, feedback.velocity_counts_per_second);
 
@@ -1019,7 +1023,7 @@ TEST_F(PmFeedbackTest, UnwrapsBothDirectionsAcrossModuloBoundary) {
 	seed(1, 10, 0);
 	next_sample = sample(2, 11, 359);
 	ASSERT_EQ(PM_FEEDBACK_RESULT_OK,
-			pm_feedback_update(&feedback, &next_sample, 11));
+			feedback_update_ms(&feedback, &next_sample, 11));
 	EXPECT_EQ(-1, feedback.raw_position_counts);
 	EXPECT_EQ(-1000.0f, feedback.velocity_counts_per_second);
 }
@@ -1033,7 +1037,7 @@ TEST_F(PmFeedbackTest, TracksManyTurnsWithoutRoundingAwayCounts) {
 				(index + 1) * 100, positions[index]);
 		ASSERT_EQ(PM_FEEDBACK_RESULT_OK,
 				pm_feedback_update(&feedback, &next_sample,
-						next_sample.acquisition_time_ms));
+						next_sample.acquisition_time_us));
 	}
 	EXPECT_EQ(700, feedback.raw_position_counts);
 }
@@ -1045,7 +1049,7 @@ TEST_F(PmFeedbackTest, InversionIsAppliedOnceToUnwrappedMotion) {
 	seed(1, 10, 359);
 	pm_feedback_sample_t next_sample = sample(2, 11, 0);
 	ASSERT_EQ(PM_FEEDBACK_RESULT_OK,
-			pm_feedback_update(&feedback, &next_sample, 11));
+			feedback_update_ms(&feedback, &next_sample, 11));
 	EXPECT_EQ(-360, feedback.raw_position_counts);
 	EXPECT_EQ(-1000.0f, feedback.velocity_counts_per_second);
 }
@@ -1053,10 +1057,10 @@ TEST_F(PmFeedbackTest, InversionIsAppliedOnceToUnwrappedMotion) {
 TEST_F(PmFeedbackTest, HalfTurnStepIsAmbiguousAndInvalidatesReference) {
 	seed();
 	ASSERT_EQ(PM_FEEDBACK_RESULT_OK,
-			pm_feedback_set_reference(&feedback, 0, 10));
+			feedback_set_reference_ms(&feedback, 0, 10));
 	pm_feedback_sample_t ambiguous_sample = sample(2, 20, 180);
 	EXPECT_EQ(PM_FEEDBACK_RESULT_AMBIGUOUS,
-			pm_feedback_update(&feedback, &ambiguous_sample, 20));
+			feedback_update_ms(&feedback, &ambiguous_sample, 20));
 	EXPECT_FALSE(feedback.valid);
 	EXPECT_FALSE(feedback.referenced);
 }
@@ -1068,7 +1072,7 @@ TEST_F(PmFeedbackTest, PhysicallyImpossibleJumpInvalidatesTracking) {
 	seed();
 	pm_feedback_sample_t jump_sample = sample(2, 110, 20);
 	EXPECT_EQ(PM_FEEDBACK_RESULT_IMPOSSIBLE_MOTION,
-			pm_feedback_update(&feedback, &jump_sample, 110));
+			feedback_update_ms(&feedback, &jump_sample, 110));
 	EXPECT_FALSE(feedback.valid);
 	EXPECT_FALSE(feedback.referenced);
 }
@@ -1076,18 +1080,18 @@ TEST_F(PmFeedbackTest, PhysicallyImpossibleJumpInvalidatesTracking) {
 TEST_F(PmFeedbackTest, StaleSamplesAndLongGapsInvalidateReference) {
 	seed();
 	ASSERT_EQ(PM_FEEDBACK_RESULT_OK,
-			pm_feedback_set_reference(&feedback, 0, 10));
+			feedback_set_reference_ms(&feedback, 0, 10));
 	EXPECT_EQ(PM_FEEDBACK_RESULT_STALE,
-			pm_feedback_check_freshness(&feedback, 111));
+			feedback_check_freshness_ms(&feedback, 111));
 	EXPECT_FALSE(feedback.valid);
 	EXPECT_FALSE(feedback.referenced);
 
 	seed(1, 10, 20);
 	ASSERT_EQ(PM_FEEDBACK_RESULT_OK,
-			pm_feedback_set_reference(&feedback, 5, 10));
+			feedback_set_reference_ms(&feedback, 5, 10));
 	pm_feedback_sample_t long_gap_sample = sample(2, 211, 21);
 	EXPECT_EQ(PM_FEEDBACK_RESULT_STALE,
-			pm_feedback_update(&feedback, &long_gap_sample, 211));
+			feedback_update_ms(&feedback, &long_gap_sample, 211));
 	EXPECT_FALSE(feedback.valid);
 	EXPECT_FALSE(feedback.referenced);
 }
@@ -1095,7 +1099,7 @@ TEST_F(PmFeedbackTest, StaleSamplesAndLongGapsInvalidateReference) {
 TEST_F(PmFeedbackTest, ReferenceCannotBeSetFromExpiredSample) {
 	seed(1, 10, 20);
 	EXPECT_EQ(PM_FEEDBACK_RESULT_STALE,
-			pm_feedback_set_reference(&feedback, 0, 111));
+			feedback_set_reference_ms(&feedback, 0, 111));
 	EXPECT_FALSE(feedback.valid);
 	EXPECT_FALSE(feedback.referenced);
 }
@@ -1103,13 +1107,13 @@ TEST_F(PmFeedbackTest, ReferenceCannotBeSetFromExpiredSample) {
 TEST_F(PmFeedbackTest, DuplicateOrOldSequenceDoesNotRefreshOrMovePosition) {
 	seed(10, 10, 100);
 	ASSERT_EQ(PM_FEEDBACK_RESULT_OK,
-			pm_feedback_set_reference(&feedback, 0, 10));
+			feedback_set_reference_ms(&feedback, 0, 10));
 	pm_feedback_sample_t duplicate = sample(10, 20, 101);
 	EXPECT_EQ(PM_FEEDBACK_RESULT_STALE,
-			pm_feedback_update(&feedback, &duplicate, 20));
+			feedback_update_ms(&feedback, &duplicate, 20));
 	pm_feedback_sample_t old_sample = sample(9, 20, 101);
 	EXPECT_EQ(PM_FEEDBACK_RESULT_STALE,
-			pm_feedback_update(&feedback, &old_sample, 20));
+			feedback_update_ms(&feedback, &old_sample, 20));
 	EXPECT_TRUE(feedback.valid);
 	EXPECT_TRUE(feedback.referenced);
 	EXPECT_EQ(100, feedback.raw_position_counts);
@@ -1120,19 +1124,19 @@ TEST_F(PmFeedbackTest, SequenceAndTimestampCountersMayWrap) {
 	seed(UINT32_MAX, UINT32_MAX - 10U, 359);
 	pm_feedback_sample_t wrapped_sample = sample(0, 5, 0);
 	EXPECT_EQ(PM_FEEDBACK_RESULT_OK,
-			pm_feedback_update(&feedback, &wrapped_sample, 5));
+			feedback_update_ms(&feedback, &wrapped_sample, 5));
 	EXPECT_EQ(360, feedback.raw_position_counts);
 }
 
 TEST_F(PmFeedbackTest, WrongAxisOrSourceCannotMutateFeedback) {
 	seed();
 	ASSERT_EQ(PM_FEEDBACK_RESULT_OK,
-			pm_feedback_set_reference(&feedback, 0, 10));
+			feedback_set_reference_ms(&feedback, 0, 10));
 	pm_feedback_t before = feedback;
 	pm_feedback_sample_t wrong_source = sample(2, 20, 1);
 	wrong_source.source_id++;
 	EXPECT_EQ(PM_FEEDBACK_RESULT_IDENTITY_MISMATCH,
-			pm_feedback_update(&feedback, &wrong_source, 20));
+			feedback_update_ms(&feedback, &wrong_source, 20));
 	EXPECT_EQ(before.raw_position_counts, feedback.raw_position_counts);
 	EXPECT_EQ(before.last_sequence, feedback.last_sequence);
 	EXPECT_TRUE(feedback.valid);
@@ -1143,23 +1147,23 @@ TEST_F(PmFeedbackTest, BadSensorHealthOrOutOfRangeSampleInvalidates) {
 	seed();
 	pm_feedback_sample_t unhealthy = sample(2, 20, 1, 7, false);
 	EXPECT_EQ(PM_FEEDBACK_RESULT_SENSOR_FAULT,
-			pm_feedback_update(&feedback, &unhealthy, 20));
+			feedback_update_ms(&feedback, &unhealthy, 20));
 	EXPECT_FALSE(feedback.valid);
 
 	seed();
 	pm_feedback_sample_t out_of_range = sample(2, 20, 360);
 	EXPECT_EQ(PM_FEEDBACK_RESULT_SENSOR_FAULT,
-			pm_feedback_update(&feedback, &out_of_range, 20));
+			feedback_update_ms(&feedback, &out_of_range, 20));
 	EXPECT_FALSE(feedback.valid);
 }
 
 TEST_F(PmFeedbackTest, ResetEpochRebasesAndDropsReference) {
 	seed(10, 10, 300);
 	ASSERT_EQ(PM_FEEDBACK_RESULT_OK,
-			pm_feedback_set_reference(&feedback, 42, 10));
+			feedback_set_reference_ms(&feedback, 42, 10));
 	pm_feedback_sample_t reset_sample = sample(1, 20, 3, 8);
 	EXPECT_EQ(PM_FEEDBACK_RESULT_RESET,
-			pm_feedback_update(&feedback, &reset_sample, 20));
+			feedback_update_ms(&feedback, &reset_sample, 20));
 	EXPECT_TRUE(feedback.valid);
 	EXPECT_FALSE(feedback.referenced);
 	EXPECT_EQ(3, feedback.raw_position_counts);
@@ -1170,22 +1174,22 @@ TEST_F(PmFeedbackTest, ReferenceRequiresCommutationAndTracksOffset) {
 	seed(1, 10, 100);
 	pm_feedback_sample_t uncalibrated = sample(2, 20, 101, 7, true, false);
 	ASSERT_EQ(PM_FEEDBACK_RESULT_COMMUTATION_INVALID,
-			pm_feedback_update(&feedback, &uncalibrated, 20));
+			feedback_update_ms(&feedback, &uncalibrated, 20));
 	EXPECT_EQ(PM_FEEDBACK_RESULT_NOT_READY,
-			pm_feedback_set_reference(&feedback, 12, 20));
+			feedback_set_reference_ms(&feedback, 12, 20));
 	pm_feedback_sample_t calibrated = sample(3, 30, 102);
 	ASSERT_EQ(PM_FEEDBACK_RESULT_OK,
-			pm_feedback_update(&feedback, &calibrated, 30));
+			feedback_update_ms(&feedback, &calibrated, 30));
 	ASSERT_EQ(PM_FEEDBACK_RESULT_OK,
-			pm_feedback_set_reference(&feedback, 12, 30));
+			feedback_set_reference_ms(&feedback, 12, 30));
 	pm_feedback_status_t status = {};
 	EXPECT_EQ(PM_FEEDBACK_RESULT_OK,
-			pm_feedback_get_status(&feedback, 30, &status));
+			feedback_get_status_ms(&feedback, 30, &status));
 	EXPECT_TRUE(status.referenced);
 	EXPECT_EQ(12, status.axis_position_counts);
 	pm_feedback_sample_t moved = sample(4, 31, 103);
 	ASSERT_EQ(PM_FEEDBACK_RESULT_OK,
-			pm_feedback_update(&feedback, &moved, 31));
+			feedback_update_ms(&feedback, &moved, 31));
 	EXPECT_EQ(13, feedback.raw_position_counts -
 			feedback.reference_offset_counts);
 }
@@ -1193,10 +1197,10 @@ TEST_F(PmFeedbackTest, ReferenceRequiresCommutationAndTracksOffset) {
 TEST_F(PmFeedbackTest, LosingCommutationValidityClearsReference) {
 	seed(1, 10, 100);
 	ASSERT_EQ(PM_FEEDBACK_RESULT_OK,
-			pm_feedback_set_reference(&feedback, 0, 10));
+			feedback_set_reference_ms(&feedback, 0, 10));
 	pm_feedback_sample_t uncalibrated = sample(2, 20, 101, 7, true, false);
 	EXPECT_EQ(PM_FEEDBACK_RESULT_COMMUTATION_INVALID,
-			pm_feedback_update(&feedback, &uncalibrated, 20));
+			feedback_update_ms(&feedback, &uncalibrated, 20));
 	EXPECT_TRUE(feedback.valid);
 	EXPECT_FALSE(feedback.commutation_valid);
 	EXPECT_FALSE(feedback.referenced);
@@ -1205,7 +1209,7 @@ TEST_F(PmFeedbackTest, LosingCommutationValidityClearsReference) {
 TEST_F(PmFeedbackTest, ReferenceOffsetOverflowIsRejected) {
 	seed(1, 10, 1);
 	EXPECT_EQ(PM_FEEDBACK_RESULT_OVERFLOW,
-			pm_feedback_set_reference(&feedback, INT64_MIN, 10));
+			feedback_set_reference_ms(&feedback, INT64_MIN, 10));
 	EXPECT_FALSE(feedback.referenced);
 }
 
@@ -1215,7 +1219,7 @@ TEST_F(PmFeedbackTest, UnwrappedCountOverflowInvalidatesTracking) {
 	feedback.last_raw_counts = 0;
 	pm_feedback_sample_t overflow_sample = sample(2, 11, 1);
 	EXPECT_EQ(PM_FEEDBACK_RESULT_OVERFLOW,
-			pm_feedback_update(&feedback, &overflow_sample, 11));
+			feedback_update_ms(&feedback, &overflow_sample, 11));
 	EXPECT_FALSE(feedback.valid);
 	EXPECT_FALSE(feedback.referenced);
 }
@@ -1230,11 +1234,11 @@ TEST_F(PmFeedbackTest, InvalidConfigurationsAndNullArgumentsAreRejected) {
 	EXPECT_EQ(PM_FEEDBACK_RESULT_INVALID_ARGUMENT,
 			pm_feedback_init(&feedback, &invalid));
 	invalid = config;
-	invalid.max_sample_age_ms = 0x80000000U;
+	invalid.max_sample_age_us = 0x80000000U;
 	EXPECT_EQ(PM_FEEDBACK_RESULT_INVALID_ARGUMENT,
 			pm_feedback_init(&feedback, &invalid));
 	invalid = config;
-	invalid.max_sample_gap_ms = 0;
+	invalid.max_sample_gap_us = 0;
 	EXPECT_EQ(PM_FEEDBACK_RESULT_INVALID_ARGUMENT,
 			pm_feedback_init(&feedback, &invalid));
 	invalid = config;
@@ -1242,17 +1246,17 @@ TEST_F(PmFeedbackTest, InvalidConfigurationsAndNullArgumentsAreRejected) {
 	EXPECT_EQ(PM_FEEDBACK_RESULT_INVALID_ARGUMENT,
 			pm_feedback_init(&feedback, &invalid));
 	invalid = config;
-	invalid.max_sample_age_ms = 0;
+	invalid.max_sample_age_us = 0;
 	EXPECT_EQ(PM_FEEDBACK_RESULT_INVALID_ARGUMENT,
 			pm_feedback_init(&feedback, &invalid));
 	EXPECT_EQ(PM_FEEDBACK_RESULT_INVALID_ARGUMENT,
-			pm_feedback_update(NULL, NULL, 0));
+			feedback_update_ms(NULL, NULL, 0));
 	EXPECT_EQ(PM_FEEDBACK_RESULT_INVALID_ARGUMENT,
-			pm_feedback_check_freshness(NULL, 0));
+			feedback_check_freshness_ms(NULL, 0));
 	EXPECT_EQ(PM_FEEDBACK_RESULT_INVALID_ARGUMENT,
-			pm_feedback_set_reference(NULL, 0, 0));
+			feedback_set_reference_ms(NULL, 0, 0));
 	EXPECT_EQ(PM_FEEDBACK_RESULT_INVALID_ARGUMENT,
-			pm_feedback_get_status(&feedback, 0, NULL));
+			feedback_get_status_ms(&feedback, 0, NULL));
 }
 
 class PmControlTest : public testing::Test {
@@ -1276,6 +1280,7 @@ protected:
 		input.enabled = true;
 		input.feedback_valid = true;
 		input.referenced = true;
+		input.commutation_valid = true;
 	}
 
 	pm_control_result_t step(pm_control_output_t *output, float dt = 0.01f) {
@@ -1424,6 +1429,7 @@ TEST_F(PmControlTest, NotReadyInputsProduceZeroAndResetControllerState) {
 	input.referenced = false;
 	EXPECT_EQ(PM_CONTROL_RESULT_NOT_READY, step(&output));
 	input.referenced = true;
+		input.commutation_valid = true;
 	input.faulted = true;
 	EXPECT_EQ(PM_CONTROL_RESULT_NOT_READY, step(&output));
 }

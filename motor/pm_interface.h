@@ -26,7 +26,8 @@ typedef enum {
 	PM_COMMAND_VELOCITY,
 	PM_COMMAND_STOP_DECELERATED,
 	PM_COMMAND_ABORT_RELEASE,
-	PM_COMMAND_CLEAR_FAULT
+	PM_COMMAND_CLEAR_FAULT,
+	PM_COMMAND_CURRENT
 } pm_command_type_t;
 
 typedef enum {
@@ -76,6 +77,10 @@ typedef struct {
 	bool fault_inputs_clear;
 	bool feedback_valid;
 	bool acknowledged;
+	float speed_limit;
+	float current_limit_amps;
+	bool follow_source;
+	uint32_t source_acquired_us;
 } pm_command_t;
 
 typedef struct {
@@ -97,11 +102,15 @@ typedef struct {
 	pm_terminal_result_t last_terminal_result;
 	uint32_t last_terminal_command_id;
 	uint32_t fault_code;
+	bool at_target_velocity;
+	int64_t active_value;
 } pm_axis_status_t;
 
 typedef struct {
 	pm_axis_status_t status;
 	pm_command_t pending_command;
+	pm_command_t priority_command;
+	bool priority_pending;
 	uint32_t settle_started_ms;
 	uint32_t stable_since_ms;
 	bool settle_started;
@@ -123,5 +132,9 @@ bool pm_axis_finish(pm_axis_t *axis, uint32_t command_id,
 		pm_terminal_result_t result);
 void pm_axis_latch_fault(pm_axis_t *axis, uint32_t fault_code);
 void pm_axis_get_status(const pm_axis_t *axis, pm_axis_status_t *status);
+
+/* Pure state machine: callers must serialize every access. pm_runtime provides
+ * the synchronized transport/scheduler boundary. Health flags are trusted
+ * backend inputs, never fields accepted from the wire. */
 
 #endif

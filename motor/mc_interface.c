@@ -20,6 +20,7 @@
 #pragma GCC push_options
 #pragma GCC optimize ("Os")
 
+#include "pm_firmware.h"
 #include "mc_interface.h"
 #include "mcpwm.h"
 #include "mcpwm_foc.h"
@@ -327,6 +328,7 @@ const volatile mc_configuration* mc_interface_get_configuration(void) {
 }
 
 void mc_interface_set_configuration(mc_configuration *configuration) {
+	pm_firmware_revoke_all();
 	volatile motor_if_state_t *motor = motor_now();
 
 #if defined HW_HAS_DUAL_PARALLEL
@@ -470,6 +472,7 @@ void mc_interface_set_pwm_callback(void (*p_func)(void)) {
  * Lock the control by disabling all control commands.
  */
 void mc_interface_lock(void) {
+	pm_firmware_revoke((unsigned)(mc_interface_get_motor_thread() == 2), 0);
 	motor_now()->m_lock_enabled = true;
 }
 
@@ -953,6 +956,7 @@ void mc_interface_release_motor(void) {
 }
 
 void mc_interface_release_motor_override(void) {
+	pm_firmware_revoke((unsigned)(mc_interface_get_motor_thread() == 2), 0);
 	switch (motor_now()->m_conf.motor_type) {
 	case MOTOR_TYPE_BLDC:
 	case MOTOR_TYPE_DC:
@@ -1860,6 +1864,7 @@ int mc_interface_try_input(void) {
 		break;
 	}
 
+	if (retval == 0) pm_firmware_revoke((unsigned)(mc_interface_get_motor_thread() == 2), 0);
 	return retval;
 }
 
@@ -1871,6 +1876,7 @@ void mc_interface_set_fault_info(const char *str, int argn, float arg0, float ar
 }
 
 void mc_interface_fault_stop(mc_fault_code fault, bool is_second_motor, bool is_isr) {
+	pm_firmware_revoke(is_second_motor ? 1U : 0U, (uint32_t)fault);
 	m_fault_data.fault_code = fault;
 	m_fault_data.is_second_motor = is_second_motor;
 

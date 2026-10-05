@@ -19,6 +19,7 @@
 
 #pragma GCC optimize ("Os")
 
+#include "pm_firmware.h"
 #include "app.h"
 #include "ch.h"
 #include "hal.h"
@@ -51,6 +52,7 @@ const app_configuration* app_get_configuration(void) {
  * The new configuration to use.
  */
 void app_set_configuration(app_configuration *conf) {
+	pm_firmware_revoke_all();
 	bool app_changed = appconf.app_to_use != conf->app_to_use;
 
 	if (!app_changed) {
@@ -188,6 +190,7 @@ void app_set_configuration(app_configuration *conf) {
  * >0: Amount of milliseconds to disable output
  */
 void app_disable_output(int time_ms) {
+	pm_firmware_revoke_all();
 	if (!output_vt_init_done) {
 		chVTObjectInit(&output_vt);
 		output_vt_init_done = true;

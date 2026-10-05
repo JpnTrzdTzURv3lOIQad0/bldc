@@ -21,6 +21,7 @@
 #define _GNU_SOURCE
 #endif
 
+#include "pm_firmware.h"
 #include "mcpwm_foc.h"
 #include "mc_interface.h"
 #include "ch.h"
@@ -70,7 +71,11 @@ static THD_WORKING_AREA(hfi_thread_wa, 512);
 static THD_FUNCTION(hfi_thread, arg);
 static volatile bool hfi_thd_stop;
 
+#if PM_INTERFACE_ENABLE
+static THD_WORKING_AREA(pid_thread_wa, 4096);
+#else
 static THD_WORKING_AREA(pid_thread_wa, 256);
+#endif
 static THD_FUNCTION(pid_thread, arg);
 static volatile bool pid_thd_stop;
 
@@ -595,6 +600,7 @@ void mcpwm_foc_init(mc_configuration *conf_m1, mc_configuration *conf_m2) {
 }
 
 void mcpwm_foc_deinit(void) {
+	pm_firmware_revoke_all();
 	if (!m_init_done) {
 		return;
 	}
@@ -638,6 +644,7 @@ bool mcpwm_foc_init_done(void) {
 }
 
 void mcpwm_foc_set_configuration(mc_configuration *configuration) {
+	pm_firmware_revoke(get_motor_now() == &m_motor_1 ? 0U : 1U, 0);
 	get_motor_now()->m_conf = configuration;
 	foc_precalc_values((motor_all_state_t*)get_motor_now());
 
@@ -704,6 +711,7 @@ int mcpwm_foc_isr_motor(void) {
  * Switch off all FETs.
  */
 void mcpwm_foc_stop_pwm(bool is_second_motor) {
+	pm_firmware_revoke(is_second_motor ? 1U : 0U, 0);
 	motor_all_state_t *motor = (motor_all_state_t*)M_MOTOR(is_second_motor);
 
 	motor->m_control_mode = CONTROL_MODE_NONE;
@@ -719,6 +727,7 @@ void mcpwm_foc_stop_pwm(bool is_second_motor) {
  * The duty cycle to use
  */
 void mcpwm_foc_set_duty(float dutyCycle) {
+	pm_firmware_revoke(get_motor_now() == &m_motor_1 ? 0U : 1U, 0);
 	get_motor_now()->m_control_mode = CONTROL_MODE_DUTY;
 	get_motor_now()->m_duty_cycle_set = dutyCycle;
 
@@ -739,6 +748,7 @@ void mcpwm_foc_set_duty(float dutyCycle) {
  * The duty cycle to use.
  */
 void mcpwm_foc_set_duty_noramp(float dutyCycle) {
+	pm_firmware_revoke(get_motor_now() == &m_motor_1 ? 0U : 1U, 0);
 	// TODO: Actually do this without ramping
 	mcpwm_foc_set_duty(dutyCycle);
 }
@@ -751,6 +761,7 @@ void mcpwm_foc_set_duty_noramp(float dutyCycle) {
  * The electrical RPM goal value to use.
  */
 void mcpwm_foc_set_pid_speed(float rpm) {
+	pm_firmware_revoke(get_motor_now() == &m_motor_1 ? 0U : 1U, 0);
 	volatile motor_all_state_t *motor = get_motor_now();
 
 	if (motor->m_conf->s_pid_ramp_erpms_s > 0.0 ) {
@@ -782,6 +793,7 @@ void mcpwm_foc_set_pid_speed(float rpm) {
 
  */
 void mcpwm_foc_set_pid_pos(float pos) {
+	pm_firmware_revoke(get_motor_now() == &m_motor_1 ? 0U : 1U, 0);
 	get_motor_now()->m_control_mode = CONTROL_MODE_POS;
 	get_motor_now()->m_pos_pid_set = pos;
 
@@ -800,6 +812,7 @@ void mcpwm_foc_set_pid_pos(float pos) {
  * The current to use.
  */
 void mcpwm_foc_set_current(float current) {
+	pm_firmware_revoke(get_motor_now() == &m_motor_1 ? 0U : 1U, 0);
 	volatile motor_all_state_t *motor = get_motor_now();
 
 	motor->m_control_mode = CONTROL_MODE_CURRENT;
@@ -817,6 +830,7 @@ void mcpwm_foc_set_current(float current) {
 }
 
 void mcpwm_foc_release_motor(void) {
+	pm_firmware_revoke(get_motor_now() == &m_motor_1 ? 0U : 1U, 0);
 	get_motor_now()->m_control_mode = CONTROL_MODE_CURRENT;
 	get_motor_now()->m_iq_set = 0.0;
 	get_motor_now()->m_id_set = 0.0;
@@ -831,6 +845,7 @@ void mcpwm_foc_release_motor(void) {
  * The current to use. Positive and negative values give the same effect.
  */
 void mcpwm_foc_set_brake_current(float current) {
+	pm_firmware_revoke(get_motor_now() == &m_motor_1 ? 0U : 1U, 0);
 	get_motor_now()->m_control_mode = CONTROL_MODE_CURRENT_BRAKE;
 	get_motor_now()->m_iq_set = current;
 
@@ -852,6 +867,7 @@ void mcpwm_foc_set_brake_current(float current) {
  * The brake current to use.
  */
 void mcpwm_foc_set_handbrake(float current) {
+	pm_firmware_revoke(get_motor_now() == &m_motor_1 ? 0U : 1U, 0);
 	get_motor_now()->m_control_mode = CONTROL_MODE_HANDBRAKE;
 	get_motor_now()->m_iq_set = current;
 
@@ -876,6 +892,7 @@ void mcpwm_foc_set_handbrake(float current) {
  *
  */
 void mcpwm_foc_set_openloop_current(float current, float rpm) {
+	pm_firmware_revoke(get_motor_now() == &m_motor_1 ? 0U : 1U, 0);
 	utils_truncate_number(&current, -get_motor_now()->m_conf->l_current_max * get_motor_now()->m_conf->l_current_max_scale,
 						  get_motor_now()->m_conf->l_current_max * get_motor_now()->m_conf->l_current_max_scale);
 
@@ -903,6 +920,7 @@ void mcpwm_foc_set_openloop_current(float current, float rpm) {
  * The phase to use in degrees, range [0.0 360.0]
  */
 void mcpwm_foc_set_openloop_phase(float current, float phase) {
+	pm_firmware_revoke(get_motor_now() == &m_motor_1 ? 0U : 1U, 0);
 	utils_truncate_number(&current, -get_motor_now()->m_conf->l_current_max * get_motor_now()->m_conf->l_current_max_scale,
 						  get_motor_now()->m_conf->l_current_max * get_motor_now()->m_conf->l_current_max_scale);
 
@@ -947,6 +965,7 @@ void mcpwm_foc_get_current_offsets(
 void mcpwm_foc_set_current_offsets(volatile float curr0_offset,
 								   volatile float curr1_offset,
 								   volatile float curr2_offset) {
+	pm_firmware_revoke(get_motor_now() == &m_motor_1 ? 0U : 1U, 0);
 	get_motor_now()->m_conf->foc_offsets_current[0] = curr0_offset;
 	get_motor_now()->m_conf->foc_offsets_current[1] = curr1_offset;
 	get_motor_now()->m_conf->foc_offsets_current[2] = curr2_offset;
@@ -995,6 +1014,7 @@ void mcpwm_foc_get_currents_adc(
  * The RPM to use.
  */
 void mcpwm_foc_set_openloop_duty(float dutyCycle, float rpm) {
+	pm_firmware_revoke(get_motor_now() == &m_motor_1 ? 0U : 1U, 0);
 	get_motor_now()->m_control_mode = CONTROL_MODE_OPENLOOP_DUTY;
 	get_motor_now()->m_duty_cycle_set = dutyCycle;
 	get_motor_now()->m_openloop_speed = RPM2RADPS_f(rpm);
@@ -1015,6 +1035,7 @@ void mcpwm_foc_set_openloop_duty(float dutyCycle, float rpm) {
  * The phase to use in degrees, range [0.0 360.0]
  */
 void mcpwm_foc_set_openloop_duty_phase(float dutyCycle, float phase) {
+	pm_firmware_revoke(get_motor_now() == &m_motor_1 ? 0U : 1U, 0);
 	get_motor_now()->m_control_mode = CONTROL_MODE_OPENLOOP_DUTY_PHASE;
 	get_motor_now()->m_duty_cycle_set = dutyCycle;
 	get_motor_now()->m_openloop_phase = DEG2RAD_f(phase);
@@ -1027,6 +1048,7 @@ void mcpwm_foc_set_openloop_duty_phase(float dutyCycle, float phase) {
 }
 
 void mcpwm_foc_set_fw_override(float current) {
+	pm_firmware_revoke(get_motor_now() == &m_motor_1 ? 0U : 1U, 0);
 	get_motor_now()->m_i_fw_override = current;
 }
 
@@ -1112,6 +1134,7 @@ void mcpwm_foc_get_observer_state(float *x1, float *x2) {
  * for target currents < cc_min_current for this amount of time.
  */
 void mcpwm_foc_set_current_off_delay(float delay_sec) {
+	pm_firmware_revoke(get_motor_now() == &m_motor_1 ? 0U : 1U, 0);
 	if (get_motor_now()->m_current_off_delay < delay_sec) {
 		get_motor_now()->m_current_off_delay = delay_sec;
 	}
@@ -1516,6 +1539,7 @@ volatile const hfi_state_t *mcpwm_foc_get_hfi_state(void) {
  * The fault code
  */
 int mcpwm_foc_encoder_detect(float current, bool print, float *offset, float *ratio, bool *inverted) {
+	pm_firmware_revoke_all();
 	int fault = FAULT_CODE_NONE;
 	mc_interface_lock();
 
@@ -1795,6 +1819,7 @@ int mcpwm_foc_encoder_detect(float current, bool print, float *offset, float *ra
  * The fault code.
  */
 int mcpwm_foc_measure_resistance(float current, int samples, bool stop_after, float *resistance) {
+	pm_firmware_revoke_all();
 	mc_interface_lock();
 
 	volatile motor_all_state_t *motor = get_motor_now();
@@ -1907,6 +1932,7 @@ int mcpwm_foc_measure_resistance(float current, int samples, bool stop_after, fl
  * The fault code
  */
 int mcpwm_foc_measure_inductance(float duty, int samples, float *curr, float *ld_lq_diff, float *inductance) {
+	pm_firmware_revoke_all();
 	volatile motor_all_state_t *motor = get_motor_now();
 	int fault = FAULT_CODE_NONE;
 
@@ -2084,6 +2110,7 @@ int mcpwm_foc_measure_inductance(float duty, int samples, float *curr, float *ld
  * The fault code
  */
 int mcpwm_foc_measure_inductance_current(float curr_goal, int samples, float *curr, float *ld_lq_diff, float *inductance) {
+	pm_firmware_revoke_all();
 	int fault = FAULT_CODE_NONE;
 	float duty_last = 0.0;
 	for (float i = 0.02;i < 0.5;i *= 1.5) {
@@ -2104,6 +2131,7 @@ int mcpwm_foc_measure_inductance_current(float curr_goal, int samples, float *cu
 }
 
 bool mcpwm_foc_beep(float freq, float time, float voltage) {
+	pm_firmware_revoke_all();
 	if (mc_interface_get_fault() != FAULT_CODE_NONE) {
 		return false;
 	}
@@ -2180,6 +2208,7 @@ bool mcpwm_foc_beep(float freq, float time, float voltage) {
 }
 
 bool mcpwm_foc_play_tone(int channel, float freq, float voltage) {
+	pm_firmware_revoke_all();
 	if (mc_interface_get_fault() != FAULT_CODE_NONE) {
 		return false;
 	}
@@ -2262,6 +2291,7 @@ const float *mcpwm_foc_get_audio_sample_table(int channel) {
 }
 
 bool mcpwm_foc_play_audio_samples(const int8_t *samples, int num_samp, float f_samp, float voltage) {
+	pm_firmware_revoke_all();
 	if (mc_interface_get_fault() != FAULT_CODE_NONE) {
 		return false;
 	}
@@ -2318,6 +2348,7 @@ bool mcpwm_foc_play_audio_samples(const int8_t *samples, int num_samp, float f_s
  * The fault code
  */
 int mcpwm_foc_measure_res_ind(float *res, float *ind, float *ld_lq_diff) {
+	pm_firmware_revoke_all();
 	volatile motor_all_state_t *motor = get_motor_now();
 	int fault = FAULT_CODE_NONE;
 
@@ -2381,6 +2412,7 @@ int mcpwm_foc_measure_res_ind(float *res, float *ind, float *ld_lq_diff) {
  * The fault code
  */
 int mcpwm_foc_hall_detect(float current, uint8_t *hall_table, bool *result) {
+	pm_firmware_revoke_all();
 	volatile motor_all_state_t *motor = get_motor_now();
 	int fault = FAULT_CODE_NONE;
 	mc_interface_lock();
@@ -2506,6 +2538,7 @@ int mcpwm_foc_hall_detect(float current, uint8_t *hall_table, bool *result) {
  */
 #ifndef HW_USE_ALTERNATIVE_DC_CAL
 int mcpwm_foc_dc_cal(bool cal_undriven) {
+	pm_firmware_revoke_all();
 	// Wait max 5 seconds for DRV-fault to go away
 	int cnt = 0;
 	while(IS_DRV_FAULT()){
@@ -2719,6 +2752,7 @@ int mcpwm_foc_dc_cal(bool cal_undriven) {
 // WARNING: This calibration routine can only be run when the motor is not spinning.
 // For low side shunt hardware with high capacitance mosfets this works a lot better
 int mcpwm_foc_dc_cal(bool cal_undriven) {
+	pm_firmware_revoke_all();
 	// Wait max 5 seconds for DRV-fault to go away
 	int cnt = 0;
 	while(IS_DRV_FAULT()){
@@ -3323,6 +3357,11 @@ void mcpwm_foc_adc_int_handler(void *p, uint32_t flags) {
 
 		float id_set_tmp = motor_now->m_id_set;
 		float iq_set_tmp = motor_now->m_iq_set;
+#if PM_INTERFACE_ENABLE
+		/* The current loop checks the deadline independently of pid_thread. */
+		float pm_iq_now = 0.0f;
+		if (pm_firmware_current(motor_now == &m_motor_1 ? 0U : 1U, &pm_iq_now)) iq_set_tmp = pm_iq_now;
+#endif
 		state_now->max_duty = conf_now->l_max_duty;
 
 		if (motor_now->m_control_mode == CONTROL_MODE_CURRENT_BRAKE) {
@@ -3964,7 +4003,12 @@ static void timer_update(motor_all_state_t *motor, float dt) {
 			min_current = 0.001;
 		}
 
-		if (fabsf(motor->m_iq_set) < min_current &&
+		float requested_iq = motor->m_iq_set;
+#if PM_INTERFACE_ENABLE
+		float pm_iq = 0.0f;
+		if (pm_firmware_current(motor == &m_motor_1 ? 0U : 1U, &pm_iq)) requested_iq = pm_iq;
+#endif
+		if (fabsf(requested_iq) < min_current &&
 				fabsf(motor->m_id_set) < min_current &&
 				motor->m_i_fw_set < min_current &&
 				motor->m_current_off_delay < dt) {
@@ -4525,6 +4569,22 @@ static THD_FUNCTION(pid_thread, arg) {
 		float dt = timer_seconds_elapsed_since(last_time);
 		last_time = timer_time_now();
 
+		pm_firmware_tick();
+#if PM_INTERFACE_ENABLE
+		/* Serialize PM authorization with publication to the native FOC state. */
+		syssts_t pm_state = chSysGetStatusAndLockX();
+		float pm_iq = 0.0f;
+		if (pm_firmware_current(0, &pm_iq)) {
+			m_motor_1.m_control_mode = CONTROL_MODE_CURRENT;
+			m_motor_1.m_iq_set = 0.0f; /* Demand is consumed fresh in the ISR. */
+			m_motor_1.m_id_set = 0.0f;
+			if (fabsf(pm_iq) >= m_motor_1.m_conf->cc_min_current) {
+				m_motor_1.m_motor_released = false;
+				m_motor_1.m_state = MC_STATE_RUNNING;
+			}
+		}
+		chSysRestoreStatusX(pm_state);
+#endif
 		bool index_found = encoder_index_found();
 		foc_run_pid_control_pos(index_found, dt, (motor_all_state_t*)&m_motor_1);
 		foc_run_pid_control_speed(index_found, dt, (motor_all_state_t*)&m_motor_1);

@@ -19,6 +19,7 @@
 
 #pragma GCC optimize ("Os")
 
+#include "pm_firmware.h"
 #include "ch.h"
 #include "hal.h"
 #include "stm32f4xx_conf.h"
@@ -364,6 +365,7 @@ int main(void) {
 	}
 
 	ledpwm_init();
+	pm_firmware_init();
 	mc_interface_init(cfg_reset);
 
 	commands_init();

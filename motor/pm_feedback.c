@@ -4,21 +4,23 @@
 #include <math.h>
 #include <string.h>
 
-#define PM_FEEDBACK_MAX_TIME_DELTA_MS 0x7FFFFFFFU
+#define PM_FEEDBACK_MAX_TIME_DELTA_US 0x7FFFFFFFU
 
 static bool config_is_valid(const pm_feedback_config_t *config) {
 	return config != NULL && config->counts_per_revolution >= 2 &&
 			config->max_counts_per_second > 0 &&
-			config->max_sample_gap_ms > 0 &&
-			config->max_sample_gap_ms <= PM_FEEDBACK_MAX_TIME_DELTA_MS &&
-			config->max_sample_age_ms > 0 &&
-			config->max_sample_age_ms <= PM_FEEDBACK_MAX_TIME_DELTA_MS;
+			config->max_sample_gap_us > 0 &&
+			config->max_sample_gap_us <= PM_FEEDBACK_MAX_TIME_DELTA_US &&
+			config->max_sample_age_us > 0 &&
+			config->max_sample_age_us <= PM_FEEDBACK_MAX_TIME_DELTA_US &&
+			(uint64_t)config->max_counts_per_second * config->max_sample_gap_us * 2U <
+			(uint64_t)config->counts_per_revolution * 1000000U;
 }
 
-static bool timestamp_is_fresh(uint32_t now_ms, uint32_t timestamp_ms,
-		uint32_t max_age_ms) {
-	uint32_t age_ms = now_ms - timestamp_ms;
-	return age_ms <= max_age_ms && age_ms <= PM_FEEDBACK_MAX_TIME_DELTA_MS;
+static bool timestamp_is_fresh(uint32_t now_us, uint32_t timestamp_us,
+		uint32_t max_age_us) {
+	uint32_t age_us = now_us - timestamp_us;
+	return age_us <= max_age_us && age_us <= PM_FEEDBACK_MAX_TIME_DELTA_US;
 }
 
 static bool add_i64(int64_t left, int64_t right, int64_t *result) {
@@ -55,7 +57,7 @@ static void accept_baseline(pm_feedback_t *feedback,
 	}
 	feedback->last_raw_counts = sample->position_counts;
 	feedback->last_sequence = sample->sequence;
-	feedback->last_acquisition_time_ms = sample->acquisition_time_ms;
+	feedback->last_acquisition_time_us = sample->acquisition_time_us;
 	feedback->reset_epoch = sample->reset_epoch;
 	feedback->raw_position_counts = raw_position;
 	feedback->velocity_counts_per_second = 0.0f;
@@ -76,7 +78,7 @@ pm_feedback_result_t pm_feedback_init(pm_feedback_t *feedback,
 }
 
 pm_feedback_result_t pm_feedback_update(pm_feedback_t *feedback,
-		const pm_feedback_sample_t *sample, uint32_t now_ms) {
+		const pm_feedback_sample_t *sample, uint32_t now_us) {
 	if (feedback == NULL || sample == NULL) {
 		return PM_FEEDBACK_RESULT_INVALID_ARGUMENT;
 	}
@@ -89,8 +91,8 @@ pm_feedback_result_t pm_feedback_update(pm_feedback_t *feedback,
 		invalidate_tracking(feedback);
 		return PM_FEEDBACK_RESULT_SENSOR_FAULT;
 	}
-	if (!timestamp_is_fresh(now_ms, sample->acquisition_time_ms,
-			feedback->config.max_sample_age_ms)) {
+	if (!timestamp_is_fresh(now_us, sample->acquisition_time_us,
+			feedback->config.max_sample_age_us)) {
 		invalidate_tracking(feedback);
 		return PM_FEEDBACK_RESULT_STALE;
 	}
@@ -104,13 +106,13 @@ pm_feedback_result_t pm_feedback_update(pm_feedback_t *feedback,
 	}
 
 	uint32_t sequence_delta = sample->sequence - feedback->last_sequence;
-	if (sequence_delta == 0 || sequence_delta > PM_FEEDBACK_MAX_TIME_DELTA_MS) {
+	if (sequence_delta == 0 || sequence_delta > PM_FEEDBACK_MAX_TIME_DELTA_US) {
 		return PM_FEEDBACK_RESULT_STALE;
 	}
-	uint32_t elapsed_ms = sample->acquisition_time_ms -
-			feedback->last_acquisition_time_ms;
-	if (elapsed_ms == 0 || elapsed_ms > feedback->config.max_sample_gap_ms ||
-			elapsed_ms > PM_FEEDBACK_MAX_TIME_DELTA_MS) {
+	uint32_t elapsed_us = sample->acquisition_time_us -
+			feedback->last_acquisition_time_us;
+	if (elapsed_us == 0 || elapsed_us > feedback->config.max_sample_gap_us ||
+			elapsed_us > PM_FEEDBACK_MAX_TIME_DELTA_US) {
 		invalidate_tracking(feedback);
 		return PM_FEEDBACK_RESULT_STALE;
 	}
@@ -135,8 +137,8 @@ pm_feedback_result_t pm_feedback_update(pm_feedback_t *feedback,
 	uint64_t magnitude = delta_counts < 0 ?
 			(uint64_t)(-delta_counts) : (uint64_t)delta_counts;
 	uint64_t allowed_counts =
-			(uint64_t)feedback->config.max_counts_per_second * elapsed_ms /
-			1000U + 1U;
+			(uint64_t)feedback->config.max_counts_per_second * elapsed_us /
+			1000000U + 1U;
 	if (magnitude > allowed_counts) {
 		invalidate_tracking(feedback);
 		return PM_FEEDBACK_RESULT_IMPOSSIBLE_MOTION;
@@ -148,7 +150,7 @@ pm_feedback_result_t pm_feedback_update(pm_feedback_t *feedback,
 		invalidate_tracking(feedback);
 		return PM_FEEDBACK_RESULT_OVERFLOW;
 	}
-	float velocity = (float)delta_counts * 1000.0f / (float)elapsed_ms;
+	float velocity = (float)delta_counts * 1000000.0f / (float)elapsed_us;
 	if (!isfinite(velocity)) {
 		invalidate_tracking(feedback);
 		return PM_FEEDBACK_RESULT_OVERFLOW;
@@ -157,7 +159,7 @@ pm_feedback_result_t pm_feedback_update(pm_feedback_t *feedback,
 	feedback->velocity_counts_per_second = velocity;
 	feedback->last_raw_counts = sample->position_counts;
 	feedback->last_sequence = sample->sequence;
-	feedback->last_acquisition_time_ms = sample->acquisition_time_ms;
+	feedback->last_acquisition_time_us = sample->acquisition_time_us;
 	feedback->commutation_valid = sample->commutation_valid;
 	if (!sample->commutation_valid) {
 		feedback->referenced = false;
@@ -167,15 +169,15 @@ pm_feedback_result_t pm_feedback_update(pm_feedback_t *feedback,
 }
 
 pm_feedback_result_t pm_feedback_check_freshness(pm_feedback_t *feedback,
-		uint32_t now_ms) {
+		uint32_t now_us) {
 	if (feedback == NULL) {
 		return PM_FEEDBACK_RESULT_INVALID_ARGUMENT;
 	}
 	if (!feedback->initialized || !feedback->valid) {
 		return PM_FEEDBACK_RESULT_NOT_READY;
 	}
-	if (!timestamp_is_fresh(now_ms, feedback->last_acquisition_time_ms,
-			feedback->config.max_sample_age_ms)) {
+	if (!timestamp_is_fresh(now_us, feedback->last_acquisition_time_us,
+			feedback->config.max_sample_age_us)) {
 		invalidate_tracking(feedback);
 		return PM_FEEDBACK_RESULT_STALE;
 	}
@@ -183,12 +185,12 @@ pm_feedback_result_t pm_feedback_check_freshness(pm_feedback_t *feedback,
 }
 
 pm_feedback_result_t pm_feedback_set_reference(pm_feedback_t *feedback,
-		int64_t axis_position_counts, uint32_t now_ms) {
+		int64_t axis_position_counts, uint32_t now_us) {
 	if (feedback == NULL) {
 		return PM_FEEDBACK_RESULT_INVALID_ARGUMENT;
 	}
 	pm_feedback_result_t freshness_result =
-			pm_feedback_check_freshness(feedback, now_ms);
+			pm_feedback_check_freshness(feedback, now_us);
 	if (freshness_result != PM_FEEDBACK_RESULT_OK) {
 		return freshness_result;
 	}
@@ -206,18 +208,18 @@ pm_feedback_result_t pm_feedback_set_reference(pm_feedback_t *feedback,
 }
 
 pm_feedback_result_t pm_feedback_get_status(pm_feedback_t *feedback,
-		uint32_t now_ms, pm_feedback_status_t *status) {
+		uint32_t now_us, pm_feedback_status_t *status) {
 	if (feedback == NULL || status == NULL) {
 		return PM_FEEDBACK_RESULT_INVALID_ARGUMENT;
 	}
-	pm_feedback_result_t result = pm_feedback_check_freshness(feedback, now_ms);
+	pm_feedback_result_t result = pm_feedback_check_freshness(feedback, now_us);
 	memset(status, 0, sizeof(*status));
 	status->axis_id = feedback->config.axis_id;
 	status->source_id = feedback->config.source_id;
 	status->sequence = feedback->last_sequence;
-	status->acquisition_time_ms = feedback->last_acquisition_time_ms;
+	status->acquisition_time_us = feedback->last_acquisition_time_us;
 	status->reset_epoch = feedback->reset_epoch;
-	status->sample_age_ms = now_ms - feedback->last_acquisition_time_ms;
+	status->sample_age_us = now_us - feedback->last_acquisition_time_us;
 	status->raw_position_counts = feedback->raw_position_counts;
 	status->reference_offset_counts = feedback->reference_offset_counts;
 	status->velocity_counts_per_second =

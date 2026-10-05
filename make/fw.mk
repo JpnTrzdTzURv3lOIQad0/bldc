@@ -263,6 +263,7 @@ endif
 # List all user C define here, like -D_DEBUG=1
 UDEFS = -DSTM32F407xx -DCRT0_AREAS_NUMBER=0 -DCRT0_INIT_RAM_AREAS=FALSE
 UDEFS += -include libstm32f4/assert_compat.h
+UDEFS += -DPM_INTERFACE_ENABLE=$(if $(PM_INTERFACE_ENABLE),$(PM_INTERFACE_ENABLE),0)
 
 # Define ASM defines here
 UADEFS = -DCRT0_INIT_RAM_AREAS=FALSE

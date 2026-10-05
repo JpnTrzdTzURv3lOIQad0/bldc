@@ -17,6 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     */
 
+#include "pm_firmware.h"
 #include "timeout.h"
 #include "mc_interface.h"
 #include "stm32f4xx_conf.h"
@@ -242,6 +243,7 @@ static THD_FUNCTION(timeout_thread, arg) {
 		}
 
 		if (kill_sw || (timeout_msec != 0 && chVTTimeElapsedSinceX(last_update_time) > MS2ST(timeout_msec))) {
+			pm_firmware_revoke_all();
 			if (!has_timeout && !kill_sw_active) {
 				mc_interface_release_motor_override();
 			}

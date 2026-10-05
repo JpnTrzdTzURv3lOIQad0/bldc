@@ -23,6 +23,8 @@ typedef struct {
 	int64_t following_error_limit_counts;
 } pm_control_config_t;
 
+typedef enum { PM_CONTROL_POSITION = 0, PM_CONTROL_VELOCITY,
+	PM_CONTROL_CURRENT, PM_CONTROL_HOMING } pm_control_mode_t;
 typedef struct {
 	int64_t commanded_position_counts;
 	int64_t measured_position_counts;
@@ -32,6 +34,9 @@ typedef struct {
 	bool feedback_valid;
 	bool referenced;
 	bool faulted;
+	bool commutation_valid;
+	pm_control_mode_t mode;
+	float commanded_current_amps;
 } pm_control_input_t;
 
 typedef struct {

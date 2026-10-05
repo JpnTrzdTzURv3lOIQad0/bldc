@@ -25,6 +25,8 @@
 #include "packet.h"
 #include "comm_usb_serial.h"
 #include "commands.h"
+#include "pm_firmware.h"
+#include "pm_protocol.h"
 
 // Private variables
 #define SERIAL_RX_BUFFER_SIZE		2048
@@ -92,6 +94,15 @@ static THD_FUNCTION(serial_process_thread, arg) {
 }
 
 static void process_packet(unsigned char *data, unsigned int len) {
+#if PM_INTERFACE_ENABLE
+	if (len > 0 && data[0] == COMM_PM) {
+		uint8_t response[PM_PROTOCOL_MAX_RESPONSE + 1];
+		response[0] = COMM_PM;
+		size_t n = pm_firmware_packet(data + 1, len - 1, response + 1, sizeof(response) - 1);
+		if (n) comm_usb_send_packet(response, (unsigned int)n + 1);
+		return;
+	}
+#endif
 	commands_process_packet(data, len, comm_usb_send_packet);
 }
 

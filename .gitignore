@@ -4,6 +4,7 @@ build
 tools
 downloads
 package/
+aiworkspace
 
 .dep
 .project

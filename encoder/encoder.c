@@ -21,6 +21,7 @@
 #pragma GCC push_options
 #pragma GCC optimize ("Os")
 
+#include "pm_firmware.h"
 #include "encoder.h"
 #include "encoder_datatype.h"
 #include "encoder_cfg.h"
@@ -366,6 +367,7 @@ bool encoder_init(volatile mc_configuration *conf) {
 }
 
 void encoder_update_config(volatile mc_configuration *conf) {
+	pm_firmware_revoke_all();
 	switch (conf->m_sensor_port_mode) {
 	case SENSOR_PORT_MODE_SINCOS: {
 		encoder_cfg_sincos.s_gain = 1.0 / conf->m_encoder_sin_amp;
@@ -412,6 +414,7 @@ void encoder_update_config(volatile mc_configuration *conf) {
 }
 
 void encoder_deinit(void) {
+	pm_firmware_revoke_all();
 	nvicDisableVector(HW_ENC_TIM_ISR_CH);
 	TIM_DeInit(HW_ENC_TIM);
 
@@ -574,6 +577,7 @@ float encoder_read_deg_multiturn(void) {
 }
 
 void encoder_set_deg(float deg) {
+	pm_firmware_revoke_all();
 	utils_norm_angle(&deg);
 
 	if (m_encoder_type_now == ENCODER_TYPE_ABI) {
@@ -604,6 +608,7 @@ bool encoder_index_found(void) {
 }
 
 void encoder_reset_multiturn(void) {
+	pm_firmware_revoke_all();
 	if (m_encoder_type_now == ENCODER_TYPE_TS5700N8501) {
 		return enc_ts5700n8501_reset_multiturn(&encoder_cfg_TS5700N8501);
 	}

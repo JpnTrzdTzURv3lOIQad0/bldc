@@ -17,6 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     */
 
+#include "pm_firmware.h"
 #include "shutdown.h"
 #include "app.h"
 #include "conf_general.h"
@@ -118,6 +119,7 @@ void shutdown_save_and_hold(void) {
 }
 
 bool do_shutdown(bool resample) {
+	pm_firmware_revoke_all();
 	shutdown_save_and_hold();
 
 	bool disable_gates = true;
@@ -309,6 +311,7 @@ bool shutdown_sample_button(void) {
 }
 
 bool do_shutdown(bool resample) {
+	pm_firmware_revoke_all();
 	(void)resample;
 	return false;
 }

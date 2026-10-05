@@ -23,8 +23,8 @@ typedef struct {
 	uint16_t source_id;
 	uint32_t counts_per_revolution;
 	uint32_t max_counts_per_second;
-	uint32_t max_sample_gap_ms;
-	uint32_t max_sample_age_ms;
+	uint32_t max_sample_gap_us;
+	uint32_t max_sample_age_us;
 	bool inverted;
 } pm_feedback_config_t;
 
@@ -32,7 +32,7 @@ typedef struct {
 	uint16_t axis_id;
 	uint16_t source_id;
 	uint32_t sequence;
-	uint32_t acquisition_time_ms;
+	uint32_t acquisition_time_us;
 	uint32_t reset_epoch;
 	uint32_t position_counts;
 	bool sensor_healthy;
@@ -43,9 +43,9 @@ typedef struct {
 	uint16_t axis_id;
 	uint16_t source_id;
 	uint32_t sequence;
-	uint32_t acquisition_time_ms;
+	uint32_t acquisition_time_us;
 	uint32_t reset_epoch;
-	uint32_t sample_age_ms;
+	uint32_t sample_age_us;
 	int64_t raw_position_counts;
 	int64_t reference_offset_counts;
 	int64_t axis_position_counts;
@@ -60,7 +60,7 @@ typedef struct {
 	pm_feedback_config_t config;
 	uint32_t last_raw_counts;
 	uint32_t last_sequence;
-	uint32_t last_acquisition_time_ms;
+	uint32_t last_acquisition_time_us;
 	uint32_t reset_epoch;
 	int64_t raw_position_counts;
 	int64_t reference_offset_counts;
@@ -74,12 +74,12 @@ typedef struct {
 pm_feedback_result_t pm_feedback_init(pm_feedback_t *feedback,
 		const pm_feedback_config_t *config);
 pm_feedback_result_t pm_feedback_update(pm_feedback_t *feedback,
-		const pm_feedback_sample_t *sample, uint32_t now_ms);
+		const pm_feedback_sample_t *sample, uint32_t now_us);
 pm_feedback_result_t pm_feedback_check_freshness(pm_feedback_t *feedback,
-		uint32_t now_ms);
+		uint32_t now_us);
 pm_feedback_result_t pm_feedback_set_reference(pm_feedback_t *feedback,
-		int64_t axis_position_counts, uint32_t now_ms);
+		int64_t axis_position_counts, uint32_t now_us);
 pm_feedback_result_t pm_feedback_get_status(pm_feedback_t *feedback,
-		uint32_t now_ms, pm_feedback_status_t *status);
+		uint32_t now_us, pm_feedback_status_t *status);
 
 #endif

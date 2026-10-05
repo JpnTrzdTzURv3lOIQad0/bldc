@@ -19,6 +19,7 @@
 
 #pragma GCC optimize ("Os")
 
+#include "pm_firmware.h"
 #include "conf_general.h"
 #include "ch.h"
 #include "eeprom.h"
@@ -374,6 +375,7 @@ __attribute__((section(".text2"))) void conf_general_read_app_configuration(app_
  * A pointer to the configuration that should be stored.
  */
 __attribute__((section(".text2"))) bool conf_general_store_app_configuration(app_configuration *conf) {
+	pm_firmware_revoke_all();
 	mc_interface_ignore_input_both(5000);
 	mc_interface_release_motor_override_both();
 
@@ -473,6 +475,7 @@ __attribute__((section(".text2"))) void conf_general_read_mc_configuration(mc_co
  * A pointer to the configuration that should be stored.
  */
 __attribute__((section(".text2"))) bool conf_general_store_mc_configuration(mc_configuration *conf, bool is_motor_2) {
+	pm_firmware_revoke_all();
 	mc_interface_ignore_input_both(5000);
 	mc_interface_release_motor_override_both();
 

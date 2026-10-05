@@ -83,8 +83,8 @@ pm_control_result_t pm_control_step(pm_control_t *control,
 			dt_seconds > control->config.max_dt_seconds) {
 		return PM_CONTROL_RESULT_INVALID_DT;
 	}
-	if (!input->enabled || !input->feedback_valid || !input->referenced ||
-			input->faulted) {
+	if (!input->enabled || !input->feedback_valid || !input->commutation_valid ||
+			(!input->referenced && input->mode != PM_CONTROL_HOMING) || input->faulted) {
 		control->velocity_integral_amps = 0.0f;
 		control->filtered_measured_velocity_counts_per_second = 0.0f;
 		control->initialized = false;
@@ -95,9 +95,19 @@ pm_control_result_t pm_control_step(pm_control_t *control,
 		return PM_CONTROL_RESULT_NUMERIC_ERROR;
 	}
 
+	if (input->mode > PM_CONTROL_HOMING || input->mode < PM_CONTROL_POSITION ||
+			!isfinite(input->commanded_current_amps)) return PM_CONTROL_RESULT_INVALID_ARGUMENT;
+	if (input->mode == PM_CONTROL_CURRENT) {
+		control->velocity_integral_amps = 0.0f;
+		output->iq_demand_amps = clamp_float(input->commanded_current_amps,
+				control->config.current_limit_amps);
+		output->current_saturated = output->iq_demand_amps != input->commanded_current_amps;
+		output->output_valid = true;
+		return PM_CONTROL_RESULT_OK;
+	}
 	pm_control_t candidate = *control;
-	int64_t position_error;
-	if (!subtract_i64(input->commanded_position_counts,
+	int64_t position_error = 0;
+	if (input->mode == PM_CONTROL_POSITION && !subtract_i64(input->commanded_position_counts,
 			input->measured_position_counts, &position_error)) {
 		return PM_CONTROL_RESULT_NUMERIC_ERROR;
 	}
