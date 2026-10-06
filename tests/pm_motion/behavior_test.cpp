@@ -256,6 +256,37 @@ TEST_F(Runtime, UsbBehaviorRetryDoesNotReapplyManualVelocityDelta) {
 	EXPECT_EQ(10, r.engine.axis.status.active_value); EXPECT_FALSE(r.engine.axis.status.command_pending);
 	b[31] = 11; EXPECT_EQ(PM_RESULT_INVALID, exchange(b));
 }
+TEST_F(Runtime, ProtocolRetryAcrossTransportsSharesReplayAndResponseState) {
+	ready();
+	auto request = packet(PM_USB_COMMAND, 34);
+	request[16] = PM_COMMAND_MOVE_RELATIVE;
+	request[25] = 10;
+	uint8_t serial_response[PM_PROTOCOL_MAX_RESPONSE] = {};
+	uint8_t can_response[PM_PROTOCOL_MAX_RESPONSE] = {};
+	size_t serial_length = pm_protocol_process(&protocol, request.data(), request.size(),
+			serial_response, sizeof(serial_response), now);
+	size_t can_length = pm_protocol_process(&protocol, request.data(), request.size(),
+			can_response, sizeof(can_response), now);
+	EXPECT_GT(serial_length, 0U);
+	EXPECT_EQ(serial_length, can_length);
+	EXPECT_EQ(0, memcmp(serial_response, can_response, serial_length));
+	EXPECT_EQ(PM_RESULT_ACCEPTED_PENDING, serial_response[16]);
+	EXPECT_TRUE(r.engine.axis.status.command_pending);
+
+	request[25] = 20;
+	uint8_t changed_response[PM_PROTOCOL_MAX_RESPONSE] = {};
+	size_t changed_length = pm_protocol_process(&protocol, request.data(), request.size(),
+			changed_response, sizeof(changed_response), now);
+	ASSERT_GT(changed_length, 16U);
+	EXPECT_EQ(PM_RESULT_INVALID, changed_response[16]);
+	EXPECT_EQ(PM_RESULT_ACCEPTED_PENDING, can_response[16]);
+
+	auto competing_claim = packet(PM_USB_CLAIM, 20);
+	put32(&competing_claim[4], 43);
+	put32(&competing_claim[8], 0);
+	put32(&competing_claim[16], 10000);
+	EXPECT_EQ(PM_RESULT_BUSY, exchange(competing_claim));
+}
 TEST_F(Runtime, StatusDoesNotRenewLeaseAndReportsUnsupportedBoard) {
 	auto b = packet(PM_USB_STATUS); uint32_t deadline = r.lease_deadline_us;
 	EXPECT_EQ(PM_RESULT_ACCEPTED_PENDING, exchange(b)); EXPECT_EQ(deadline, r.lease_deadline_us);

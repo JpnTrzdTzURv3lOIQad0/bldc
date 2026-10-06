@@ -10,11 +10,13 @@ for exact retry after a lost response.
 
 ## Transport And Safety
 
-The current firmware dispatches `COMM_PM` on USB CDC only. It does not dispatch
-PM over UART or CAN. `Serial` in the sketch must therefore be a bidirectional
-USB CDC connection to the VESC, provided by a USB-host-capable Arduino platform
-or a bridge that transports raw bytes to that USB CDC endpoint. A TTL UART wire
-connected to the VESC is not a supported transport. Keep diagnostic output on a
+Firmware handles `COMM_PM` through the shared VESC packet dispatcher. PM v1
+works over USB CDC, a VESC UART configured for packet communication, and VESC
+CAN packet forwarding. These sketches send framed bytes through Arduino
+`Serial`; connect that stream to USB CDC or to a configured VESC UART with
+compatible electrical levels and baud rate. For CAN, use a VESC Tool or another
+host that sends the standard VESC packet through CAN forwarding; this sketch's
+`Serial` stream is not a raw CAN interface. Keep diagnostic output on a
 separate port by defining `PM_DEBUG_PORT` for the target board; do not print
 human-readable text on the PM transport stream.
 
@@ -59,7 +61,7 @@ If desired, define `PM_DEBUG_PORT` as a separate Arduino stream such as
 
 ## Protocol Notes
 
-The helper follows `documentation/pm_behavior_abstraction.md` USB v1 layouts:
+The helper follows `documentation/pm_behavior_abstraction.md` PM v1 layouts:
 capabilities/configuration, claim, renew, command, and status. IDs increase within
 the session generation. If a command response times out, retry that same command
 with `retryLastCommand()` before issuing a different command; the helper preserves

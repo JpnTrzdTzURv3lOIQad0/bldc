@@ -113,15 +113,16 @@ return the existing generation without extending its lease. Leases require
 explicit renewal. A reboot requires a new host session; sessions are not persistent.
 Status exposes the latest terminal result, not an unbounded result history.
 
-## USB v1
+## VESC Packet v1
 
-Packet ID `COMM_PM = 160` is appended to the existing enumeration. Only the USB
-dispatcher handles it; shared UART/CAN command dispatch does not grant PM access.
-Existing packet framing supplies framing/CRC. No callback slot is commandeered.
-All multibyte integers are big-endian; signed values use two's complement.
-Lengths must match exactly. Maximum request payload is 36 bytes after COMM_PM;
-maximum response buffer is 128 bytes. Replies are synchronous and bounded to
-one per request; there is no unsolicited telemetry stream.
+Packet ID `COMM_PM = 160` is appended to the existing enumeration and handled by
+the shared command dispatcher over USB CDC, configured UART packet links, and
+VESC CAN packet forwarding. Existing packet framing supplies framing/CRC; PM
+replies use the request's normal reply callback. All multibyte integers are
+big-endian; signed values use two's complement. Lengths must match exactly.
+Maximum request payload is 36 bytes after COMM_PM; maximum response buffer is
+128 bytes. Replies are synchronous and bounded to one per request; there is no
+unsolicited telemetry stream.
 
 Every request begins with this 16-byte header:
 

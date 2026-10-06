@@ -57,6 +57,10 @@
 #include "main.h"
 #include "conf_custom.h"
 #include "comm_usb.h"
+#include "pm_firmware.h"
+#if PM_INTERFACE_ENABLE
+#include "pm_protocol.h"
+#endif
 
 #include <math.h>
 #include <string.h>
@@ -228,6 +232,17 @@ void commands_process_packet(unsigned char *data, unsigned int len,
 	}
 
 	switch (packet_id) {
+	#if PM_INTERFACE_ENABLE
+	case COMM_PM: {
+		uint8_t send_buffer[PM_PROTOCOL_MAX_RESPONSE + 1];
+		send_buffer[0] = COMM_PM;
+		size_t response_len = pm_firmware_packet(data, len, send_buffer + 1,
+				sizeof(send_buffer) - 1);
+		if (response_len) {
+			reply_func(send_buffer, (unsigned int)response_len + 1);
+		}
+	} break;
+	#endif
 	case COMM_FW_VERSION: {
 		int32_t ind = 0;
 		uint8_t send_buffer[65];
@@ -1646,23 +1661,23 @@ void commands_process_packet(unsigned char *data, unsigned int len,
 				str_len = max_len;
 				return;
 			}
-			
+
 			memcpy(&buffer[*index], str, str_len);
 			*index += str_len;
 			buffer[(*index)++] = '\0';
 		}
-		
+
 		int32_t ind = 0;
 		uint8_t send_buffer[98];
-		
+
 		send_buffer[ind++] = COMM_FW_INFO;
-		
+
 		// This information is technically duplicated with COMM_FW_VERSION, but
 		// I don't care.
 		send_buffer[ind++] = FW_VERSION_MAJOR;
 		send_buffer[ind++] = FW_VERSION_MINOR;
 		send_buffer[ind++] = FW_TEST_VERSION_NUMBER;
-		
+
 		// We don't include the branch name unfortunately
 		buffer_append_str_max_len(send_buffer, GIT_COMMIT_HASH, 46, &ind);
 #ifdef USER_GIT_COMMIT_HASH
@@ -1760,7 +1775,7 @@ int commands_printf_lisp(const char* format, ...) {
 	va_end(arg);
 
 	int len_to_print = (len < (PRINT_BUFFER_SIZE - offset)) ? len + offset : PRINT_BUFFER_SIZE;
-	
+
 	for (size_t i = 2; i < (size_t)len_to_print; i++) {
 		// TODO: Handle newline character in prefix?
 		char chr = print_buffer[i - 1];
@@ -1780,7 +1795,7 @@ int commands_printf_lisp(const char* format, ...) {
 			i += prefix_len;
 			len_to_print += prefix_len;
 		}
-		
+
 		if (len_to_print > PRINT_BUFFER_SIZE) {
 			len_to_print = PRINT_BUFFER_SIZE;
 		}

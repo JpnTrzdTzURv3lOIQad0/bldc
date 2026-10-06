@@ -42,16 +42,18 @@ typedef struct {
 } pm_trajectory_t;
 
 pm_trajectory_result_t pm_trajectory_start(pm_trajectory_t *trajectory,
-		float current_position, float current_velocity, float target_position,
-		float max_velocity, float max_acceleration, float max_deceleration,
-		float max_dt);
+                                           float current_position, float current_velocity,
+                                           float target_position, float max_velocity,
+                                           float max_acceleration, float max_deceleration,
+                                           float max_dt);
 pm_trajectory_result_t pm_trajectory_retarget(pm_trajectory_t *trajectory,
-		float target_position, float max_velocity, float max_acceleration,
-		float max_deceleration, float max_dt);
+                                              float target_position, float max_velocity,
+                                              float max_acceleration,
+                                              float max_deceleration, float max_dt);
 pm_trajectory_result_t pm_trajectory_start_stop(pm_trajectory_t *trajectory,
-		float current_position, float current_velocity, float max_deceleration,
-		float max_dt);
-pm_trajectory_result_t pm_trajectory_advance(pm_trajectory_t *trajectory,
-		float dt);
+                                                float current_position,
+                                                float current_velocity,
+                                                float max_deceleration, float max_dt);
+pm_trajectory_result_t pm_trajectory_advance(pm_trajectory_t *trajectory, float dt);
 
 #endif

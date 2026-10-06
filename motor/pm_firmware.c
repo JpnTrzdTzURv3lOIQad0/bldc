@@ -7,6 +7,7 @@
 
 static pm_runtime_t runtime;
 static pm_protocol_t protocol;
+static mutex_t protocol_mutex;
 static bool initialized;
 static uint32_t timer_previous, timer_fraction, clock_us;
 static uintptr_t lock(void *unused) { (void)unused; return (uintptr_t)chSysGetStatusAndLockX(); }
@@ -27,6 +28,7 @@ uint32_t pm_firmware_now_us(void) {
 __attribute__((weak)) bool pm_board_configure(pm_runtime_config_t *config) { (void)config; return false; }
 __attribute__((weak)) bool pm_board_sample(pm_runtime_sample_t *sample, uint32_t now) { (void)sample; (void)now; return false; }
 void pm_firmware_init(void) {
+	chMtxObjectInit(&protocol_mutex);
 	/* These are inert discovery defaults, not a commissioned motor setup. */
 	pm_runtime_config_t c = {0};
 	c.lease_max_us = 1000000; c.output_max_age_us = 50000; c.source_max_age_us = 100000;
@@ -61,5 +63,9 @@ bool pm_firmware_current(unsigned axis, float *current) {
 }
 size_t pm_firmware_packet(const uint8_t *request, size_t length, uint8_t *response, size_t capacity) {
 	if (!initialized) return 0;
-	return pm_protocol_process(&protocol, request, length, response, capacity, pm_firmware_now_us());
+	chMtxLock(&protocol_mutex);
+	size_t response_len = pm_protocol_process(&protocol, request, length, response,
+			capacity, pm_firmware_now_us());
+	chMtxUnlock(&protocol_mutex);
+	return response_len;
 }
